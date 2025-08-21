@@ -1,0 +1,172 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}ESFé Mali{% endblock %}</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Tailwind -->
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+
+  <style>
+    /* Typos */
+    .font-display{font-family:"Plus Jakarta Sans",system-ui,-apple-system,Segoe UI,Inter,Roboto,"Helvetica Neue",Arial,sans-serif}
+    .font-sans{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial,sans-serif}
+
+    /* Barre principale */
+    #mainNav {
+      transition: transform .55s cubic-bezier(.22,.61,.36,1),
+                  opacity .35s ease,
+                  box-shadow .35s ease;
+    }
+    #mainNav.nav-hidden {
+      transform: translateY(-100%);
+      opacity: 0;
+      box-shadow: none;
+    }
+    #mainNav.nav-shown {
+      transform: translateY(0);
+      opacity: 1;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    /* Hamburger */
+    .hamburger-line {
+      transition: transform .35s ease, opacity .25s ease;
+      transform-origin: center;
+    }
+    .hamburger-open .line-1 { transform: translateY(8px) rotate(45deg); }
+    .hamburger-open .line-2 { opacity: 0; }
+    .hamburger-open .line-3 { transform: translateY(-8px) rotate(-45deg); }
+
+    /* Overlay animation */
+    @keyframes fadeUp {from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none}}
+    #menuOverlay [data-animate]{opacity:0;animation:fadeUp .5s ease forwards}
+  </style>
+</head>
+
+<body class="bg-primary-900 text-white font-sans">
+
+  <!-- HAMBURGER -->
+  <button id="hamburger"
+    class="fixed top-4 right-4 z-50 inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/10 backdrop-blur shadow-soft hover:bg-white/20 transition focus:outline-none focus:ring-2 focus:ring-white/50"
+    aria-label="Ouvrir le menu" aria-expanded="false">
+    <svg id="hamburgerIcon" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round">
+      <path class="hamburger-line line-1" d="M4 7h16"/>
+      <path class="hamburger-line line-2" d="M4 12h16"/>
+      <path class="hamburger-line line-3" d="M4 17h16"/>
+    </svg>
+  </button>
+
+  <!-- OVERLAY MENU -->
+  <div id="menuOverlay" class="fixed inset-0 z-40 hidden">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+    <nav class="absolute inset-0 flex items-center justify-center px-6">
+      <ul id="overlayList" class="w-full max-w-md text-center">
+        <li data-animate style="animation-delay:.05s">
+          <a href="{% url 'core:home' %}" class="group inline-flex items-center justify-center gap-3 w-full py-3 text-2xl font-display hover:text-brand-cyan transition">
+            <svg class="h-6 w-6 opacity-90 group-hover:opacity-100" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 12l9-9 9 9"/><path d="M9 21V9h6v12"/></svg>
+            Accueil
+          </a>
+        </li>
+        <li data-animate style="animation-delay:.12s">
+          <a href="#" class="group inline-flex items-center justify-center gap-3 w-full py-3 text-2xl font-display hover:text-brand-cyan transition">
+            <svg class="h-6 w-6 opacity-90 group-hover:opacity-100" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="6" rx="2"/><rect x="3" y="14" width="18" height="6" rx="2"/></svg>
+            Formations
+          </a>
+        </li>
+        <li data-animate style="animation-delay:.19s">
+          <a href="#" class="group inline-flex items-center justify-center gap-3 w-full py-3 text-2xl font-display hover:text-brand-cyan transition">
+            <svg class="h-6 w-6 opacity-90 group-hover:opacity-100" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Admission
+          </a>
+        </li>
+        <li data-animate style="animation-delay:.26s">
+          <a href="#" class="group inline-flex items-center justify-center gap-3 w-full py-3 text-2xl font-display hover:text-brand-cyan transition">
+            <svg class="h-6 w-6 opacity-90 group-hover:opacity-100" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M22 6l-10 7L2 6"/></svg>
+            Contact
+          </a>
+        </li>
+      </ul>
+
+      <!-- Bouton fermer -->
+      <button id="closeOverlay" class="absolute top-4 right-4 h-11 w-11 rounded-full bg-white/10 backdrop-blur hover:bg-white/20 grid place-items-center" aria-label="Fermer le menu">
+        <svg class="h-6 w-6" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24">
+          <path d="M6 6l12 12M6 18L18 6"/>
+        </svg>
+      </button>
+    </nav>
+  </div>
+
+  <!-- BARRE DE NAV -->
+  <header id="mainNav" class="nav-hidden fixed top-0 left-0 right-0 z-30 bg-primary-900/95 backdrop-blur border-b border-white/10">
+    <div class="max-w-container mx-auto h-14 px-4 flex items-center justify-between text-white">
+      <a href="{% url 'core:home' %}" class="flex items-center gap-3">
+        <img src="{% static 'img/logo-transparent.png' %}" alt="ESFé" class="h-8 w-auto">
+        <span class="font-display tracking-tight font-bold">ESFé Mali</span>
+      </a>
+      <nav class="hidden md:flex gap-6 text-sm">
+        <a href="{% url 'core:home' %}" class="hover:text-brand-cyan transition">Accueil</a>
+        <a href="#" class="hover:text-brand-cyan transition">Formations</a>
+        <a href="#" class="hover:text-brand-cyan transition">Admission</a>
+        <a href="#" class="hover:text-brand-cyan transition">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  {% block content %}{% endblock %}
+
+  <footer class="bg-primary-900 text-white">
+    <div class="max-w-container mx-auto px-4 py-6 text-center text-sm">
+      &copy; {{ now|date:"Y" }} ESFé Mali — Tous droits réservés
+    </div>
+  </footer>
+
+  <script>
+    const hb = document.getElementById('hamburger');
+    const ov = document.getElementById('menuOverlay');
+    const closeOv = document.getElementById('closeOverlay');
+
+    function openOverlay(){
+      ov.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      hb.classList.add('hamburger-open');
+      hb.setAttribute('aria-expanded','true');
+      [...document.querySelectorAll('#overlayList [data-animate]')].forEach((el, idx)=>{
+        el.style.animationDelay = `${0.05 + idx*0.07}s`;
+      });
+    }
+    function closeOverlay(){
+      ov.classList.add('hidden');
+      document.body.style.overflow = '';
+      hb.classList.remove('hamburger-open');
+      hb.setAttribute('aria-expanded','false');
+    }
+    hb.addEventListener('click', ()=> ov.classList.contains('hidden') ? openOverlay() : closeOverlay());
+    closeOv.addEventListener('click', closeOverlay);
+    ov.addEventListener('click', (e)=> { if(e.target === ov) closeOverlay(); });
+
+    // ----- Nav auto au scroll
+    const mainNav = document.getElementById('mainNav');
+    const hero = document.querySelector('.hero'); // section hero
+
+    function toggleNav(){
+      const heroBottom = hero.getBoundingClientRect().bottom;
+      if (heroBottom <= 0) {
+        mainNav.classList.remove('nav-hidden');
+        mainNav.classList.add('nav-shown');
+        hb.classList.add('hidden');
+      } else {
+        mainNav.classList.remove('nav-shown');
+        mainNav.classList.add('nav-hidden');
+        hb.classList.remove('hidden');
+      }
+    }
+    window.addEventListener('scroll', toggleNav, {passive:true});
+    window.addEventListener('load', toggleNav);
+  </script>
+</body>
+</html>

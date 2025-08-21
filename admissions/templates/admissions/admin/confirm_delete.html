@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="max-w-xl mx-auto p-6 bg-white rounded-2xl shadow">
+  <h1 class="text-2xl font-bold mb-4">Supprimer</h1>
+  <p>Confirmer la suppression du dossier <strong>{{ object.ref_code }}</strong> ?</p>
+  <form method="post" class="mt-4">
+    {% csrf_token %}
+    <button class="px-5 py-2 bg-red-600 text-white rounded">Supprimer</button>
+    <a class="ml-3 px-5 py-2 bg-gray-200 rounded" href="{% url 'admissions:admin_detail' object.ref_code %}">Annuler</a>
+  </form>
+</section>
+{% endblock %}

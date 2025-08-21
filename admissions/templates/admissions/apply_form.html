@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="max-w-3xl mx-auto p-6 bg-white rounded-2xl shadow">
+  <h1 class="text-2xl font-bold">Inscription à {{ program.title }}</h1>
+  <p class="text-sm text-gray-500 mb-4">Remplissez ce formulaire. Vous serez redirigé ensuite.</p>
+  <form method="post" enctype="multipart/form-data" class="space-y-3">
+    {% csrf_token %}
+    {{ form.program }} {{ form.source_page }}
+    <div class="grid md:grid-cols-2 gap-3">
+      {{ form.nom.label_tag }} {{ form.nom }}
+      {{ form.prenom.label_tag }} {{ form.prenom }}
+      {{ form.genre.label_tag }} {{ form.genre }}
+      {{ form.date_naissance.label_tag }} {{ form.date_naissance }}
+      {{ form.lieu_naissance.label_tag }} {{ form.lieu_naissance }}
+      {{ form.nationalite.label_tag }} {{ form.nationalite }}
+    </div>
+    <div class="grid md:grid-cols-2 gap-3">
+      {{ form.telephone.label_tag }} {{ form.telephone }}
+      {{ form.email.label_tag }} {{ form.email }}
+    </div>
+    {{ form.adresse.label_tag }} {{ form.adresse }}
+
+    {{ form.annexe.label_tag }} {{ form.annexe }}
+
+    <div class="grid md:grid-cols-2 gap-3">
+      {{ form.diplome.label_tag }} {{ form.diplome }}
+      {{ form.releves.label_tag }} {{ form.releves }}
+      {{ form.cni.label_tag }} {{ form.cni }}
+      {{ form.photo_identite.label_tag }} {{ form.photo_identite }}
+    </div>
+
+    <label class="flex items-center gap-2">
+      {{ form.optin_whatsapp }} <span class="text-sm">J’accepte d’être contacté par WhatsApp</span>
+    </label>
+
+    <button class="px-6 py-3 rounded-xl bg-[#162F58] text-white hover:opacity-90">Valider et continuer</button>
+  </form>
+</section>
+{% endblock %}

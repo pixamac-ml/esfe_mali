@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ program.title }} — {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<article class="max-w-5xl mx-auto px-4 py-10">
+  <div class="text-slate-500 text-sm mb-2">{{ program.get_cycle_display }}</div>
+  <h1 class="text-3xl font-bold mb-4">{{ program.title }}</h1>
+
+  {% if program.image %}
+    <img src="{{ program.image.url }}" alt="{{ program.title }}" class="rounded-2xl mb-6">
+  {% else %}
+    <img src="https://picsum.photos/seed/{{ program.slug }}-hero/1200/600"
+         alt="{{ program.title }}" class="rounded-2xl mb-6 opacity-95">
+  {% endif %}
+
+  <div class="grid md:grid-cols-2 gap-6 mb-8">
+    <div class="bg-white rounded-2xl p-5 shadow">
+      <h2 class="font-semibold mb-3">Informations</h2>
+      <ul class="space-y-2 text-sm">
+        <li><span class="text-slate-500">Durée :</span> <span class="font-medium">{{ program.duration }}</span></li>
+        <li><span class="text-slate-500">Niveau requis :</span> <span class="font-medium">{{ program.entry_requirement }}</span></li>
+        {% if program.diploma %}<li><span class="text-slate-500">Diplôme obtenu :</span> <span class="font-medium">{{ program.diploma }}</span></li>{% endif %}
+        {% if program.sessions.all %}
+          <li><span class="text-slate-500">Sessions :</span>
+            {% for s in program.sessions.all %}
+              <span class="inline-block px-2 py-0.5 bg-slate-100 rounded">{{ s.name }}</span>
+            {% endfor %}
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5 shadow">
+      <h2 class="font-semibold mb-3">Frais & Paiements (XOF)</h2>
+      <ul class="space-y-2 text-sm">
+        {% if program.inscription_fee %}<li>Inscription : <span class="font-semibold">{{ program.inscription_fee|floatformat:0 }}</span></li>{% endif %}
+        {% if program.tranche_count and program.tranche_amount %}
+          <li>Tranches : {{ program.tranche_count }} × {{ program.tranche_amount|floatformat:0 }}</li>
+        {% endif %}
+        {% if program.tuition_total %}<li>Total scolarité : <span class="font-semibold">{{ program.tuition_total|floatformat:0 }}</span></li>{% endif %}
+      </ul>
+      <a href="{{ apply_url }}" class="inline-block mt-4 px-4 py-2 rounded-xl bg-teal-600 text-white">Candidater</a>
+    </div>
+  </div>
+
+  {% if program.description %}
+    <div class="prose max-w-none">{{ program.description|safe }}</div>
+  {% elif program.short_description %}
+    <p class="text-slate-700">{{ program.short_description }}</p>
+  {% endif %}
+</article>
+{% endblock %}

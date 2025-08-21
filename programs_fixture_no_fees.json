@@ -1,0 +1,868 @@
+[
+  {
+    "model": "programs.session",
+    "pk": 1,
+    "fields": {
+      "name": "Janvier",
+      "order": 1
+    }
+  },
+  {
+    "model": "programs.session",
+    "pk": 2,
+    "fields": {
+      "name": "Mars",
+      "order": 2
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 1,
+    "fields": {
+      "title": "Employé de pharmacie",
+      "slug": "employe-de-pharmacie",
+      "cycle": "PRIMAIRE",
+      "duration": "2 ans",
+      "entry_requirement": "DEF ou BEPC",
+      "diploma": "",
+      "short_description": "",
+      "description": "",
+      "image": "",
+      "featured": false,
+      "is_active": true,
+      "inscription_fee": null,
+      "tranche_count": 0,
+      "tranche_amount": null,
+      "tuition_total": null,
+      "sessions": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 2,
+    "fields": {
+      "title": "Agent de santé communautaire",
+      "slug": "agent-de-sante-communautaire",
+      "cycle": "PRIMAIRE",
+      "duration": "2 ans",
+      "entry_requirement": "DEF ou BEPC",
+      "diploma": "",
+      "short_description": "",
+      "description": "",
+      "image": "",
+      "featured": false,
+      "is_active": true,
+      "inscription_fee": null,
+      "tranche_count": 0,
+      "tranche_amount": null,
+      "tuition_total": null,
+      "sessions": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 3,
+    "fields": {
+      "title": "Secrétariat médical",
+      "slug": "secretariat-medical",
+      "cycle": "PRIMAIRE",
+      "duration": "2 ans",
+      "entry_requirement": "DEF ou BEPC",
+      "diploma": "",
+      "short_description": "",
+      "description": "",
+      "image": "",
+      "featured": false,
+      "is_active": true,
+      "inscription_fee": null,
+      "tranche_count": 0,
+      "tranche_amount": null,
+      "tuition_total": null,
+      "sessions": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 4,
+    "fields": {
+      "title": "Matrone",
+      "slug": "matrone",
+      "cycle": "PRIMAIRE",
+      "duration": "1 an",
+      "entry_requirement": "DEF ou BEPC",
+      "diploma": "",
+      "short_description": "",
+      "description": "",
+      "image": "",
+      "featured": false,
+      "is_active": true,
+      "inscription_fee": null,
+      "tranche_count": 0,
+      "tranche_amount": null,
+      "tuition_total": null,
+      "sessions": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 5,
+    "fields": {
+      "title": "Aide-soignant(e)",
+      "slug": "aide-soignant-e",
+      "cycle": "PRIMAIRE",
+      "duration": "1 an",
+      "entry_requirement": "DEF ou BEPC",
+      "diploma": "",
+      "short_description": "",
+      "description": "",
+      "image": "",
+      "featured": false,
+      "is_active": true,
+      "inscription_fee": null,
+      "tranche_count": 0,
+      "tranche_amount": null,
+      "tuition_total": null,
+      "sessions": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 6,
+    "fields": {
+      "title": "Infirmier(ère) Santé Publique",
+      "slug": "infirmier-ere-sante-publique",
+      "cycle": "SECONDAIRE",
+      "duration": "3 ans",
+      "entry_requirement": "DEF ou BEPC",
+      "diploma": "",
+      "short_description": "",
+      "description": "",
+      "image": "",
+      "featured": false,
+      "is_active": true,
+      "inscription_fee": null,
+      "tranche_count": 0,
+      "tranche_amount": null,
+      "tuition_total": null,
+      "sessions": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 7,
+    "fields": {
+      "title": "Infirmier(ère) Santé Maternelle et Infantile",
+      "slug": "infirmier-ere-sante-maternelle-et-infantile",
+      "cycle": "SECONDAIRE",
+      "duration": "3 ans",
+      "entry_requirement": "DEF ou BEPC",
+      "diploma": "",
+      "short_description": "",
+      "description": "",
+      "image": "",
+      "featured": false,
+      "is_active": true,
+      "inscription_fee": null,
+      "tranche_count": 0,
+      "tranche_amount": null,
+      "tuition_total": null,
+      "sessions": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 8,
+    "fields": {
+      "title": "Technicien(ne) de Laboratoire",
+      "slug": "technicien-ne-de-laboratoire",
+      "cycle": "SECONDAIRE",
+      "duration": "3 ans",
+      "entry_requirement": "DEF ou BEPC",
+      "diploma": "",
+      "short_description": "",
+      "description": "",
+      "image": "",
+      "featured": false,
+      "is_active": true,
+      "inscription_fee": null,
+      "tranche_count": 0,
+      "tranche_amount": null,
+      "tuition_total": null,
+      "sessions": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 9,
+    "fields": {
+      "title": "Pharmacie (Technicien)",
+      "slug": "pharmacie-technicien",
+      "cycle": "SECONDAIRE",
+      "duration": "3 ans",
+      "entry_requirement": "DEF ou BEPC",
+      "diploma": "",
+      "short_description": "",
+      "description": "",
+      "image": "",
+      "featured": false,
+      "is_active": true,
+      "inscription_fee": null,
+      "tranche_count": 0,
+      "tranche_amount": null,
+      "tuition_total": null,
+      "sessions": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 10,
+    "fields": {
+      "title": "Santé Communautaire (Technicien)",
+      "slug": "sante-communautaire-technicien",
+      "cycle": "SECONDAIRE",
+      "duration": "3 ans",
+      "entry_requirement": "DEF ou BEPC",
+      "diploma": "",
+      "short_description": "",
+      "description": "",
+      "image": "",
+      "featured": false,
+      "is_active": true,
+      "inscription_fee": null,
+      "tranche_count": 0,
+      "tranche_amount": null,
+      "tuition_total": null,
+      "sessions": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 11,
+    "fields": {
+      "title": "Auxiliaire Infirmier(ère)",
+      "slug": "auxiliaire-infirmier-ere",
+      "cycle": "SECONDAIRE",
+      "duration": "2 ans",
+      "entry_requirement": "DEF ou BEPC",
+      "diploma": "",
+      "short_description": "",
+      "description": "",
+      "image": "",
+      "featured": false,
+      "is_active": true,
+      "inscription_fee": null,
+      "tranche_count": 0,
+      "tranche_amount": null,
+      "tuition_total": null,
+      "sessions": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 12,
+    "fields": {
+      "title": "Infirmier d’État",
+      "slug": "infirmier-d-etat",
+      "cycle": "LICENCE",
+      "duration": "3 ans",
+      "entry_requirement": "BAC ou Diplôme TSS/BT",
+      "diploma": "",
+      "short_description": "",
+      "description": "",
+      "image": "",
+      "featured": true,
+      "is_active": true,
+      "inscription_fee": null,
+      "tranche_count": 0,
+      "tranche_amount": null,
+      "tuition_total": null,
+      "sessions": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 13,
+    "fields": {
+      "title": "Sage-femme",
+      "slug": "sage-femme",
+      "cycle": "LICENCE",
+      "duration": "3 ans",
+      "entry_requirement": "BAC ou Diplôme TSS/BT",
+      "diploma": "",
+      "short_description": "",
+      "description": "",
+      "image": "",
+      "featured": true,
+      "is_active": true,
+      "inscription_fee": null,
+      "tranche_count": 0,
+      "tranche_amount": null,
+      "tuition_total": null,
+      "sessions": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 14,
+    "fields": {
+      "title": "Biologie Médicale (Licence)",
+      "slug": "biologie-medicale-licence",
+      "cycle": "LICENCE",
+      "duration": "3 ans",
+      "entry_requirement": "BAC ou Diplôme TSS/BT",
+      "diploma": "",
+      "short_description": "",
+      "description": "",
+      "image": "",
+      "featured": true,
+      "is_active": true,
+      "inscription_fee": null,
+      "tranche_count": 0,
+      "tranche_amount": null,
+      "tuition_total": null,
+      "sessions": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 15,
+    "fields": {
+      "title": "Technicien Supérieur de Pharmacie",
+      "slug": "technicien-superieur-de-pharmacie",
+      "cycle": "LICENCE",
+      "duration": "3 ans",
+      "entry_requirement": "BAC ou Diplôme TSS/BT",
+      "diploma": "",
+      "short_description": "",
+      "description": "",
+      "image": "",
+      "featured": false,
+      "is_active": true,
+      "inscription_fee": null,
+      "tranche_count": 0,
+      "tranche_amount": null,
+      "tuition_total": null,
+      "sessions": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 16,
+    "fields": {
+      "title": "Préparateur en Pharmacie",
+      "slug": "preparateur-en-pharmacie",
+      "cycle": "LICENCE",
+      "duration": "3 ans",
+      "entry_requirement": "BAC ou Diplôme TSS/BT",
+      "diploma": "",
+      "short_description": "",
+      "description": "",
+      "image": "",
+      "featured": false,
+      "is_active": true,
+      "inscription_fee": null,
+      "tranche_count": 0,
+      "tranche_amount": null,
+      "tuition_total": null,
+      "sessions": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 17,
+    "fields": {
+      "title": "Nutrition",
+      "slug": "nutrition",
+      "cycle": "LICENCE",
+      "duration": "3 ans",
+      "entry_requirement": "BAC ou Diplôme TSS/BT",
+      "diploma": "",
+      "short_description": "",
+      "description": "",
+      "image": "",
+      "featured": false,
+      "is_active": true,
+      "inscription_fee": null,
+      "tranche_count": 0,
+      "tranche_amount": null,
+      "tuition_total": null,
+      "sessions": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 18,
+    "fields": {
+      "title": "Communication en Santé",
+      "slug": "communication-en-sante",
+      "cycle": "LICENCE",
+      "duration": "3 ans",
+      "entry_requirement": "BAC ou Diplôme TSS/BT",
+      "diploma": "",
+      "short_description": "",
+      "description": "",
+      "image": "",
+      "featured": false,
+      "is_active": true,
+      "inscription_fee": null,
+      "tranche_count": 0,
+      "tranche_amount": null,
+      "tuition_total": null,
+      "sessions": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 19,
+    "fields": {
+      "title": "Santé Publique (Licence)",
+      "slug": "sante-publique-licence",
+      "cycle": "LICENCE",
+      "duration": "3 ans",
+      "entry_requirement": "BAC ou Diplôme TSS/BT",
+      "diploma": "",
+      "short_description": "",
+      "description": "",
+      "image": "",
+      "featured": false,
+      "is_active": true,
+      "inscription_fee": null,
+      "tranche_count": 0,
+      "tranche_amount": null,
+      "tuition_total": null,
+      "sessions": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 20,
+    "fields": {
+      "title": "Biologie Médicale (Master)",
+      "slug": "biologie-medicale-master",
+      "cycle": "MASTER",
+      "duration": "2 ans",
+      "entry_requirement": "Licence du TSS ou BAC+5",
+      "diploma": "",
+      "short_description": "",
+      "description": "",
+      "image": "",
+      "featured": false,
+      "is_active": true,
+      "inscription_fee": null,
+      "tranche_count": 0,
+      "tranche_amount": null,
+      "tuition_total": null,
+      "sessions": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 21,
+    "fields": {
+      "title": "Gynécologie-Obstétrique",
+      "slug": "gynecologie-obstetrique",
+      "cycle": "MASTER",
+      "duration": "2 ans",
+      "entry_requirement": "Licence du TSS ou BAC+5",
+      "diploma": "",
+      "short_description": "",
+      "description": "",
+      "image": "",
+      "featured": false,
+      "is_active": true,
+      "inscription_fee": null,
+      "tranche_count": 0,
+      "tranche_amount": null,
+      "tuition_total": null,
+      "sessions": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 22,
+    "fields": {
+      "title": "Kinésithérapie",
+      "slug": "kinesitherapie",
+      "cycle": "MASTER",
+      "duration": "2 ans",
+      "entry_requirement": "Licence du TSS ou BAC+5",
+      "diploma": "",
+      "short_description": "",
+      "description": "",
+      "image": "",
+      "featured": false,
+      "is_active": true,
+      "inscription_fee": null,
+      "tranche_count": 0,
+      "tranche_amount": null,
+      "tuition_total": null,
+      "sessions": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 23,
+    "fields": {
+      "title": "Odontologie",
+      "slug": "odontologie",
+      "cycle": "MASTER",
+      "duration": "2 ans",
+      "entry_requirement": "Licence du TSS ou BAC+5",
+      "diploma": "",
+      "short_description": "",
+      "description": "",
+      "image": "",
+      "featured": false,
+      "is_active": true,
+      "inscription_fee": null,
+      "tranche_count": 0,
+      "tranche_amount": null,
+      "tuition_total": null,
+      "sessions": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 24,
+    "fields": {
+      "title": "Management de la Santé",
+      "slug": "management-de-la-sante",
+      "cycle": "MASTER",
+      "duration": "2 ans",
+      "entry_requirement": "Licence du TSS ou BAC+5",
+      "diploma": "",
+      "short_description": "",
+      "description": "",
+      "image": "",
+      "featured": false,
+      "is_active": true,
+      "inscription_fee": null,
+      "tranche_count": 0,
+      "tranche_amount": null,
+      "tuition_total": null,
+      "sessions": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 25,
+    "fields": {
+      "title": "Santé Internationale",
+      "slug": "sante-internationale",
+      "cycle": "MASTER",
+      "duration": "2 ans",
+      "entry_requirement": "Licence du TSS ou BAC+5",
+      "diploma": "",
+      "short_description": "",
+      "description": "",
+      "image": "",
+      "featured": false,
+      "is_active": true,
+      "inscription_fee": null,
+      "tranche_count": 0,
+      "tranche_amount": null,
+      "tuition_total": null,
+      "sessions": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 26,
+    "fields": {
+      "title": "Pédiatrie et Santé",
+      "slug": "pediatrie-et-sante",
+      "cycle": "MASTER",
+      "duration": "2 ans",
+      "entry_requirement": "Licence du TSS ou BAC+5",
+      "diploma": "",
+      "short_description": "",
+      "description": "",
+      "image": "",
+      "featured": false,
+      "is_active": true,
+      "inscription_fee": null,
+      "tranche_count": 0,
+      "tranche_amount": null,
+      "tuition_total": null,
+      "sessions": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 27,
+    "fields": {
+      "title": "Radiologie",
+      "slug": "radiologie",
+      "cycle": "MASTER",
+      "duration": "2 ans",
+      "entry_requirement": "Licence du TSS ou BAC+5",
+      "diploma": "",
+      "short_description": "",
+      "description": "",
+      "image": "",
+      "featured": false,
+      "is_active": true,
+      "inscription_fee": null,
+      "tranche_count": 0,
+      "tranche_amount": null,
+      "tuition_total": null,
+      "sessions": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 28,
+    "fields": {
+      "title": "Cardiologie",
+      "slug": "cardiologie",
+      "cycle": "MASTER",
+      "duration": "2 ans",
+      "entry_requirement": "Licence du TSS ou BAC+5",
+      "diploma": "",
+      "short_description": "",
+      "description": "",
+      "image": "",
+      "featured": false,
+      "is_active": true,
+      "inscription_fee": null,
+      "tranche_count": 0,
+      "tranche_amount": null,
+      "tuition_total": null,
+      "sessions": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 29,
+    "fields": {
+      "title": "Néphrologie",
+      "slug": "nephrologie",
+      "cycle": "MASTER",
+      "duration": "2 ans",
+      "entry_requirement": "Licence du TSS ou BAC+5",
+      "diploma": "",
+      "short_description": "",
+      "description": "",
+      "image": "",
+      "featured": false,
+      "is_active": true,
+      "inscription_fee": null,
+      "tranche_count": 0,
+      "tranche_amount": null,
+      "tuition_total": null,
+      "sessions": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 30,
+    "fields": {
+      "title": "Réanimation",
+      "slug": "reanimation",
+      "cycle": "MASTER",
+      "duration": "2 ans",
+      "entry_requirement": "Licence du TSS ou BAC+5",
+      "diploma": "",
+      "short_description": "",
+      "description": "",
+      "image": "",
+      "featured": false,
+      "is_active": true,
+      "inscription_fee": null,
+      "tranche_count": 0,
+      "tranche_amount": null,
+      "tuition_total": null,
+      "sessions": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 31,
+    "fields": {
+      "title": "Anesthésie",
+      "slug": "anesthesie",
+      "cycle": "MASTER",
+      "duration": "2 ans",
+      "entry_requirement": "Licence du TSS ou BAC+5",
+      "diploma": "",
+      "short_description": "",
+      "description": "",
+      "image": "",
+      "featured": false,
+      "is_active": true,
+      "inscription_fee": null,
+      "tranche_count": 0,
+      "tranche_amount": null,
+      "tuition_total": null,
+      "sessions": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 32,
+    "fields": {
+      "title": "Épidémiologie",
+      "slug": "epidemiologie",
+      "cycle": "MASTER",
+      "duration": "2 ans",
+      "entry_requirement": "Licence du TSS ou BAC+5",
+      "diploma": "",
+      "short_description": "",
+      "description": "",
+      "image": "",
+      "featured": false,
+      "is_active": true,
+      "inscription_fee": null,
+      "tranche_count": 0,
+      "tranche_amount": null,
+      "tuition_total": null,
+      "sessions": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 33,
+    "fields": {
+      "title": "Suivi et Évaluation",
+      "slug": "suivi-et-evaluation",
+      "cycle": "MASTER",
+      "duration": "2 ans",
+      "entry_requirement": "Licence du TSS ou BAC+5",
+      "diploma": "",
+      "short_description": "",
+      "description": "",
+      "image": "",
+      "featured": false,
+      "is_active": true,
+      "inscription_fee": null,
+      "tranche_count": 0,
+      "tranche_amount": null,
+      "tuition_total": null,
+      "sessions": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 34,
+    "fields": {
+      "title": "Microbiologie",
+      "slug": "microbiologie",
+      "cycle": "MASTER",
+      "duration": "2 ans",
+      "entry_requirement": "Licence du TSS ou BAC+5",
+      "diploma": "",
+      "short_description": "",
+      "description": "",
+      "image": "",
+      "featured": false,
+      "is_active": true,
+      "inscription_fee": null,
+      "tranche_count": 0,
+      "tranche_amount": null,
+      "tuition_total": null,
+      "sessions": [
+        1,
+        2
+      ]
+    }
+  }
+]

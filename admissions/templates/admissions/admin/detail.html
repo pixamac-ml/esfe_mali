@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="max-w-4xl mx-auto p-6">
+  <div class="flex items-center justify-between">
+    <h1 class="text-2xl font-bold">Dossier {{ admission.ref_code }}</h1>
+    <div class="flex gap-2">
+      <a class="px-3 py-2 rounded bg-gray-200" href="{% url 'admissions:admin_edit' admission.ref_code %}">Modifier</a>
+      <a class="px-3 py-2 rounded bg-red-600 text-white" href="{% url 'admissions:admin_delete' admission.ref_code %}">Supprimer</a>
+    </div>
+  </div>
+
+  <div class="mt-4 grid md:grid-cols-2 gap-4">
+    <div class="p-4 border rounded-2xl">
+      <h2 class="font-semibold mb-2">Candidat</h2>
+      <div>{{ admission.nom }} {{ admission.prenom }} ({{ admission.get_genre_display }})</div>
+      <div class="text-sm text-gray-600">{{ admission.telephone }} · {{ admission.email }}</div>
+      <div class="text-sm">{{ admission.adresse }}</div>
+    </div>
+
+    <div class="p-4 border rounded-2xl">
+      <h2 class="font-semibold mb-2">Formation</h2>
+      <div>{{ admission.program.title }}</div>
+      <div class="text-sm">Annexe: {{ admission.get_annexe_display }}</div>
+      <div class="text-sm">Statut: {{ admission.get_status_display }}</div>
+    </div>
+  </div>
+
+  <div class="mt-4 grid md:grid-cols-3 gap-4">
+    <div class="p-4 border rounded-2xl">
+      <div class="text-sm text-gray-600">Frais total</div>
+      <div class="text-xl font-semibold">{{ admission.fees_total_snapshot }} FCFA</div>
+    </div>
+    <div class="p-4 border rounded-2xl">
+      <div class="text-sm text-gray-600">1ère tranche</div>
+      <div class="text-xl font-semibold">{{ admission.fees_first_tranche_snapshot }} FCFA</div>
+    </div>
+    <div class="p-4 border rounded-2xl">
+      <div class="text-sm text-gray-600">Référence</div>
+      <div class="font-mono">{{ admission.ref_code }}</div>
+    </div>
+  </div>
+
+  <h2 class="mt-8 text-xl font-bold">Pièces</h2>
+  <ul class="list-disc pl-6 space-y-1 mt-2">
+    {% if admission.diplome %}<li><a class="text-blue-700" href="{{ admission.diplome.url }}" target="_blank">Diplôme</a></li>{% endif %}
+    {% if admission.releves %}<li><a class="text-blue-700" href="{{ admission.releves.url }}" target="_blank">Relevés</a></li>{% endif %}
+    {% if admission.cni %}<li><a class="text-blue-700" href="{{ admission.cni.url }}" target="_blank">CNI</a></li>{% endif %}
+    {% if admission.photo_identite %}<li><a class="text-blue-700" href="{{ admission.photo_identite.url }}" target="_blank">Photo</a></li>{% endif %}
+    {% if not admission.diplome and not admission.releves and not admission.cni and not admission.photo_identite %}
+      <li>Aucune pièce</li>
+    {% endif %}
+  </ul>
+</section>
+{% endblock %}

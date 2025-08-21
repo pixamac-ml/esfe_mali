@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="max-w-7xl mx-auto p-6">
+  <h1 class="text-2xl font-bold mb-4">Admissions</h1>
+
+  <form method="get" class="mb-4 flex gap-3">
+    <input type="text" name="program" class="border p-2 rounded" placeholder="ID programme" value="{{ request.GET.program }}">
+    <input type="text" name="status" class="border p-2 rounded" placeholder="Statut" value="{{ request.GET.status }}">
+    <button class="px-4 py-2 rounded bg-gray-900 text-white">Filtrer</button>
+  </form>
+
+  <div class="overflow-x-auto border rounded-2xl">
+    <table class="min-w-full text-sm">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="text-left p-3">Réf</th>
+          <th class="text-left p-3">Nom</th>
+          <th class="text-left p-3">Programme</th>
+          <th class="text-left p-3">Annexe</th>
+          <th class="text-left p-3">Statut</th>
+          <th class="text-left p-3">Soumis</th>
+          <th class="text-left p-3"></th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for a in admissions %}
+        <tr class="border-t">
+          <td class="p-3 font-mono">{{ a.ref_code }}</td>
+          <td class="p-3">{{ a.nom }} {{ a.prenom }}</td>
+          <td class="p-3">{{ a.program.title }}</td>
+          <td class="p-3">{{ a.get_annexe_display }}</td>
+          <td class="p-3">{{ a.get_status_display }}</td>
+          <td class="p-3">{{ a.submitted_at|date:"d/m/Y H:i" }}</td>
+          <td class="p-3">
+            <a class="text-blue-700" href="{% url 'admissions:admin_detail' a.ref_code %}">Voir</a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td class="p-4" colspan="7">Aucun dossier.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

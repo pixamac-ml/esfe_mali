@@ -1,0 +1,39 @@
+<section class="bg-white">
+  <div class="max-w-container mx-auto px-4 py-14 sm:py-20">
+    <div class="flex items-end justify-between gap-4">
+      <div>
+        <h2 class="font-display text-2xl sm:text-3xl text-primary-900">Actualités récentes</h2>
+        <div class="mt-3 h-0.5 w-20 bg-brand-cyan"></div>
+      </div>
+      <a href="#" class="text-primary-900 hover:underline text-sm hidden sm:inline">Voir tout</a>
+    </div>
+
+    <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      {% for post in latest_posts %}
+      <article class="rounded-2xl border border-slate-200 overflow-hidden shadow-soft hover:shadow-lg transition flex flex-col">
+        {% if post.image %}
+          <img src="#" alt="{{ post.title }}" class="h-44 w-full object-cover">
+        {% else %}
+          <img src="https://picsum.photos/seed/post-{{ post.id }}/800/400" alt="{{ post.title }}" class="h-44 w-full object-cover">
+        {% endif %}
+        <div class="p-5 flex-1 flex flex-col">
+          <h3 class="font-semibold text-slate-900 line-clamp-2">{{ post.title }}</h3>
+          <p class="mt-2 text-slate-600 text-sm line-clamp-3">{{ post.excerpt|default:post.content|striptags }}</p>
+          <div class="mt-4">
+            <a href="#" class="inline-flex items-center gap-2 text-primary-900 hover:underline text-sm">
+              Lire l’article
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14M12 5l7 7-7 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </div>
+        </div>
+      </article>
+      {% empty %}
+        <p class="text-slate-500">Aucun article publié pour le moment.</p>
+      {% endfor %}
+    </div>
+
+    <div class="mt-8 sm:hidden">
+      <a href="#" class="inline-flex items-center gap-2 text-primary-900 hover:underline text-sm">Voir tout</a>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,22 @@
+{% load static %}
+<section class="bg-slate-50 text-slate-800">
+  <div class="max-w-container mx-auto px-4 py-14 sm:py-20 grid md:grid-cols-2 gap-8 items-center">
+    <div class="order-2 md:order-1">
+      <h2 class="font-display text-2xl sm:text-3xl text-primary-900">À propos de l’ESFé</h2>
+      <div class="mt-3 h-0.5 w-16 bg-brand-cyan"></div>
+      <p class="mt-5 leading-relaxed">
+        L’École Supérieure de Santé Félix Houphouët‑Boigny forme des praticiens compétents et employables,
+        grâce à un équilibre entre théorie, travaux pratiques et immersion clinique.
+      </p>
+      <ul class="mt-6 space-y-2 text-slate-700">
+        <li>• Encadrement par des professionnels de santé</li>
+        <li>• Stages et ateliers en milieux hospitaliers</li>
+        <li>• Réseau d’annexes au Mali pour plus de proximité</li>
+      </ul>
+    </div>
+    <div class="order-1 md:order-2 rounded-2xl overflow-hidden border border-slate-200 shadow-soft">
+      <img src="{% static 'img/about-esfe.jpg' %}" onerror="this.src='https://picsum.photos/seed/esfe-about/1200/800'"
+           alt="ESFé" class="w-full h-72 sm:h-96 object-cover">
+    </div>
+  </div>
+</section>
