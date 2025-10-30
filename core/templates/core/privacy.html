@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Politique de confidentialité — ESFé Mali{% endblock %}
+
+{% block content %}
+<section class="max-w-5xl mx-auto py-12 px-4 sm:px-6 lg:px-8 text-slate-700">
+  <h1 class="text-3xl font-bold mb-8">Politique de confidentialité</h1>
+
+  <!-- Introduction -->
+  <div class="mb-8">
+    <p class="leading-relaxed">
+      La présente politique de confidentialité décrit la manière dont <strong>ESFé Mali</strong> collecte,
+      utilise et protège vos données personnelles lorsque vous utilisez notre site internet et nos services en ligne.
+    </p>
+  </div>
+
+  <!-- Collecte -->
+  <div class="mb-8">
+    <h2 class="text-xl font-semibold mb-3">Collecte des informations</h2>
+    <p class="leading-relaxed">
+      Nous pouvons collecter les informations suivantes : nom, prénom, adresse email, numéro de téléphone,
+      ainsi que les informations transmises via les formulaires d’admission ou de contact.
+    </p>
+  </div>
+
+  <!-- Utilisation -->
+  <div class="mb-8">
+    <h2 class="text-xl font-semibold mb-3">Utilisation des données</h2>
+    <p class="leading-relaxed">
+      Les informations collectées sont utilisées uniquement pour :
+    </p>
+    <ul class="list-disc list-inside space-y-1 text-slate-700">
+      <li>Traiter vos demandes d’admission et inscriptions.</li>
+      <li>Répondre à vos questions via le formulaire de contact.</li>
+      <li>Améliorer nos services et communications.</li>
+    </ul>
+  </div>
+
+  <!-- Conservation -->
+  <div class="mb-8">
+    <h2 class="text-xl font-semibold mb-3">Durée de conservation</h2>
+    <p class="leading-relaxed">
+      Vos données personnelles sont conservées uniquement pendant la durée nécessaire aux traitements pour lesquels elles ont été collectées.
+    </p>
+  </div>
+
+  <!-- Sécurité -->
+  <div class="mb-8">
+    <h2 class="text-xl font-semibold mb-3">Sécurité</h2>
+    <p class="leading-relaxed">
+      ESFé Mali s’engage à assurer la sécurité de vos informations et à mettre en place toutes les mesures techniques et organisationnelles nécessaires
+      pour éviter leur perte, utilisation abusive ou accès non autorisé.
+    </p>
+  </div>
+
+  <!-- Droits -->
+  <div class="mb-8">
+    <h2 class="text-xl font-semibold mb-3">Vos droits</h2>
+    <p class="leading-relaxed">
+      Conformément à la réglementation en vigueur, vous disposez d’un droit d’accès, de rectification et de suppression de vos données personnelles.
+      Pour exercer ces droits, veuillez nous écrire à :
+      <a href="mailto:contact@esfe-mali.com" class="text-brand-cyan hover:underline">contact@esfe-mali.com</a>.
+    </p>
+  </div>
+
+  <!-- Mise à jour -->
+  <div>
+    <h2 class="text-xl font-semibold mb-3">Mise à jour de la politique</h2>
+    <p class="leading-relaxed">
+      Cette politique de confidentialité peut être mise à jour à tout moment.
+      Dernière mise à jour : <strong>{{ now|date:"d/m/Y" }}</strong>.
+    </p>
+  </div>
+</section>
+{% endblock %}

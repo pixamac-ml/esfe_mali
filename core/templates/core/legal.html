@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Mentions légales — ESFé Mali{% endblock %}
+
+{% block content %}
+<section class="max-w-5xl mx-auto py-12 px-4 sm:px-6 lg:px-8 text-slate-700">
+  <h1 class="text-3xl font-bold mb-8">Mentions légales</h1>
+
+  <!-- Identification -->
+  <div class="mb-8">
+    <h2 class="text-xl font-semibold mb-3">Éditeur du site</h2>
+    <p class="leading-relaxed">
+      Le site <strong>ESFé Mali</strong> est édité par l’Université & École de Santé Félix Houphouët-Boigny Mali.
+    </p>
+    <ul class="mt-3 space-y-2">
+      <li><strong>Nom de l’établissement :</strong> ESFé Mali</li>
+      <li><strong>Adresse :</strong> Bamako, Mali</li>
+      <li><strong>Email :</strong> <a href="mailto:contact@esfe-mali.com" class="text-brand-cyan hover:underline">contact@esfe-mali.com</a></li>
+      <li><strong>Téléphone :</strong> +223 70 00 00 00</li>
+    </ul>
+  </div>
+
+  <!-- Hébergement -->
+  <div class="mb-8">
+    <h2 class="text-xl font-semibold mb-3">Hébergement</h2>
+    <p class="leading-relaxed">
+      Le site est hébergé par :  
+      <br><strong>Nom de l’hébergeur</strong>, Adresse complète, Pays.  
+      <br><strong>Téléphone :</strong> [numéro de l’hébergeur]
+    </p>
+  </div>
+
+  <!-- Responsable -->
+  <div class="mb-8">
+    <h2 class="text-xl font-semibold mb-3">Directeur de la publication</h2>
+    <p class="leading-relaxed">
+      Le directeur de la publication est le <strong>Directeur Général de ESFé Mali</strong>.  
+      Pour toute question relative au contenu du site, veuillez nous contacter par email.
+    </p>
+  </div>
+
+  <!-- Propriété intellectuelle -->
+  <div class="mb-8">
+    <h2 class="text-xl font-semibold mb-3">Propriété intellectuelle</h2>
+    <p class="leading-relaxed">
+      L’ensemble des contenus (textes, images, vidéos, documents, logos) présents sur ce site sont la propriété exclusive de ESFé Mali, sauf mention contraire.  
+      Toute reproduction, représentation, modification ou diffusion sans autorisation préalable est interdite conformément au Code de la propriété intellectuelle.
+    </p>
+  </div>
+
+  <!-- Données personnelles -->
+  <div class="mb-8">
+    <h2 class="text-xl font-semibold mb-3">Données personnelles</h2>
+    <p class="leading-relaxed">
+      Conformément à la réglementation en vigueur, les informations collectées via nos formulaires (admission, contact, etc.) sont destinées uniquement à l’usage interne de l’établissement.  
+      Vous disposez d’un droit d’accès, de rectification et de suppression de vos données en écrivant à : 
+      <a href="mailto:contact@esfe-mali.com" class="text-brand-cyan hover:underline">contact@esfe-mali.com</a>.
+    </p>
+  </div>
+
+  <!-- Responsabilité -->
+  <div class="mb-8">
+    <h2 class="text-xl font-semibold mb-3">Responsabilité</h2>
+    <p class="leading-relaxed">
+      ESFé Mali met tout en œuvre pour fournir des informations exactes et mises à jour.  
+      Toutefois, nous ne saurions être tenus responsables des erreurs ou omissions, ni des éventuels dysfonctionnements techniques du site.
+    </p>
+  </div>
+
+  <!-- Mise à jour -->
+  <div>
+    <h2 class="text-xl font-semibold mb-3">Mise à jour</h2>
+    <p class="leading-relaxed">
+      Les présentes mentions légales sont susceptibles d’être modifiées à tout moment.  
+      Dernière mise à jour : <strong>{{ now|date:"d/m/Y" }}</strong>.
+    </p>
+  </div>
+</section>
+{% endblock %}

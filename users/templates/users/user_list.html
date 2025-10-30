@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Utilisateurs — ESFé Mali{% endblock %}
+{% block content %}
+<section class="max-w-6xl mx-auto px-4 py-12">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-primary-900">Utilisateurs</h1>
+    <a href="{% url 'users:user_create' %}" class="px-4 py-2 rounded-xl bg-brand-cyan text-white">Créer</a>
+  </div>
+  <form class="mb-4">
+    <input type="text" name="q" value="{{ q }}" placeholder="Rechercher (nom, email, téléphone)" class="w-full rounded-xl border px-3 py-2">
+  </form>
+  <div class="bg-white rounded-2xl shadow overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-slate-50 text-slate-600">
+        <tr>
+          <th class="text-left p-3">Utilisateur</th>
+          <th class="text-left p-3">Email</th>
+          <th class="text-left p-3">Rôle</th>
+          <th class="text-left p-3">Annexe</th>
+          <th class="text-left p-3">Dernière connexion</th>
+          <th class="p-3"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr class="border-t">
+          <td class="p-3">{{ u.username }}</td>
+          <td class="p-3">{{ u.email|default:"—" }}</td>
+          <td class="p-3">{{ u.get_role_display }}</td>
+          <td class="p-3">{{ u.annexe|default:"—" }}</td>
+          <td class="p-3">{{ u.last_login|date:"Y-m-d H:i" }}</td>
+          <td class="p-3 text-right">
+            <a href="{% url 'users:user_detail' u.id %}" class="text-brand-cyan">Ouvrir →</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td class="p-3" colspan="6">Aucun utilisateur.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

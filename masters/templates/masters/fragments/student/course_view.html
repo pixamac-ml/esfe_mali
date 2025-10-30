@@ -1,0 +1,165 @@
+{% load static %}
+
+<div class="grid lg:grid-cols-[1fr,22rem] gap-6">
+
+  <!-- === 🧠 Contenu principal === -->
+  <main
+    class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-6 space-y-6">
+
+    <!-- 🧭 En-tête -->
+    <div>
+      <h2 class="text-2xl font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+        <i data-lucide="video" class="w-5 h-5 text-cyan-600"></i>
+        {{ module.title }}
+      </h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400">
+        {{ module.semester.name }} — {{ module.semester.program.title }}
+      </p>
+    </div>
+
+    <!-- 🎬 Lecteur vidéo principal -->
+    <div class="relative group rounded-xl overflow-hidden shadow-md bg-slate-100 dark:bg-slate-700">
+      <video id="lessonVideo" controls class="w-full h-auto rounded-xl">
+        <source src="{{ module.preview_url|default:'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4' }}" type="video/mp4">
+        Votre navigateur ne supporte pas la lecture vidéo.
+      </video>
+
+      <!-- Barre de progression -->
+      <div class="absolute bottom-0 left-0 h-1 bg-cyan-600 transition-all duration-300 ease-in-out"
+           style="width: {{ module.progress|default:'42' }}%;"></div>
+
+      <!-- Bouton plein écran -->
+      <button id="fullscreen-btn"
+        class="absolute bottom-3 right-3 bg-cyan-600/90 hover:bg-cyan-500 text-white p-2 rounded-full transition hidden group-hover:flex items-center justify-center">
+        <i data-lucide="maximize" class="w-4 h-4"></i>
+      </button>
+    </div>
+
+    <!-- 📘 Description -->
+    <div class="prose prose-sm dark:prose-invert max-w-none text-slate-700 dark:text-slate-200 leading-relaxed">
+      {% if module.description %}
+        {{ module.description|safe }}
+      {% else %}
+        <p>Pas encore de description détaillée pour ce cours.</p>
+      {% endif %}
+    </div>
+
+    <!-- ⚙️ Actions -->
+    <div class="flex flex-wrap gap-3 mt-4">
+      <button
+        class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm rounded-lg shadow flex items-center gap-2 transition">
+        <i data-lucide="check-circle" class="w-4 h-4"></i> Marquer comme terminé
+      </button>
+
+      <button
+        class="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-sm rounded-lg flex items-center gap-2 transition">
+        <i data-lucide="download" class="w-4 h-4"></i> Télécharger le support PDF
+      </button>
+
+      <button
+        class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white text-sm rounded-lg flex items-center gap-2 transition">
+        <i data-lucide="share-2" class="w-4 h-4"></i> Partager le cours
+      </button>
+    </div>
+
+    <!-- 🧩 Quiz rapide -->
+    <section class="mt-8">
+      <h3 class="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2 mb-4">
+        <i data-lucide="help-circle" class="w-5 h-5 text-cyan-600"></i> Quiz rapide
+      </h3>
+
+      <div class="space-y-4">
+        {% for quiz in module.quizzes.all %}
+        <div
+          class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 shadow-sm">
+          <p class="text-sm mb-3 font-medium text-slate-700 dark:text-slate-200">
+            {{ quiz.question }}
+          </p>
+          <div class="space-y-2 text-xs">
+            {% for option in quiz.options.all %}
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="quiz_{{ quiz.id }}" value="{{ option.id }}"
+                     class="accent-cyan-600 focus:ring-cyan-500">
+              {{ option.text }}
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+        {% empty %}
+        <p class="text-sm text-slate-500 dark:text-slate-400">Aucun quiz disponible pour ce cours.</p>
+        {% endfor %}
+      </div>
+
+      <div class="mt-5">
+        <button
+          class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm rounded-lg flex items-center gap-2 transition">
+          <i data-lucide="check" class="w-4 h-4"></i> Valider mes réponses
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- === 📚 Sidebar chapitres === -->
+  <aside
+    class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-5 h-fit lg:h-[78vh] overflow-y-auto space-y-4">
+    <div class="flex items-center justify-between">
+      <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+        <i data-lucide="list" class="w-4 h-4 text-cyan-600"></i> Contenu du cours
+      </h3>
+      <span class="text-xs text-slate-500 dark:text-slate-400">{{ lessons_by_chapter|length }} chapitres</span>
+    </div>
+
+    <div class="space-y-5">
+      {% for bloc in lessons_by_chapter %}
+      <div>
+        <div class="text-xs uppercase tracking-wide text-slate-500 mb-1">
+          Chapitre {{ forloop.counter }} • {{ bloc.chapter.title }}
+        </div>
+
+        <ul class="space-y-1">
+          {% for lesson in bloc.lessons %}
+          <li>
+            <a href="#" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-cyan-50 dark:hover:bg-slate-700/50 transition text-sm">
+              <i data-lucide="play-circle" class="w-4 h-4 text-cyan-600"></i>
+              <span class="truncate">{{ lesson.title }}</span>
+            </a>
+          </li>
+          {% empty %}
+          <li class="text-xs text-slate-500 italic">Aucune leçon pour ce chapitre.</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% empty %}
+      <p class="text-sm text-slate-500 italic">Aucun chapitre disponible pour ce cours.</p>
+      {% endfor %}
+    </div>
+  </aside>
+</div>
+
+<!-- ✅ JS Lucide + Alpine + Preline -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  if (window.lucide) lucide.createIcons();
+  if (window.HSStaticMethods) HSStaticMethods.autoInit();
+
+  // 🎥 Gestion du plein écran
+  const video = document.getElementById("lessonVideo");
+  const fullscreenBtn = document.getElementById("fullscreen-btn");
+  if (fullscreenBtn && video) {
+    fullscreenBtn.addEventListener("click", () => {
+      if (video.requestFullscreen) video.requestFullscreen();
+      else if (video.webkitRequestFullscreen) video.webkitRequestFullscreen();
+      else if (video.msRequestFullscreen) video.msRequestFullscreen();
+    });
+  }
+});
+</script>
+
+<style>
+  /* Animation douce d’apparition */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: none; }
+  }
+  .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
+</style>

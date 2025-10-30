@@ -1,0 +1,77 @@
+{% extends "base_dashboard.html" %}
+{% load static %}
+{% block title %}Réunion — {{ call.conversation.title|default:"Cours en ligne" }}{% endblock %}
+
+{% block content %}
+<div x-data="meet('{{ call.room_name }}', '{{ call.id }}')" x-init="init()" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 shadow-lg space-y-4">
+
+  <!-- 🎥 Zone vidéo -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <video id="local" autoplay playsinline muted class="w-full rounded-2xl bg-black shadow-inner"></video>
+    <video id="remote" autoplay playsinline class="w-full rounded-2xl bg-black shadow-inner"></video>
+  </div>
+
+  <!-- 🎛️ Commandes -->
+  <div class="flex flex-wrap justify-center gap-3 mt-4">
+    <button @click="toggleMic()" class="btn btn-circle btn-outline border-slate-400"><i data-lucide="mic" class="w-5 h-5"></i></button>
+    <button @click="toggleCam()" class="btn btn-circle btn-outline border-slate-400"><i data-lucide="camera" class="w-5 h-5"></i></button>
+    <button @click="share()" class="btn btn-circle btn-outline border-slate-400"><i data-lucide="screen-share" class="w-5 h-5"></i></button>
+    <button @click="record()" class="btn btn-circle btn-outline border-slate-400"><i data-lucide="record" class="w-5 h-5 text-red-500"></i></button>
+    <button @click="hangup()" class="btn btn-circle btn-error text-white"><i data-lucide="phone-off" class="w-5 h-5"></i></button>
+  </div>
+</div>
+
+<script>
+function csrf(){ const m=document.cookie.match(/csrftoken=([^;]+)/);return m?m[1]:''; }
+
+function meet(room, callId){
+  return {
+    pc:null, ws:null, localStream:null, local:null, remote:null, rec:null, chunks:[], startAt:null,
+    async init(){
+      this.local=document.getElementById('local');
+      this.remote=document.getElementById('remote');
+      this.pc=new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'}]});
+      this.pc.ontrack=(e)=>{this.remote.srcObject=e.streams[0];};
+      this.pc.onicecandidate=(e)=>{if(e.candidate){this.ws.send(JSON.stringify({type:'candidate',data:e.candidate}));}};
+      const scheme=location.protocol==='https:'?'wss':'ws';
+      this.ws=new WebSocket(`${scheme}://${location.host}/ws/call/${room}/`);
+      this.ws.onmessage=async(e)=>{
+        const msg=JSON.parse(e.data);
+        if(msg.type==='offer'){await this.pc.setRemoteDescription(new RTCSessionDescription(msg.data));
+          const ans=await this.pc.createAnswer();await this.pc.setLocalDescription(ans);
+          this.ws.send(JSON.stringify({type:'answer',data:this.pc.localDescription}));
+        }else if(msg.type==='answer'){await this.pc.setRemoteDescription(new RTCSessionDescription(msg.data));}
+        else if(msg.type==='candidate'){try{await this.pc.addIceCandidate(msg.data);}catch(err){console.warn(err);}}
+      };
+      this.startMedia();
+    },
+    async startMedia(){
+      this.localStream=await navigator.mediaDevices.getUserMedia({video:true,audio:true});
+      this.local.srcObject=this.localStream;
+      this.localStream.getTracks().forEach(t=>this.pc.addTrack(t,this.localStream));
+      const offer=await this.pc.createOffer();await this.pc.setLocalDescription(offer);
+      this.ws.send(JSON.stringify({type:'offer',data:this.pc.localDescription}));
+      this.startAt=Date.now();
+    },
+    toggleMic(){const t=this.localStream.getAudioTracks()[0];if(t) t.enabled=!t.enabled;},
+    toggleCam(){const t=this.localStream.getVideoTracks()[0];if(t) t.enabled=!t.enabled;},
+    async share(){const scr=await navigator.mediaDevices.getDisplayMedia({video:true});const track=scr.getVideoTracks()[0];
+      const sender=this.pc.getSenders().find(s=>s.track&&s.track.kind==='video');if(sender) sender.replaceTrack(track);},
+    record(){
+      if(this.rec){this.rec.stop();return;}
+      this.chunks=[];this.rec=new MediaRecorder(this.localStream,{mimeType:'video/webm'});
+      this.rec.ondataavailable=e=>{if(e.data.size>0)this.chunks.push(e.data);};
+      this.rec.onstop=async()=>{
+        const blob=new Blob(this.chunks,{type:'video/webm'});const form=new FormData();
+        form.append('file',blob,`call-${callId}.webm`);const dur=Math.round((Date.now()-this.startAt)/1000);
+        form.append('duration',dur);
+        await fetch(`/messenger/call/${callId}/upload/`,{method:'POST',headers:{'X-CSRFToken':csrf()},body:form});
+        this.rec=null;this.chunks=[];
+      };
+      this.rec.start(500);
+    },
+    hangup(){this.ws.close();this.pc.close();window.history.back();}
+  }
+}
+</script>
+{% endblock %}

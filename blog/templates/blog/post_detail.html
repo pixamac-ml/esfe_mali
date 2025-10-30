@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title }} | ESFé Mali{% endblock %}
+
+{% block meta %}
+  <meta name="description" content="{{ post.excerpt|default:post.content|striptags|truncatechars:155 }}">
+  <meta property="og:title" content="{{ post.title }}">
+  <meta property="og:description" content="{{ post.excerpt|default:post.content|striptags|truncatechars:155 }}">
+  {% if post.cover %}<meta property="og:image" content="{{ post.cover.url }}">{% endif %}
+{% endblock %}
+
+{% block content %}
+<article class="max-w-3xl mx-auto px-4 py-10">
+  <header class="mb-6">
+    <div class="flex items-center gap-3 text-xs text-slate-500">
+      <a href="{% url 'blog:post_by_category' post.category.slug %}" class="uppercase font-semibold" style="color:#0ea5e9">{{ post.category.name }}</a>
+      <span>•</span>
+      <span>Publié {{ post.published_at|date:"d M Y" }}</span>
+    </div>
+    <h1 class="mt-2 text-3xl font-bold leading-tight">{{ post.title }}</h1>
+    <div class="text-sm text-slate-500">
+      Par
+      {% if post.author %}
+        {{ post.author.get_full_name|default:post.author.username }}
+      {% else %}
+        ESFé Mali
+      {% endif %}
+    </div>
+  </header>
+
+  {% if post.cover %}
+    <img src="{{ post.cover.url }}" class="rounded-2xl w-full mb-6" alt="{{ post.title }}">
+  {% endif %}
+
+  <div class="prose max-w-none prose-headings:scroll-mt-24">
+    {{ post.content|safe }}
+  </div>
+
+  <!-- Partage -->
+  <div class="mt-8 flex flex-wrap items-center gap-3">
+    <span class="text-sm text-slate-600">Partager :</span>
+    <a class="text-sm underline" href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}">Facebook</a>
+    <a class="text-sm underline" href="https://api.whatsapp.com/send?text={{ post.title }}%20{{ request.build_absolute_uri }}">WhatsApp</a>
+    <a class="text-sm underline" href="https://twitter.com/intent/tweet?text={{ post.title }}&url={{ request.build_absolute_uri }}">X</a>
+  </div>
+
+  <!-- Réactions -->
+  <div class="mt-6 flex items-center gap-4">
+    <button data-react="1" class="px-3 py-2 rounded-xl border">👍 J’aime</button>
+    <button data-react="-1" class="px-3 py-2 rounded-xl border">👎 Pas utile</button>
+    <div id="react-counts" class="text-sm text-slate-600">👍 {{ like_count }} · 👎 {{ dislike_count }}</div>
+  </div>
+
+  <!-- Commentaires -->
+  <section class="mt-10">
+    <h2 class="text-xl font-semibold mb-4">Questions & Réponses</h2>
+
+    <form id="comment-form" method="post" action="{% url 'blog:comment_create' post.slug %}" class="mb-6 grid gap-3">
+      {% csrf_token %}
+      {% if not request.user.is_authenticated %}
+        {{ form.display_name }}
+      {% endif %}
+      {{ form.message }}
+      <button type="submit" class="self-start px-4 py-2 rounded-xl bg-sky-600 text-white hover:bg-sky-700">Publier</button>
+      <p class="text-xs text-slate-500">Modération activée : vos messages apparaîtront après validation.</p>
+    </form>
+
+    <div id="comments-list" class="space-y-4">
+      {% for c in comments %}
+        {% include "blog/partials/comment_item.html" with c=c %}
+      {% empty %}
+        <p class="text-sm text-slate-500">Aucun commentaire pour l’instant.</p>
+      {% endfor %}
+    </div>
+  </section>
+</article>
+
+{# JS placé à la fin pour optimiser #}
+<script>
+function getCSRF() {
+  const el = document.querySelector('input[name="csrfmiddlewaretoken"]');
+  return el ? el.value : '';
+}
+
+// --- Réactions (like/dislike) ---
+document.querySelectorAll('button[data-react]').forEach(btn=>{
+  btn.addEventListener('click', async () => {
+    const form = new FormData();
+    form.append('value', btn.dataset.react);
+    const res = await fetch("{% url 'blog:toggle_reaction' post.slug %}", {
+      method: 'POST',
+      headers: {'X-CSRFToken': getCSRF(), 'X-Requested-With': 'XMLHttpRequest'},
+      body: form
+    });
+    if(res.ok){
+      const data = await res.json();
+      document.getElementById('react-counts').textContent = `👍 ${data.likes} · 👎 ${data.dislikes}`;
+    }
+  });
+});
+
+// --- Commentaire principal (AJAX) ---
+const commentForm = document.getElementById("comment-form");
+if (commentForm) {
+  commentForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const formData = new FormData(commentForm);
+
+    const res = await fetch(commentForm.action, {
+      method: "POST",
+      headers: {"X-CSRFToken": getCSRF(), "X-Requested-With": "XMLHttpRequest"},
+      body: formData
+    });
+    const data = await res.json();
+
+    if (data.ok) {
+      if (data.approved && data.html) {
+        document.getElementById("comments-list").insertAdjacentHTML("afterbegin", data.html);
+      } else {
+        alert(data.message || "Votre commentaire a été soumis pour modération.");
+      }
+      commentForm.reset();
+    } else {
+      alert("Erreurs : " + JSON.stringify(data.errors));
+    }
+  });
+}
+
+// --- Réponses aux commentaires (délégation) ---
+document.addEventListener("submit", async (e) => {
+  const f = e.target;
+  if (!f.matches('form[data-reply]')) return;
+  e.preventDefault();
+
+  const formData = new FormData(f);
+  const res = await fetch(f.action, {
+    method: "POST",
+    headers: {"X-CSRFToken": getCSRF(), "X-Requested-With": "XMLHttpRequest"},
+    body: formData
+  });
+  const data = await res.json();
+
+  if (data.ok) {
+    if (data.approved && data.html) {
+      const box = document.getElementById(`replies-${data.parent_id}`);
+      if (box) box.insertAdjacentHTML("beforeend", data.html);
+    } else {
+      alert(data.message || "Votre réponse a été soumise pour modération.");
+    }
+    f.reset();
+  } else {
+    alert("Erreurs : " + JSON.stringify(data.errors));
+  }
+});
+</script>
+{% endblock %}

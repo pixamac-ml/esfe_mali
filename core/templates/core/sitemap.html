@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Plan du site — ESFé Mali{% endblock %}
+
+{% block content %}
+<section class="max-w-5xl mx-auto py-12 px-4 sm:px-6 lg:px-8 text-slate-700">
+  <h1 class="text-3xl font-bold mb-8">Plan du site</h1>
+
+  <div class="grid md:grid-cols-2 gap-8 text-sm">
+    <div>
+      <h2 class="font-semibold mb-3">Navigation principale</h2>
+      <ul class="space-y-2">
+        <li><a href="{% url 'core:home' %}" class="hover:text-brand-cyan">Accueil</a></li>
+        <li><a href="{% url 'programs:program_list' %}" class="hover:text-brand-cyan">Formations</a></li>
+        <li><a href="{% url 'admissions:apply_generic' %}" class="hover:text-brand-cyan">Admission</a></li>
+        <li><a href="{% url 'blog:post_list' %}" class="hover:text-brand-cyan">Blog</a></li>
+        <li><a href="{% url 'news:news_list' %}" class="hover:text-brand-cyan">Actualités</a></li>
+        <li><a href="{% url 'gallery:album_list' %}" class="hover:text-brand-cyan">Galerie</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <h2 class="font-semibold mb-3">Pages légales</h2>
+      <ul class="space-y-2">
+        <li><a href="{% url 'core:privacy' %}" class="hover:text-brand-cyan">Politique de confidentialité</a></li>
+        <li><a href="{% url 'core:legal' %}" class="hover:text-brand-cyan">Mentions légales</a></li>
+        <li><a href="{% url 'core:sitemap' %}" class="hover:text-brand-cyan">Plan du site</a></li>
+      </ul>
+    </div>
+  </div>
+</section>
+{% endblock %}

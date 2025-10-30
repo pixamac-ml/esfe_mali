@@ -2,15 +2,9 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone
 from programs.models import Program
+from campuses.models import Campus
 
-ANNEXES = [
-    ("KOU", "Koulikoro"),
-    ("DJB", "Djélibougou"),
-    ("KAY", "Kayes"),
-    ("MOP", "Mopti"),
-    ("SEV", "Sévaré"),
-]
-
+# --- Choix globaux ---
 GENDER = [
     ("M", "Masculin"),
     ("F", "Féminin"),
@@ -19,9 +13,9 @@ GENDER = [
 
 APPLICATION_STATUS = [
     ("RECU", "Reçu"),
+    ("VALIDE", "Validé par le staff"),
     ("A_COMPLETER", "À compléter"),
     ("PRET_PAIEMENT", "Prêt pour paiement"),
-    ("PAIEMENT_EN_ATTENTE", "Paiement en attente"),
     ("PAIEMENT_OK", "Paiement confirmé"),
     ("ADMIS", "Admis / Inscrit"),
     ("REFUSE", "Refusé"),
@@ -43,23 +37,19 @@ CURRENCY = [
     ("USD", "Dollar US"),
 ]
 
-PAYMENT_STATUS = [
-        ("INITIE", "Initié"), ("EN_ATTENTE", "En attente"), ("SUCCES", "Succès"),
-        ("ECHEC", "Échec"), ("ANNULE", "Annulé"), ("REMBOURSE", "Remboursé"),
-    ]
 
-
-
-
+# --- Admissions ---
 class Admission(models.Model):
     ref_code = models.CharField(max_length=32, unique=True, editable=False)
     program = models.ForeignKey(Program, on_delete=models.PROTECT, related_name="admissions")
-    annexe = models.CharField(max_length=3, choices=ANNEXES)
+    campus = models.ForeignKey(Campus, on_delete=models.PROTECT, related_name="admissions")
 
+    # tracking source
     source_page = models.CharField(max_length=20, default="detail")  # "detail" | "apply"
     utm_source = models.CharField(max_length=64, blank=True)
     utm_campaign = models.CharField(max_length=64, blank=True)
 
+    # infos personnelles
     nom = models.CharField(max_length=120)
     prenom = models.CharField(max_length=120)
     genre = models.CharField(max_length=1, choices=GENDER, blank=True)
@@ -71,18 +61,22 @@ class Admission(models.Model):
     email = models.EmailField(blank=True)
     adresse = models.CharField(max_length=255, blank=True)
 
+    # tuteur
     tuteur_nom = models.CharField(max_length=120, blank=True)
     tuteur_tel = models.CharField(max_length=32, blank=True)
 
+    # fichiers
     diplome = models.FileField(upload_to="admissions/diplomes/", blank=True, null=True)
     releves = models.FileField(upload_to="admissions/releves/", blank=True, null=True)
     cni = models.FileField(upload_to="admissions/cni/", blank=True, null=True)
     photo_identite = models.ImageField(upload_to="admissions/photos/", blank=True, null=True)
 
+    # frais snapshots
     fees_total_snapshot = models.PositiveIntegerField(default=0)
     fees_first_tranche_snapshot = models.PositiveIntegerField(default=0)
     currency = models.CharField(max_length=3, choices=CURRENCY, default="XOF")
 
+    # statut
     status = models.CharField(max_length=24, choices=APPLICATION_STATUS, default="RECU")
     auto_score = models.PositiveIntegerField(default=0)
     rules_passed = models.BooleanField(default=False)
@@ -98,11 +92,13 @@ class Admission(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     assigned_to = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="admissions_assigned"
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name="admissions_assigned"
     )
 
     student_number = models.CharField(max_length=32, blank=True)
-
     extra = models.JSONField(default=dict, blank=True)
 
     def save(self, *args, **kwargs):
@@ -113,13 +109,21 @@ class Admission(models.Model):
 
         if not self.pk and self.program_id:
             if not self.fees_total_snapshot:
-                self.fees_total_snapshot = getattr(self.program, "fees_total", 0)
+                self.fees_total_snapshot = getattr(self.program, "tuition_total", 0) or 0
             if not self.fees_first_tranche_snapshot:
-                self.fees_first_tranche_snapshot = getattr(self.program, "fees_first_tranche", 0)
+                self.fees_first_tranche_snapshot = getattr(self.program, "tranche_amount", 0) or 0
 
         super().save(*args, **kwargs)
 
+    # --- Business logic ---
+    def mark_validated(self, user=None):
+        self.status = "VALIDE"
+        self.reviewed_at = timezone.now()
+        self.save(update_fields=["status", "reviewed_at", "updated_at"])
+
     def mark_ready_for_payment(self):
+        if self.status != "VALIDE":
+            raise ValueError("Impossible: candidature non validée.")
         self.status = "PRET_PAIEMENT"
         self.save(update_fields=["status", "updated_at"])
 
@@ -138,11 +142,13 @@ class Admission(models.Model):
     def __str__(self):
         return f"{self.ref_code} · {self.nom} {self.prenom} → {self.program.title}"
 
+
+# --- Transactions ---
 class PaymentTransaction(models.Model):
     admission = models.ForeignKey(Admission, on_delete=models.CASCADE, related_name="payments")
-    provider = models.CharField(max_length=40)  # "PSP_LOCAL", "OrangeMoney", "Wave", "Stripe", ...
+    provider = models.CharField(max_length=40)
     provider_ref = models.CharField(max_length=120, blank=True)
-    status = models.CharField(max_length=16, choices=PAYMENT_STATUS, default="INITIE" )
+    status = models.CharField(max_length=16, choices=PAYMENT_STATUS, default="INITIE")
     amount = models.PositiveIntegerField()
     currency = models.CharField(max_length=3, choices=CURRENCY, default="XOF")
     tranche_label = models.CharField(max_length=40, default="1ere_tranche")
@@ -177,6 +183,7 @@ class PaymentTransaction(models.Model):
     def __str__(self):
         return f"{self.provider} {self.amount}{self.currency} → {self.get_status_display()}"
 
+
 class WebhookEvent(models.Model):
     provider = models.CharField(max_length=40)
     event_type = models.CharField(max_length=60)
@@ -188,6 +195,7 @@ class WebhookEvent(models.Model):
 
     class Meta:
         ordering = ["-received_at"]
+
 
 class AdmissionAttachment(models.Model):
     admission = models.ForeignKey(Admission, on_delete=models.CASCADE, related_name="attachments")

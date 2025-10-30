@@ -1,0 +1,190 @@
+{% load static %}
+
+<div id="teacherCourseView" class="space-y-8 fade-in">
+
+  <!-- 🧭 En-tête -->
+  <div class="flex justify-between items-center">
+    <div class="flex items-center gap-3">
+      <button id="backToCourses"
+              class="btn btn-sm btn-outline btn-info gap-1 shadow-sm hover:scale-[1.03] transition">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i> Retour aux cours
+      </button>
+      <h2 class="text-xl font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+        <i data-lucide="graduation-cap" class="w-5 h-5 text-info"></i>
+        <span id="moduleTitle">{{ module_title|default:"Cours en ligne" }}</span>
+      </h2>
+    </div>
+  </div>
+
+  <!-- 🌀 Conteneur des leçons -->
+  <div id="lessonsContainer"
+       class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 relative mt-4 min-h-[200px]">
+
+    <!-- Spinner -->
+    <div id="lessonSpinner"
+         class="hidden absolute inset-0 flex items-center justify-center bg-base-100/90 dark:bg-slate-900/80 rounded-xl backdrop-blur-sm z-10">
+      <span class="loading loading-ring loading-lg text-info"></span>
+    </div>
+
+    <div class="col-span-full text-center py-6 text-slate-500">
+      Chargement des leçons...
+    </div>
+  </div>
+</div>
+
+<!-- === STYLES === -->
+<style>
+  .fade-in {
+    animation: fadeIn 0.35s ease-out;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .lesson-card {
+    @apply bg-base-100 border border-slate-200 dark:border-slate-700 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col;
+  }
+
+  .lesson-card:hover {
+    @apply border-info scale-[1.02];
+  }
+
+  .lesson-video {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background-color: black;
+  }
+
+  .lesson-info {
+    @apply flex flex-col justify-between p-3;
+  }
+
+  .lesson-title {
+    @apply text-slate-800 dark:text-white font-medium text-sm leading-snug mb-2;
+  }
+
+  .lesson-empty {
+    @apply bg-slate-100 dark:bg-slate-800 h-40 flex items-center justify-center text-slate-400 text-xs italic;
+  }
+</style>
+
+<!-- === SCRIPT === -->
+<script>
+(function(){
+  const moduleId   = "{{ module_id|default:'' }}";
+  const moduleName = "{{ module_title|default:'Cours en ligne' }}";
+  const lessonsEl  = document.getElementById("lessonsContainer");
+  const titleEl    = document.getElementById("moduleTitle");
+  const spinner    = document.getElementById("lessonSpinner");
+  const backBtn    = document.getElementById("backToCourses");
+
+  if (moduleName) titleEl.textContent = moduleName;
+
+  // --- Charger les leçons du module ---
+  async function loadLessons(){
+    if(!moduleId){
+      lessonsEl.innerHTML = `
+        <div class='col-span-full text-center py-8 text-slate-500'>
+          Sélectionnez un cours dans <strong>Mes enseignements</strong>.
+        </div>`;
+      return;
+    }
+
+    spinner.classList.remove("hidden");
+
+    try{
+      const resp = await fetch(`/master/api/lessons/${moduleId}/`, {
+        headers: { "X-Requested-With": "XMLHttpRequest" }
+      });
+      const data = await resp.json();
+
+      if(!data.ok){
+        lessonsEl.innerHTML = `<div class="col-span-full text-center text-red-500 py-8">${data.error || "Erreur de chargement des leçons."}</div>`;
+        return;
+      }
+
+      if(!data.lessons || !data.lessons.length){
+        lessonsEl.innerHTML = `<div class="col-span-full text-center py-8 text-slate-500 italic">Aucune leçon disponible pour ce module.</div>`;
+        return;
+      }
+
+      lessonsEl.innerHTML = data.lessons.map((l) => {
+        const src = l.external_url || l.video_file || "";
+        const titleSafe = (l.title || "Sans titre").replace(/"/g, "&quot;");
+        return `
+          <div class="lesson-card group">
+            ${src
+              ? `<video class="lesson-video" preload="metadata" poster="{% static 'img/video_placeholder.jpg' %}">
+                   <source src="${src}" type="video/mp4">
+                 </video>`
+              : `<div class="lesson-empty">Aucune vidéo disponible</div>`
+            }
+            <div class="lesson-info">
+              <h4 class="lesson-title">${titleSafe}</h4>
+              <button
+                class="btn btn-sm btn-info w-full flex items-center justify-center gap-2"
+                onclick="window.openLessonPlayer('${titleSafe}', '${src}', '${moduleId}')">
+                <i data-lucide='play-circle' class='w-4 h-4'></i> Regarder
+              </button>
+            </div>
+          </div>`;
+      }).join("");
+
+      if(window.lucide) lucide.createIcons();
+
+    }catch(err){
+      console.error("Erreur:", err);
+      lessonsEl.innerHTML = `<p class="col-span-full text-center text-red-500 py-8">Erreur de connexion au serveur.</p>`;
+    }finally{
+      spinner.classList.add("hidden");
+    }
+  }
+
+  // --- Retour à la liste des cours ---
+  backBtn.addEventListener("click", ()=>{
+    fetch(`/master/teacher/fragment/courses/`, { headers:{"X-Requested-With":"XMLHttpRequest"} })
+      .then(r=>r.text())
+      .then(html=>{
+        const container = document.getElementById("dashboard-inner");
+        if(container){
+          container.innerHTML = html;
+          if(window.lucide) lucide.createIcons();
+        }
+      })
+      .catch(e=>{
+        console.error("Erreur retour :", e);
+        alert("Erreur lors du retour à la liste des cours.");
+      });
+  });
+
+  // --- Fonction globale pour ouvrir le lecteur ---
+  window.openLessonPlayer = function(title, src, moduleId){
+    if(!src){
+      alert("Aucune vidéo disponible pour cette leçon.");
+      return;
+    }
+
+    const url = `/master/teacher/fragment/courses/?player=1`
+              + `&module_id=${encodeURIComponent(moduleId)}`
+              + `&title=${encodeURIComponent(title)}`
+              + `&src=${encodeURIComponent(src)}`;
+
+    fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } })
+      .then(r=>r.text())
+      .then(html=>{
+        const container = document.getElementById("dashboard-inner");
+        if(container){
+          container.innerHTML = html;
+          if(window.lucide) lucide.createIcons();
+        }
+      })
+      .catch(e=>{
+        console.error("Erreur d’ouverture du lecteur :", e);
+        alert("Impossible d’ouvrir le lecteur vidéo.");
+      });
+  };
+
+  loadLessons();
+})();
+</script>

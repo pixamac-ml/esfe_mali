@@ -1,0 +1,42 @@
+<!-- gallery/_album_detail.html -->
+<a href="{% url 'gallery:list' %}" data-album
+   class="inline-flex items-center mb-6 px-3 py-1 border rounded-lg hover:bg-slate-50">
+  ← Retour aux albums
+</a>
+
+<header class="mb-6">
+  <h2 class="text-2xl font-bold">{{ album.title }}</h2>
+  <p class="text-xs text-slate-500">{{ album.created_at|date:"d M Y" }}</p>
+  {% if album.description %}
+    <p class="mt-2 text-slate-600">{{ album.description }}</p>
+  {% endif %}
+</header>
+
+<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+  {% for m in album.media.all %}
+    {% if m.type == "image" and m.file %}
+      <a href="{{ m.file.url }}" data-lightbox="album-{{ album.id }}" data-title="{{ m.caption }}">
+        <img src="{{ m.file.url }}" alt="{{ m.caption }}" class="rounded-lg w-full h-56 object-cover shadow hover:scale-105 transition">
+      </a>
+    {% elif m.type == "video" %}
+      <div class="rounded-lg overflow-hidden shadow">
+        {% if m.url %}
+          <iframe src="{{ m.url }}" class="w-full aspect-video" allowfullscreen></iframe>
+        {% elif m.file %}
+          <video controls class="w-full"><source src="{{ m.file.url }}"></video>
+        {% endif %}
+      </div>
+    {% endif %}
+  {% empty %}
+    <p>Aucun média dans cet album.</p>
+  {% endfor %}
+</div>
+
+<!-- Lightbox (PhotoSwipe ou GLightbox par ex.) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css"/>
+<script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const lightbox = GLightbox({ selector: 'a[data-lightbox]' });
+});
+</script>

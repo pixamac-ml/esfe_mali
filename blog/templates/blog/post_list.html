@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}{% if current_category %}{{ current_category.name }} — {% elif current_tag %}#{{ current_tag.name }} — {% endif %}Actualités | ESFé Mali{% endblock %}
+
+{% block content %}
+<section class="max-w-7xl mx-auto px-4 py-10">
+  <header class="mb-8">
+    <h1 class="text-3xl font-bold">
+      {% if current_category %}{{ current_category.name }}{% elif current_tag %}#{{ current_tag.name }}{% else %}Actualités & Santé{% endif %}
+    </h1>
+    <p class="text-slate-600 mt-2">Articles de l’École de Santé (Médecine, Pharmacie, Chirurgie dentaire).</p>
+  </header>
+
+  {% if posts %}
+  <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    {% for post in posts %}
+      <article class="rounded-2xl border bg-white overflow-hidden hover:shadow-lg transition">
+        {% if post.cover %}
+          <a href="{{ post.get_absolute_url }}"><img src="{{ post.cover.url }}" class="w-full h-48 object-cover" alt="{{ post.title }}"></a>
+        {% endif %}
+        <div class="p-5">
+          <div class="flex items-center gap-3 text-xs">
+            <a href="{% url 'blog:post_by_category' post.category.slug %}"
+               class="font-semibold uppercase tracking-wide"
+               style="color:#0ea5e9">{{ post.category.name }}</a>
+            <span class="text-slate-400">•</span>
+            <span class="text-slate-500">{{ post.published_at|date:"d M Y" }}</span>
+          </div>
+          <h2 class="mt-2 text-xl font-bold leading-snug">
+            <a href="{{ post.get_absolute_url }}" class="hover:underline">{{ post.title }}</a>
+          </h2>
+          <p class="mt-2 text-slate-600 text-sm line-clamp-3">{{ post.excerpt|default:post.content|striptags|truncatechars:160 }}</p>
+          {% if post.tags.all %}
+            <div class="mt-3 flex flex-wrap gap-2">
+              {% for t in post.tags.all %}
+                <a href="{% url 'blog:post_by_tag' t.slug %}" class="text-xs px-2 py-1 rounded-full bg-slate-100 hover:bg-slate-200">#{{ t.name }}</a>
+              {% endfor %}
+            </div>
+          {% endif %}
+          <div class="mt-4 text-xs text-slate-500">
+            Par
+            {% if post.author %}
+              {{ post.author.get_full_name|default:post.author.username }}
+            {% else %}
+              ESFé Mali
+            {% endif %}
+          </div>
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+  {% else %}
+    <p class="text-slate-500">Aucun article publié pour le moment.</p>
+  {% endif %}
+
+  {% include "blog/partials/pagination.html" %}
+</section>
+{% endblock %}

@@ -20,8 +20,20 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path("", include("core.urls", namespace="core")),
+    path("users/", include("users.urls", namespace="users")),
     path("admin/", __import__("django.contrib.admin").contrib.admin.site.urls),
     path("programmes/", include("programs.urls")),  # ← inclut l’app programs
     path("admissions/", include("admissions.urls")),
+    path("blog/", include("blog.urls")),
+    path("ckeditor5/", include("django_ckeditor_5.urls")),  # ⚡ obligatoire
+    path("actualites/", include("news.urls", namespace="news")),
+    path("gallery/", include("gallery.urls", namespace="gallery")),
+    path("notif/", include("notifications.urls", namespace="notifications")),
+    path("dashboard/", include("dashboard.urls")),
+    path("news/", include("news.urls")),
+    path("master/", include("masters.urls")),
+    path("messenger/", include("messenger.urls")),
+
+
 
     ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

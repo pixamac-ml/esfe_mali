@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}{{ news.title }} | ESFé Mali{% endblock %}
+
+{% block content %}
+<article class="max-w-3xl mx-auto px-4 py-10">
+  <h1 class="text-3xl font-bold mb-4">{{ news.title }}</h1>
+  <p class="text-sm text-slate-500">Publié {{ news.published_at|date:"d M Y" }}</p>
+
+  {% if news.cover %}
+    <img src="{{ news.cover.url }}" class="rounded-2xl w-full mb-6">
+  {% endif %}
+
+  <div class="prose max-w-none">{{ news.content|safe }}</div>
+
+  <!-- Galerie média -->
+  <div class="mt-6 grid gap-4 sm:grid-cols-2">
+    {% for m in news.media.all %}
+      {% if m.type == "image" and m.file %}
+        <img src="{{ m.file.url }}" alt="{{ m.caption }}" class="rounded-xl">
+      {% elif m.type == "video" %}
+        {% if m.url %}
+          <iframe src="{{ m.url }}" class="w-full aspect-video rounded-xl"></iframe>
+        {% elif m.file %}
+          <video controls class="w-full rounded-xl"><source src="{{ m.file.url }}"></video>
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+  </div>
+</article>
+{% endblock %}

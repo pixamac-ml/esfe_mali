@@ -1,0 +1,545 @@
+[
+  {
+    "model": "programs.program",
+    "pk": 1,
+    "fields": {
+      "title": "Employé de Pharmacie",
+      "slug": "employe-pharmacie",
+      "cycle": "PRIMAIRE",
+      "duration": "2 ans",
+      "entry_requirement": "DEF ou BEPC",
+      "diploma": "Certificat Employé de Pharmacie",
+      "inscription_fee": 10000,
+      "tranche_count": 12,
+      "tranche_amount": 15000,
+      "tuition_total": 200000,
+      "is_active": true,
+      "sessions": []
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 2,
+    "fields": {
+      "title": "Agent de Santé Communautaire",
+      "slug": "agent-sante-communautaire-primaire",
+      "cycle": "PRIMAIRE",
+      "duration": "2 ans",
+      "entry_requirement": "DEF ou BEPC",
+      "diploma": "Certificat Agent de Santé Communautaire",
+      "inscription_fee": 10000,
+      "tranche_count": 12,
+      "tranche_amount": 15000,
+      "tuition_total": 200000,
+      "is_active": true,
+      "sessions": []
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 3,
+    "fields": {
+      "title": "Matrone",
+      "slug": "matrone",
+      "cycle": "PRIMAIRE",
+      "duration": "2 ans",
+      "entry_requirement": "DEF ou BEPC",
+      "diploma": "Certificat de Matrone",
+      "inscription_fee": 20000,
+      "tranche_count": 12,
+      "tranche_amount": 10000,
+      "tuition_total": 120000,
+      "is_active": true,
+      "sessions": []
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 4,
+    "fields": {
+      "title": "Aide Soignant",
+      "slug": "aide-soignant",
+      "cycle": "PRIMAIRE",
+      "duration": "1 an",
+      "entry_requirement": "DEF ou BEPC",
+      "diploma": "Certificat Aide Soignant",
+      "inscription_fee": 20000,
+      "tranche_count": 12,
+      "tranche_amount": 10000,
+      "tuition_total": 120000,
+      "is_active": true,
+      "sessions": []
+    }
+  },
+
+  {
+    "model": "programs.program",
+    "pk": 5,
+    "fields": {
+      "title": "Infirmier Santé Publique",
+      "slug": "infirmier-sante-publique",
+      "cycle": "SECONDAIRE",
+      "duration": "3 ans",
+      "entry_requirement": "DEF ou BEPC",
+      "diploma": "Diplôme Infirmier Santé Publique",
+      "inscription_fee": 13000,
+      "tranche_count": 8,
+      "tranche_amount": 27000,
+      "tuition_total": 230000,
+      "is_active": true,
+      "sessions": []
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 6,
+    "fields": {
+      "title": "Infirmier Santé Maternelle et Infantile",
+      "slug": "infirmier-sante-maternelle-infantile",
+      "cycle": "SECONDAIRE",
+      "duration": "3 ans",
+      "entry_requirement": "DEF ou BEPC",
+      "diploma": "Diplôme Infirmier Santé Maternelle et Infantile",
+      "inscription_fee": 13000,
+      "tranche_count": 8,
+      "tranche_amount": 27000,
+      "tuition_total": 230000,
+      "is_active": true,
+      "sessions": []
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 7,
+    "fields": {
+      "title": "Technicien de Laboratoire Médical",
+      "slug": "technicien-laboratoire-medical",
+      "cycle": "SECONDAIRE",
+      "duration": "3 ans",
+      "entry_requirement": "DEF ou BEPC",
+      "diploma": "Diplôme Technicien de Laboratoire Médical",
+      "inscription_fee": 13000,
+      "tranche_count": 8,
+      "tranche_amount": 27000,
+      "tuition_total": 230000,
+      "is_active": true,
+      "sessions": []
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 8,
+    "fields": {
+      "title": "Technicien Santé Communautaire",
+      "slug": "technicien-sante-communautaire",
+      "cycle": "SECONDAIRE",
+      "duration": "3 ans",
+      "entry_requirement": "DEF ou BEPC",
+      "diploma": "Diplôme Technicien Santé Communautaire",
+      "inscription_fee": 13000,
+      "tranche_count": 8,
+      "tranche_amount": 27000,
+      "tuition_total": 230000,
+      "is_active": true,
+      "sessions": []
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 9,
+    "fields": {
+      "title": "Auxiliaire Infirmier",
+      "slug": "auxiliaire-infirmier",
+      "cycle": "SECONDAIRE",
+      "duration": "2 ans",
+      "entry_requirement": "DEF ou BEPC",
+      "diploma": "Certificat Auxiliaire Infirmier",
+      "inscription_fee": 13000,
+      "tranche_count": 8,
+      "tranche_amount": 27000,
+      "tuition_total": 230000,
+      "is_active": true,
+      "sessions": []
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 10,
+    "fields": {
+      "title": "Auxiliaire Puéricultrice",
+      "slug": "auxiliaire-puericultrice",
+      "cycle": "SECONDAIRE",
+      "duration": "2 ans",
+      "entry_requirement": "DEF ou BEPC",
+      "diploma": "Certificat Auxiliaire Puéricultrice",
+      "inscription_fee": 13000,
+      "tranche_count": 8,
+      "tranche_amount": 27000,
+      "tuition_total": 230000,
+      "is_active": true,
+      "sessions": []
+    }
+  },
+
+  {
+    "model": "programs.program",
+    "pk": 11,
+    "fields": {
+      "title": "Infirmier d'État",
+      "slug": "infirmier-etat",
+      "cycle": "LICENCE",
+      "duration": "3 ans",
+      "entry_requirement": "BAC ou Diplôme TSS/BT",
+      "diploma": "Licence Infirmier d'État",
+      "inscription_fee": 35000,
+      "tranche_count": 8,
+      "tranche_amount": 47000,
+      "tuition_total": 410000,
+      "is_active": true,
+      "sessions": []
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 12,
+    "fields": {
+      "title": "Sage Femme",
+      "slug": "sage-femme",
+      "cycle": "LICENCE",
+      "duration": "3 ans",
+      "entry_requirement": "BAC ou Diplôme TSS/BT",
+      "diploma": "Licence Sage Femme",
+      "inscription_fee": 35000,
+      "tranche_count": 8,
+      "tranche_amount": 47000,
+      "tuition_total": 410000,
+      "is_active": true,
+      "sessions": []
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 13,
+    "fields": {
+      "title": "Biologie Médicale",
+      "slug": "biologie-medicale-licence",
+      "cycle": "LICENCE",
+      "duration": "3 ans",
+      "entry_requirement": "BAC ou Diplôme TSS/BT",
+      "diploma": "Licence Biologie Médicale",
+      "inscription_fee": 35000,
+      "tranche_count": 8,
+      "tranche_amount": 47000,
+      "tuition_total": 410000,
+      "is_active": true,
+      "sessions": []
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 14,
+    "fields": {
+      "title": "Technicien Supérieur Pharmacie",
+      "slug": "technicien-superieur-pharmacie",
+      "cycle": "LICENCE",
+      "duration": "3 ans",
+      "entry_requirement": "BAC ou Diplôme TSS/BT",
+      "diploma": "Technicien Supérieur en Pharmacie",
+      "inscription_fee": 35000,
+      "tranche_count": 8,
+      "tranche_amount": 47000,
+      "tuition_total": 410000,
+      "is_active": true,
+      "sessions": []
+    }
+  },
+
+  {
+    "model": "programs.program",
+    "pk": 15,
+    "fields": {
+      "title": "Biologie Médicale",
+      "slug": "biologie-medicale-master",
+      "cycle": "MASTER",
+      "duration": "2 ans",
+      "entry_requirement": "Licence ou TSS",
+      "diploma": "Master Biologie Médicale",
+      "inscription_fee": 41000,
+      "tranche_count": 2,
+      "tranche_amount": 200000,
+      "tuition_total": 410000,
+      "is_active": true,
+      "sessions": []
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 16,
+    "fields": {
+      "title": "Gynécologie Obstétrique",
+      "slug": "gynecologie-obstetrique",
+      "cycle": "MASTER",
+      "duration": "2 ans",
+      "entry_requirement": "Licence ou TSS",
+      "diploma": "Master Gynécologie Obstétrique",
+      "inscription_fee": 41000,
+      "tranche_count": 2,
+      "tranche_amount": 200000,
+      "tuition_total": 410000,
+      "is_active": true,
+      "sessions": []
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 17,
+    "fields": {
+      "title": "Médecine d’Urgence",
+      "slug": "medecine-urgence",
+      "cycle": "MASTER",
+      "duration": "2 ans",
+      "entry_requirement": "Licence ou TSS",
+      "diploma": "Master Médecine d’Urgence",
+      "inscription_fee": 41000,
+      "tranche_count": 2,
+      "tranche_amount": 200000,
+      "tuition_total": 410000,
+      "is_active": true,
+      "sessions": []
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 18,
+    "fields": {
+      "title": "Santé Sexuelle et Reproductive",
+      "slug": "sante-sexuelle-reproductive",
+      "cycle": "MASTER",
+      "duration": "2 ans",
+      "entry_requirement": "Licence ou TSS",
+      "diploma": "Master Santé Sexuelle et Reproductive",
+      "inscription_fee": 41000,
+      "tranche_count": 2,
+      "tranche_amount": 200000,
+      "tuition_total": 410000,
+      "is_active": true,
+      "sessions": []
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 19,
+    "fields": {
+      "title": "Oncologie en Santé",
+      "slug": "oncologie-sante",
+      "cycle": "MASTER",
+      "duration": "2 ans",
+      "entry_requirement": "Licence ou TSS",
+      "diploma": "Master Oncologie en Santé",
+      "inscription_fee": 41000,
+      "tranche_count": 2,
+      "tranche_amount": 200000,
+      "tuition_total": 410000,
+      "is_active": true,
+      "sessions": []
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 20,
+    "fields": {
+      "title": "Pédiatrie",
+      "slug": "pediatrie-master",
+      "cycle": "MASTER",
+      "duration": "2 ans",
+      "entry_requirement": "Licence ou TSS",
+      "diploma": "Master Pédiatrie",
+      "inscription_fee": 41000,
+      "tranche_count": 2,
+      "tranche_amount": 200000,
+      "tuition_total": 410000,
+      "is_active": true,
+      "sessions": []
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 21,
+    "fields": {
+      "title": "Pharmacie en Santé Publique",
+      "slug": "pharmacie-sante-publique",
+      "cycle": "MASTER",
+      "duration": "2 ans",
+      "entry_requirement": "Licence ou TSS",
+      "diploma": "Master Pharmacie en Santé Publique",
+      "inscription_fee": 41000,
+      "tranche_count": 2,
+      "tranche_amount": 200000,
+      "tuition_total": 410000,
+      "is_active": true,
+      "sessions": []
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 22,
+    "fields": {
+      "title": "Néphrologie",
+      "slug": "nephrologie",
+      "cycle": "MASTER",
+      "duration": "2 ans",
+      "entry_requirement": "Licence ou TSS",
+      "diploma": "Master Néphrologie",
+      "inscription_fee": 41000,
+      "tranche_count": 2,
+      "tranche_amount": 200000,
+      "tuition_total": 410000,
+      "is_active": true,
+      "sessions": []
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 23,
+    "fields": {
+      "title": "Épidémiologie",
+      "slug": "epidemiologie",
+      "cycle": "MASTER",
+      "duration": "2 ans",
+      "entry_requirement": "Licence ou TSS",
+      "diploma": "Master Épidémiologie",
+      "inscription_fee": 41000,
+      "tranche_count": 2,
+      "tranche_amount": 200000,
+      "tuition_total": 410000,
+      "is_active": true,
+      "sessions": []
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 24,
+    "fields": {
+      "title": "Suivi et Évaluation",
+      "slug": "suivi-evaluation",
+      "cycle": "MASTER",
+      "duration": "2 ans",
+      "entry_requirement": "Licence ou TSS",
+      "diploma": "Master Suivi et Évaluation",
+      "inscription_fee": 41000,
+      "tranche_count": 2,
+      "tranche_amount": 200000,
+      "tuition_total": 410000,
+      "is_active": true,
+      "sessions": []
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 25,
+    "fields": {
+      "title": "Nutrition et Sécurité Alimentaire",
+      "slug": "nutrition-securite-alimentaire",
+      "cycle": "MASTER",
+      "duration": "2 ans",
+      "entry_requirement": "Licence ou TSS",
+      "diploma": "Master Nutrition et Sécurité Alimentaire",
+      "inscription_fee": 41000,
+      "tranche_count": 2,
+      "tranche_amount": 200000,
+      "tuition_total": 410000,
+      "is_active": true,
+      "sessions": []
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 26,
+    "fields": {
+      "title": "Économie de la Santé",
+      "slug": "economie-sante",
+      "cycle": "MASTER",
+      "duration": "2 ans",
+      "entry_requirement": "Licence ou TSS",
+      "diploma": "Master Économie de la Santé",
+      "inscription_fee": 41000,
+      "tranche_count": 2,
+      "tranche_amount": 200000,
+      "tuition_total": 410000,
+      "is_active": true,
+      "sessions": []
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 27,
+    "fields": {
+      "title": "Médecine Légale",
+      "slug": "medecine-legale",
+      "cycle": "MASTER",
+      "duration": "2 ans",
+      "entry_requirement": "Licence ou TSS",
+      "diploma": "Master Médecine Légale",
+      "inscription_fee": 41000,
+      "tranche_count": 2,
+      "tranche_amount": 200000,
+      "tuition_total": 410000,
+      "is_active": true,
+      "sessions": []
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 28,
+    "fields": {
+      "title": "Santé Environnementale",
+      "slug": "sante-environnementale",
+      "cycle": "MASTER",
+      "duration": "2 ans",
+      "entry_requirement": "Licence ou TSS",
+      "diploma": "Master Santé Environnementale",
+      "inscription_fee": 41000,
+      "tranche_count": 2,
+      "tranche_amount": 200000,
+      "tuition_total": 410000,
+      "is_active": true,
+      "sessions": []
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 29,
+    "fields": {
+      "title": "Santé Mentale",
+      "slug": "sante-mentale",
+      "cycle": "MASTER",
+      "duration": "2 ans",
+      "entry_requirement": "Licence ou TSS",
+      "diploma": "Master Santé Mentale",
+      "inscription_fee": 41000,
+      "tranche_count": 2,
+      "tranche_amount": 200000,
+      "tuition_total": 410000,
+      "is_active": true,
+      "sessions": []
+    }
+  },
+  {
+    "model": "programs.program",
+    "pk": 30,
+    "fields": {
+      "title": "Santé Humanitaire",
+      "slug": "sante-humanitaire",
+      "cycle": "MASTER",
+      "duration": "2 ans",
+      "entry_requirement": "Licence ou TSS",
+      "diploma": "Master Santé Humanitaire",
+      "inscription_fee": 41000,
+      "tranche_count": 2,
+      "tranche_amount": 200000,
+      "tuition_total": 410000,
+      "is_active": true,
+      "sessions": []
+    }
+  }
+]

@@ -1,0 +1,47 @@
+<div class="space-y-6">
+  <!-- Bandeau bienvenue -->
+  <div class="rounded-xl bg-gradient-to-r from-cyan-600 to-blue-700 text-white p-5">
+    <div class="text-sm opacity-90">Bienvenue</div>
+    <div class="text-xl font-semibold">{{ request.user.first_name|default:request.user.username }}</div>
+    <div class="text-xs mt-1 opacity-90">
+      Programme : {{ enrollment.program.title }} · Cohorte {{ enrollment.cohort.label }}
+    </div>
+  </div>
+
+  <!-- 3 cartes KPI -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+      <div class="text-xs text-slate-500 dark:text-slate-400">Progression générale</div>
+      <div class="mt-2 text-2xl font-semibold">{{ kpi.progress|default:"0" }}%</div>
+      <div class="mt-3 h-2 bg-slate-200 dark:bg-slate-700 rounded">
+        <div class="h-2 bg-cyan-600 rounded" style="width: {{ kpi.progress|default:0 }}%"></div>
+      </div>
+    </div>
+    <div class="rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+      <div class="text-xs text-slate-500 dark:text-slate-400">Devoirs à faire</div>
+      <div class="mt-2 text-2xl font-semibold">{{ kpi.todo_assignments|default:0 }}</div>
+    </div>
+    <div class="rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+      <div class="text-xs text-slate-500 dark:text-slate-400">Prochain examen</div>
+      <div class="mt-2 text-sm">{{ kpi.next_exam|default:"Aucun programmé" }}</div>
+    </div>
+  </div>
+
+  <!-- Dernières activités -->
+  <div class="rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="font-semibold">Activités récentes</h3>
+      <a href="#" class="text-cyan-600 hover:underline text-sm">Tout voir</a>
+    </div>
+    <ul class="space-y-2 text-sm">
+      {% for item in activity %}
+        <li class="flex items-center justify-between">
+          <span class="truncate">{{ item.text }}</span>
+          <span class="opacity-60">{{ item.when }}</span>
+        </li>
+      {% empty %}
+        <li class="text-slate-500 dark:text-slate-400">Aucune activité.</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>

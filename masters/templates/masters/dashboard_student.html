@@ -1,0 +1,185 @@
+{% extends "base_dashboard.html" %}
+{% load static %}
+
+{% block title %}Tableau de bord Étudiant | ESFé Mali{% endblock %}
+{% block header_title %}Espace Étudiant Master{% endblock %}
+
+{% block sidebar %}
+<ul id="sidebar-links" class="space-y-1 text-sm font-medium">
+
+  <!-- 🏠 Aperçu -->
+  <li><a data-section="overview" class="active-link cursor-pointer flex items-center gap-2">
+    <i data-lucide="home" class="w-5 h-5"></i> <span>Aperçu</span></a></li>
+
+  <!-- 📚 Cours -->
+  <li><a data-section="courses" class="cursor-pointer flex items-center gap-2">
+    <i data-lucide="book-open" class="w-5 h-5"></i> <span>Mes cours</span></a></li>
+
+  <!-- 📝 Devoirs -->
+  <li><a data-section="assignments" class="cursor-pointer flex items-center gap-2">
+    <i data-lucide="file-text" class="w-5 h-5"></i> <span>Devoirs</span></a></li>
+
+  <!-- 🧾 Examens -->
+  <li><a data-section="exams" class="cursor-pointer flex items-center gap-2">
+    <i data-lucide="clipboard-list" class="w-5 h-5"></i> <span>Examens</span></a></li>
+
+  <!-- 📊 Résultats -->
+  <li><a data-section="results" class="cursor-pointer flex items-center gap-2">
+    <i data-lucide="bar-chart-3" class="w-5 h-5"></i> <span>Résultats</span></a></li>
+
+  <!-- 💬 Messagerie interne -->
+  <li><a data-section="messenger" class="cursor-pointer flex items-center gap-2">
+    <i data-lucide="message-circle" class="w-5 h-5"></i> <span>Messagerie interne</span></a></li>
+
+  <!-- ⚙️ Paramètres -->
+  <li><a data-section="settings" class="cursor-pointer flex items-center gap-2">
+    <i data-lucide="settings" class="w-5 h-5"></i> <span>Paramètres</span></a></li>
+
+  <li class="border-t border-slate-200 dark:border-slate-700 my-2"></li>
+
+  <!-- 🎥 Cours en ligne -->
+  <li><a id="nav-course-space" class="cursor-pointer flex items-center gap-2">
+    <i data-lucide="video" class="w-5 h-5"></i> <span>Cours en ligne</span></a></li>
+
+  <!-- 🚪 Déconnexion -->
+  <li><a href="{% url 'masters:logout' %}" class="flex items-center gap-2 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors duration-200">
+    <i data-lucide="log-out" class="w-5 h-5"></i> <span>Déconnexion</span></a></li>
+</ul>
+
+<style>
+  #sidebar-links a {
+    display:flex;align-items:center;gap:.6rem;padding:.55rem .75rem;
+    border-radius:.6rem;color:#334155;font-weight:500;
+    transition:all .2s ease;
+  }
+  #sidebar-links a:hover { background:#ecfeff;color:#0891b2; }
+  #sidebar-links a.active-link {
+    background:#cffafe;color:#164e63;font-weight:600;
+    box-shadow:inset 3px 0 0 #0891b2;
+  }
+  .dark #sidebar-links a:hover { background:#0f172a;color:#22d3ee; }
+  .dark #sidebar-links a.active-link {
+    background:#164e63;color:#67e8f9;box-shadow:inset 3px 0 0 #22d3ee;
+  }
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<!-- 🧭 Header -->
+<section class="mb-5 flex flex-col sm:flex-row sm:items-center sm:justify-between bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-slate-200 dark:border-slate-700">
+  <div class="space-y-1">
+    <h2 class="text-xl font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+      <i data-lucide="graduation-cap" class="w-5 h-5 text-cyan-600"></i> Bienvenue
+    </h2>
+    <p class="text-sm text-slate-500 dark:text-slate-400">Tableau de bord étudiant</p>
+  </div>
+  <button id="refresh-section"
+          class="px-4 py-2 bg-cyan-600 text-white rounded shadow-sm flex items-center gap-2 hover:bg-cyan-500 transition-all">
+    <i data-lucide="refresh-cw" class="w-4 h-4"></i> Rafraîchir
+  </button>
+</section>
+
+<!-- 📦 Contenu dynamique -->
+<div id="student-dashboard-content"
+     class="rounded-xl border border-slate-200 dark:border-slate-700 p-5 bg-white dark:bg-slate-800 relative min-h-[60vh] shadow-sm overflow-hidden">
+
+  <!-- ⏳ Loader -->
+  <div id="spinner"
+       class="hidden absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-slate-900/80 z-10 backdrop-blur-sm">
+    <div class="flex flex-col items-center gap-2 text-slate-600 dark:text-slate-300 text-sm">
+      <div class="loading loading-ring loading-md text-cyan-600"></div>
+      <span>Chargement...</span>
+    </div>
+  </div>
+
+  <div id="dashboard-inner" class="text-center text-slate-500 py-8">
+    Chargement en cours…
+  </div>
+</div>
+
+<script>
+(function(){
+  const container   = document.getElementById("dashboard-inner");
+  const spinner     = document.getElementById("spinner");
+  const nav         = document.getElementById("sidebar-links");
+  const btnRefresh  = document.getElementById("refresh-section");
+  const courseSpace = document.getElementById("nav-course-space");
+
+  // ✅ Réinitialisation des scripts après fetch()
+  function rearmScripts(scopeEl){
+    scopeEl.querySelectorAll("script").forEach(old=>{
+      const s=document.createElement("script");
+      if(old.src) s.src=old.src;
+      else s.textContent=old.textContent;
+      document.body.appendChild(s);
+      old.remove();
+    });
+  }
+
+  // ✅ Chargement AJAX des fragments
+  async function loadView(url){
+    spinner.classList.remove("hidden");
+    try{
+      const resp = await fetch(url, { headers:{"X-Requested-With":"XMLHttpRequest"} });
+      if(!resp.ok) throw new Error("Erreur "+resp.status);
+      const html = await resp.text();
+      container.innerHTML = html || "<div class='text-slate-500 py-6'>Aucun contenu à afficher.</div>";
+
+      if(window.lucide) lucide.createIcons();
+      if(window.HSStaticMethods) HSStaticMethods.autoInit();
+      if(window.Alpine){
+        Alpine.flushAndStopDeferringMutations && Alpine.flushAndStopDeferringMutations();
+        Alpine.initTree(container);
+      }
+
+      rearmScripts(container);
+    }catch(e){
+      console.error(e);
+      container.innerHTML = "<div class='text-red-600 font-medium p-4'>⚠️ Erreur de chargement.</div>";
+    }finally{
+      spinner.classList.add("hidden");
+    }
+  }
+
+  // ✅ Navigation latérale
+  nav.addEventListener("click",(e)=>{
+    const a=e.target.closest("[data-section]");
+    if(!a)return;
+    e.preventDefault();
+    nav.querySelectorAll("a").forEach(x=>x.classList.remove("active-link"));
+    a.classList.add("active-link");
+
+    // 💬 Cas spécial : Messagerie interne
+    if(a.dataset.section === "messenger"){
+      loadView("/messenger/?fragment=1"); // ✅ corrigé
+      return;
+    }
+
+    // Chargement normal
+    loadView(`/master/student/fragment/${a.dataset.section}/`);
+  });
+
+  // ✅ Espace cours (Google Meet intégré)
+  courseSpace.addEventListener("click",(e)=>{
+    e.preventDefault();
+    nav.querySelectorAll("a").forEach(x=>x.classList.remove("active-link"));
+    courseSpace.classList.add("active-link");
+    loadView(`/master/student/fragment/course/1/`);
+  });
+
+  // ✅ Rafraîchir la section courante
+    // ✅ Rafraîchir la section courante
+    btnRefresh.addEventListener("click",()=>{
+      const current = document.querySelector("#sidebar-links a.active-link")?.dataset.section || "overview";
+      if(current === "messenger"){
+        loadView("/messenger/?fragment=1"); // ✅ corrigé
+      } else {
+        loadView(`/master/student/fragment/${current}/`);
+      }
+    });
+
+  // ✅ Chargement initial (Aperçu)
+  loadView(`/master/student/fragment/overview/`);
+})();
+</script>
+{% endblock %}

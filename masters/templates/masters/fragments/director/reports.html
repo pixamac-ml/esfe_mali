@@ -1,0 +1,62 @@
+<section class="space-y-6">
+  <header>
+    <h2 class="text-xl font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+      <i data-lucide="file-bar-chart-2" class="w-6 h-6 text-cyan-600"></i> Rapports académiques
+    </h2>
+    <p class="text-sm text-slate-500 dark:text-slate-400">
+      Exportez ou consultez les rapports statistiques globaux.
+    </p>
+  </header>
+
+  <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4">
+    <h3 class="font-semibold text-slate-700 dark:text-white mb-3">📘 Nombre de modules par programme</h3>
+    <table class="w-full text-sm border-collapse">
+      <thead class="bg-slate-100 dark:bg-slate-700/40">
+        <tr>
+          <th class="text-left p-2">Programme</th>
+          <th class="text-right p-2">Modules</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in programs %}
+        <tr class="border-b border-slate-100 dark:border-slate-700">
+          <td class="p-2">{{ p.semester__program__title }}</td>
+          <td class="p-2 text-right text-cyan-600">{{ p.nb_modules }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="2" class="text-center py-3 text-slate-400">Aucune donnée</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4">
+    <h3 class="font-semibold text-slate-700 dark:text-white mb-3">🎓 Moyenne générale par programme</h3>
+    <ul class="divide-y divide-slate-100 dark:divide-slate-700">
+      {% for a in avg_per_program %}
+      <li class="flex justify-between py-1 text-sm">
+        <span>{{ a.semester__program__title }}</span>
+        <span class="font-medium text-cyan-600">{{ a.avg_result|floatformat:2 }}</span>
+      </li>
+      {% empty %}
+      <li class="text-center text-slate-400 py-3">Aucune donnée disponible.</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4">
+    <h3 class="font-semibold text-slate-700 dark:text-white mb-3">🧾 Examens récents</h3>
+    <ul class="divide-y divide-slate-100 dark:divide-slate-700">
+      {% for e in recent_exams %}
+      <li class="flex justify-between py-1 text-sm">
+        <span>{{ e.title }}</span>
+        <span class="text-slate-400">{{ e.start_at|date:"d/m/Y" }}</span>
+      </li>
+      {% empty %}
+      <li class="text-center text-slate-400 py-3">Aucun examen enregistré.</li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+
+<script>lucide.createIcons();</script>

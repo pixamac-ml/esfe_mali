@@ -1,0 +1,137 @@
+{% load static %}
+
+<div class="space-y-6">
+
+  <!-- 🧭 En-tête -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div>
+      <h2 class="text-xl font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+        <i data-lucide="clipboard-list" class="w-5 h-5 text-cyan-600"></i>
+        Examens
+      </h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400">
+        Planning des examens à venir et résultats déjà publiés.
+      </p>
+    </div>
+
+    <button id="refresh-exams"
+      class="flex items-center gap-2 px-3 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-medium shadow-sm transition-all duration-150">
+      <i data-lucide="refresh-cw" class="w-4 h-4"></i> Rafraîchir
+    </button>
+  </div>
+
+  <!-- 📅 Examens à venir -->
+  {% if upcoming_exams %}
+  <div>
+    <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">
+      <i data-lucide="calendar" class="w-4 h-4 text-cyan-600"></i> Examens à venir
+    </h3>
+
+    <div class="grid md:grid-cols-2 gap-4">
+      {% for e in upcoming_exams %}
+      <div class="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm p-4 hover:shadow-md transition-all duration-200">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-xs text-slate-500 dark:text-slate-400 mb-1">
+              {{ e.semester.name }} — {{ e.semester.program.title }}
+            </div>
+            <h4 class="text-base font-semibold text-slate-800 dark:text-white">{{ e.title }}</h4>
+          </div>
+          {% if e.is_open %}
+            <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 flex items-center gap-1">
+              <i data-lucide="check-circle" class="w-3 h-3"></i> Ouvert
+            </span>
+          {% else %}
+            <span class="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 flex items-center gap-1">
+              <i data-lucide="clock" class="w-3 h-3"></i> À venir
+            </span>
+          {% endif %}
+        </div>
+
+        <div class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex items-center gap-1">
+          <i data-lucide="calendar-days" class="w-3 h-3 text-cyan-600"></i>
+          {% if e.start_at %}
+            Début : {{ e.start_at|date:"d/m H:i" }}
+          {% endif %}
+          {% if e.end_at %}
+            — Fin : {{ e.end_at|date:"H:i" }}
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% else %}
+  <p class="text-sm text-slate-500 dark:text-slate-400">Aucun examen planifié pour le moment.</p>
+  {% endif %}
+
+  <!-- 🏆 Examens terminés -->
+  {% if past_exams_rows %}
+  <div class="pt-4">
+    <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">
+      <i data-lucide="award" class="w-4 h-4 text-cyan-600"></i> Examens terminés
+    </h3>
+
+    <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-800">
+      <table class="min-w-full text-sm table-auto">
+        <thead class="bg-slate-50 dark:bg-slate-700/60">
+          <tr class="text-left text-slate-700 dark:text-slate-200 font-medium">
+            <th class="px-4 py-2">Examen</th>
+            <th class="px-4 py-2">Semestre</th>
+            <th class="px-4 py-2">Type</th>
+            <th class="px-4 py-2">Date</th>
+            <th class="px-4 py-2 text-center">Note /20</th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+          {% for row in past_exams_rows %}
+          {% with e=row.exam grade=row.grade %}
+          <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-colors">
+            <td class="px-4 py-2 text-slate-800 dark:text-slate-200 font-medium">{{ e.title }}</td>
+            <td class="px-4 py-2 text-xs text-slate-600 dark:text-slate-400">{{ e.semester.name }}</td>
+            <td class="px-4 py-2 text-xs text-slate-600 dark:text-slate-400">{{ e.get_eval_kind_display }}</td>
+            <td class="px-4 py-2 text-xs text-slate-600 dark:text-slate-400">{{ e.start_at|date:"d/m/Y" }}</td>
+
+            <!-- ✅ Note colorée -->
+            <td class="px-4 py-2 text-center font-semibold {% if grade and grade.note_20 and grade.note_20|floatformat >= 10 %}text-emerald-600{% else %}text-rose-600{% endif %}">
+              {% if grade %}
+                {{ grade.note_20|default:"—" }}
+              {% else %}
+                —
+              {% endif %}
+            </td>
+          </tr>
+          {% endwith %}
+          {% empty %}
+          <tr>
+            <td colspan="5" class="text-center py-6 text-slate-400 dark:text-slate-500">
+              Aucun examen passé trouvé.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- ✅ Scripts -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  // Active Lucide et Preline
+  if (window.lucide) lucide.createIcons();
+  if (window.HSStaticMethods) HSStaticMethods.autoInit();
+
+  // 🔁 Rafraîchir la section Examens
+  const refreshBtn = document.getElementById("refresh-exams");
+  if (refreshBtn) {
+    refreshBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      refreshBtn.classList.add("opacity-70", "pointer-events-none");
+      setTimeout(() => location.reload(), 500);
+    });
+  }
+});
+</script>

@@ -1,0 +1,53 @@
+<article class="group rounded-xl bg-white border border-slate-200 shadow-md hover:shadow-lg overflow-hidden transition flex flex-col">
+
+  <!-- Image -->
+  <div class="relative">
+    {% if program.image %}
+      <img src="{{ program.image.url }}" alt="{{ program.title }}"
+           class="h-40 w-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
+    {% else %}
+      <img src="https://picsum.photos/seed/{{ program.slug }}-mini/640/320" alt="{{ program.title }}"
+           class="h-40 w-full object-cover opacity-95 group-hover:scale-105 transition-transform duration-500" loading="lazy">
+    {% endif %}
+
+    <!-- Badge cycle -->
+    <span class="absolute top-3 left-3 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-brand-cyan/90 text-white shadow">
+      {{ program.get_cycle_display }}
+    </span>
+  </div>
+
+  <!-- Contenu -->
+  <div class="p-4 flex flex-col flex-1">
+    <h4 class="text-base font-semibold text-slate-900 line-clamp-2 group-hover:text-primary-900 transition">
+      {{ program.title }}
+    </h4>
+
+    <!-- Infos clés -->
+    <div class="mt-2 text-xs text-slate-600 space-y-1">
+      <p>📘 Niveau : <span class="font-medium">{{ program.level|default:"N/A" }}</span></p>
+      <p>⏳ Durée : <span class="font-medium">{{ program.duration|default:"—" }}</span></p>
+      {% if program.diploma %}
+        <p>🎓 Diplôme : <span class="font-medium">{{ program.diploma }}</span></p>
+      {% endif %}
+    </div>
+
+    <!-- Boutons -->
+    <div class="mt-4 flex items-center justify-between">
+      <a href="{{ program.get_absolute_url }}"
+         class="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-lg bg-brand-cyan text-primary-900 hover:bg-primary-900 hover:text-white transition">
+        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 12h12"/>
+        </svg>
+        Détails
+      </a>
+
+      <a href="{{ apply_url|default:'#admission' }}"
+         class="text-xs font-semibold text-slate-700 hover:text-primary-900 flex items-center">
+        Candidater
+        <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+</article>

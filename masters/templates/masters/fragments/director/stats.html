@@ -1,0 +1,66 @@
+<section class="space-y-6">
+  <header>
+    <h2 class="text-xl font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+      <i data-lucide="pie-chart" class="w-6 h-6 text-cyan-600"></i> Statistiques générales
+    </h2>
+    <p class="text-sm text-slate-500 dark:text-slate-400">
+      Vue globale des indicateurs clés de la plateforme Master.
+    </p>
+  </header>
+
+  <!-- KPIs -->
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+    <div class="bg-white dark:bg-slate-800 rounded-xl p-4 shadow">
+      <p class="text-sm text-slate-500">Étudiants</p>
+      <p class="text-2xl font-bold text-cyan-600">{{ nb_students|default:"—" }}</p>
+    </div>
+    <div class="bg-white dark:bg-slate-800 rounded-xl p-4 shadow">
+      <p class="text-sm text-slate-500">Enseignants</p>
+      <p class="text-2xl font-bold text-cyan-600">{{ nb_teachers|default:"—" }}</p>
+    </div>
+    <div class="bg-white dark:bg-slate-800 rounded-xl p-4 shadow">
+      <p class="text-sm text-slate-500">Modules</p>
+      <p class="text-2xl font-bold text-cyan-600">{{ nb_modules|default:"—" }}</p>
+    </div>
+    <div class="bg-white dark:bg-slate-800 rounded-xl p-4 shadow">
+      <p class="text-sm text-slate-500">Examens</p>
+      <p class="text-2xl font-bold text-cyan-600">{{ nb_exams|default:"—" }}</p>
+    </div>
+    <div class="bg-white dark:bg-slate-800 rounded-xl p-4 shadow">
+      <p class="text-sm text-slate-500">Taux de réussite</p>
+      <p class="text-2xl font-bold text-green-600">{{ avg_success|default:"0" }}%</p>
+    </div>
+  </div>
+
+  <!-- Répartition des examens -->
+  <div class="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700">
+    <h3 class="font-semibold text-slate-700 dark:text-white mb-2">Répartition des examens par semestre</h3>
+    <ul class="divide-y divide-slate-100 dark:divide-slate-700">
+      {% for exam in exams_by_semester %}
+      <li class="flex justify-between py-1 text-sm">
+        <span>{{ exam.semester__name }}</span>
+        <span class="font-medium text-cyan-600">{{ exam.total }}</span>
+      </li>
+      {% empty %}
+      <li class="text-center text-slate-400 py-3">Aucune donnée disponible.</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- Top modules -->
+  <div class="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700">
+    <h3 class="font-semibold text-slate-700 dark:text-white mb-2">Top 5 modules les plus enseignés</h3>
+    <ul class="divide-y divide-slate-100 dark:divide-slate-700">
+      {% for m in top_modules %}
+      <li class="flex justify-between py-1 text-sm">
+        <span>{{ m.title }}</span>
+        <span class="text-cyan-600">{{ m.nb_assignments }}</span>
+      </li>
+      {% empty %}
+      <li class="text-center text-slate-400 py-3">Aucune donnée disponible.</li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+
+<script>lucide.createIcons();</script>

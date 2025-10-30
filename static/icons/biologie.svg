@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <!-- Microscope -->
+      <path d="M8 3h4l-2 4h-4z"/>
+      <path d="M14 3v6"/>
+      <path d="M5 20h14"/>
+      <path d="M7 16a5 5 0 0 1 10 0v4H7z"/>
+      <circle cx="14" cy="9" r="1"/>
+    </svg>

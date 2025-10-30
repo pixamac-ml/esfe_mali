@@ -1,0 +1,77 @@
+{% extends "base_dashboard.html" %}
+{% load static %}
+
+{% block title %}Liste des étudiants et inscriptions | ESFé Mali{% endblock %}
+{% block header_title %}Gestion des inscriptions étudiants{% endblock %}
+
+{% block dashboard_content %}
+<div class="p-6 space-y-6">
+
+  <div class="flex justify-between items-center">
+    <h2 class="text-2xl font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+      <i data-lucide="users" class="w-6 h-6 text-cyan-600"></i> Liste des étudiants
+    </h2>
+    <a href="#" class="btn btn-sm bg-cyan-600 hover:bg-cyan-500 text-white">Exporter CSV</a>
+  </div>
+
+  <div class="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 shadow">
+    <table class="min-w-full text-sm">
+      <thead class="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200">
+        <tr>
+          <th class="py-2 px-4 text-left">Étudiant</th>
+          <th class="py-2 px-4 text-left">Programme</th>
+          <th class="py-2 px-4 text-left">Cohorte</th>
+          <th class="py-2 px-4 text-center">Statut</th>
+          <th class="py-2 px-4 text-left">Modules</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+        {% for row in data %}
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/40 transition">
+          <td class="py-2 px-4">
+            <div>
+              <span class="font-medium text-slate-800 dark:text-slate-200">{{ row.student.get_full_name|default:row.student.username }}</span>
+              <p class="text-xs text-slate-500 dark:text-slate-400">{{ row.student.email }}</p>
+            </div>
+          </td>
+
+          <td class="py-2 px-4">
+            {% if row.has_enrollment %}
+              {{ row.enrollments.0.program.title }}
+            {% else %}
+              <span class="text-slate-400 italic">Non inscrit</span>
+            {% endif %}
+          </td>
+
+          <td class="py-2 px-4">
+            {% if row.has_enrollment %}
+              {{ row.enrollments.0.cohort.label }}
+            {% endif %}
+          </td>
+
+          <td class="py-2 px-4 text-center">
+            {% if row.has_enrollment %}
+              <span class="badge badge-success">Active</span>
+            {% else %}
+              <span class="badge badge-warning">Aucune</span>
+            {% endif %}
+          </td>
+
+          <td class="py-2 px-4 text-xs text-slate-500 dark:text-slate-400">
+            {% if row.has_enrollment %}
+              {% for m in row.modules %}
+                <span class="inline-block bg-cyan-100 dark:bg-cyan-900 text-cyan-700 dark:text-cyan-300 px-2 py-0.5 rounded-lg mr-1 mb-1">{{ m.title }}</span>
+              {% endfor %}
+            {% else %}
+              —
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>lucide.createIcons();</script>
+{% endblock %}

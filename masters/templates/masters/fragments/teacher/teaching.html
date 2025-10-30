@@ -1,0 +1,27 @@
+{% load static %}
+<div class="animate-fade-in">
+  <h2 class="text-xl font-semibold mb-6 text-slate-800 dark:text-white flex items-center gap-2">
+    <i data-lucide="book-open" class="w-5 h-5 text-cyan-600"></i> Mes enseignements
+  </h2>
+
+  <div class="grid md:grid-cols-2 gap-5">
+    {% for course in '1'|rjust:4 %}
+    <div class="card bg-base-100 shadow-md hover:shadow-xl border border-base-300 transition transform hover:-translate-y-1 duration-300">
+      <div class="card-body">
+        <h3 class="card-title text-cyan-600">Biostatistique — Master 1</h3>
+        <p class="text-sm text-slate-500">
+          20 étudiants inscrits • 5 chapitres • Dernière mise à jour : 02/10/2025
+        </p>
+        <div class="card-actions mt-3 flex gap-3 text-sm">
+          <button class="btn btn-info btn-sm gap-1">
+            <i data-lucide="eye" class="w-4 h-4"></i> Voir le cours
+          </button>
+          <button class="btn btn-outline btn-primary btn-sm gap-1">
+            <i data-lucide="plus" class="w-4 h-4"></i> Ajouter du contenu
+          </button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>

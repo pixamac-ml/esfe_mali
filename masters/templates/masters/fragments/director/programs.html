@@ -1,0 +1,190 @@
+<!-- =======================
+  🎓 Fragment : programs.html
+  Rôle : Directeur des Études — Vue des Programmes Master
+  Basé sur _programs_context()
+======================= -->
+
+<section x-data="programsFragment()" class="space-y-6">
+
+  <!-- Header -->
+  <header class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h2 class="text-xl font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+        <i data-lucide="book-open" class="w-5 h-5 text-cyan-600"></i>
+        Programmes Master
+      </h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400">
+        {{ meta.total|default:"0" }} programme{{ meta.total|pluralize }} trouvés
+      </p>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <a href="/masters/api_director/export/programs.xlsx"
+         class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 dark:border-slate-700">
+        <i data-lucide="download" class="w-4 h-4"></i> Export Excel
+      </a>
+      <a href="/masters/api_director/export/programs.pdf"
+         class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-cyan-600 text-white hover:bg-cyan-500">
+        <i data-lucide="file-text" class="w-4 h-4"></i> Export PDF
+      </a>
+    </div>
+  </header>
+
+  <!-- Barre de recherche -->
+  <form @submit.prevent="applyFilters"
+        class="flex flex-wrap items-end gap-3 bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+    <div class="grow">
+      <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Recherche</label>
+      <div class="relative">
+        <input type="text" x-model="filters.q" placeholder="Titre ou code du programme"
+               class="pe-textbox pl-9" value="{{ filters.q }}">
+        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+      </div>
+    </div>
+    <div>
+      <button type="button" @click="resetFilters"
+              class="px-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
+        Réinitialiser
+      </button>
+      <button type="submit"
+              class="px-3 py-2 rounded-lg bg-cyan-600 text-white hover:bg-cyan-500">
+        Appliquer
+      </button>
+    </div>
+  </form>
+
+  <!-- Tableau des Programmes -->
+  <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-100 dark:bg-slate-700/50 text-left">
+          <tr class="text-slate-600 dark:text-slate-200">
+            <th class="px-4 py-3">Code</th>
+            <th class="px-4 py-3">Titre du programme</th>
+            <th class="px-4 py-3 text-center">Semestres</th>
+            <th class="px-4 py-3 text-center">Modules</th>
+            <th class="px-4 py-3 text-center">Étudiants</th>
+            <th class="px-4 py-3 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+          {% for p in programs %}
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/40 transition">
+              <td class="px-4 py-3 font-medium text-slate-700 dark:text-slate-200">{{ p.code|default:"—" }}</td>
+              <td class="px-4 py-3">
+                <div class="text-slate-800 dark:text-slate-100 font-medium">{{ p.title }}</div>
+                <div class="text-xs text-slate-500 dark:text-slate-400">
+                  Cycle : {{ p.cycle|default:"—" }} / {{ p.domain|default:"" }}
+                </div>
+              </td>
+              <td class="px-4 py-3 text-center">{{ p.semesters_count|default:"0" }}</td>
+              <td class="px-4 py-3 text-center">{{ p.modules_count|default:"0" }}</td>
+              <td class="px-4 py-3 text-center">{{ p.students_count|default:"0" }}</td>
+              <td class="px-4 py-3 text-right">
+                <button @click="openProgramDetail({{ p.id }})"
+                        class="pe-btn pe-btn-ghost">
+                  <i data-lucide="eye" class="w-4 h-4"></i> Détails
+                </button>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="6" class="px-4 py-6 text-center text-slate-500 dark:text-slate-400">
+                Aucun programme trouvé.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="flex items-center justify-between px-4 py-3 border-t border-slate-200 dark:border-slate-700 text-sm">
+      <div class="text-slate-500 dark:text-slate-400">
+        Page {{ meta.page }} / {{ meta.pages }} — {{ meta.total }} élément{{ meta.total|pluralize }}
+      </div>
+      <div class="flex items-center gap-2">
+        {% if meta.has_prev %}
+          <a href="/master/director/fragment/programs/?page={{ meta.page|add:'-1' }}&q={{ filters.q }}"
+             @click.prevent="goto($event)"
+             class="pe-btn pe-btn-ghost">Précédent</a>
+        {% else %}
+          <span class="pe-btn pe-btn-disabled">Précédent</span>
+        {% endif %}
+        {% if meta.has_next %}
+          <a href="/master/director/fragment/programs/?page={{ meta.page|add:'1' }}&q={{ filters.q }}"
+             @click.prevent="goto($event)"
+             class="pe-btn pe-btn-ghost">Suivant</a>
+        {% else %}
+          <span class="pe-btn pe-btn-disabled">Suivant</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<script>
+  function programsFragment(){
+    const initial = {
+      q: "{{ filters.q|default:'' }}",
+      page: {{ meta.page|default:1 }}
+    };
+
+    const buildURL = (params) => {
+      const u = new URL(location.origin + "/master/director/fragment/programs/");
+      Object.entries(params).forEach(([k,v])=>{
+        if(v!==null && String(v).length) u.searchParams.set(k, v);
+      });
+      return u.toString();
+    };
+
+    const replaceFragment = async (url) => {
+      const container = document.querySelector("#content-inner");
+      const spinner   = document.querySelector("#spinner");
+      if(!container) return;
+      spinner?.classList.remove("hidden");
+      try{
+        const resp = await fetch(url, {headers:{'X-Requested-With':'XMLHttpRequest'}});
+        const html = await resp.text();
+        container.innerHTML = html;
+        if(window.lucide) lucide.createIcons();
+        if(window.HSStaticMethods?.autoInit) window.HSStaticMethods.autoInit();
+      }catch(e){
+        console.error(e);
+        container.innerHTML = `<div class='p-4 text-red-600'>⚠️ Erreur de chargement</div>`;
+      }finally{
+        spinner?.classList.add("hidden");
+      }
+    };
+
+    return {
+      filters: {...initial},
+
+      applyFilters(){
+        this.filters.page = 1;
+        replaceFragment(buildURL(this.filters));
+      },
+
+      resetFilters(){
+        this.filters.q = "";
+        this.filters.page = 1;
+        replaceFragment(buildURL(this.filters));
+      },
+
+      goto(e){
+        const url = e.currentTarget.getAttribute("href");
+        replaceFragment(url);
+      },
+
+      openProgramDetail(programId){
+        const url = new URL(location.origin + "/master/director/fragment/modules/");
+        url.searchParams.set("program_id", programId);
+        replaceFragment(url.toString());
+      }
+    }
+  }
+
+  if(window.lucide) lucide.createIcons();
+  if(window.HSStaticMethods?.autoInit) window.HSStaticMethods.autoInit();
+</script>

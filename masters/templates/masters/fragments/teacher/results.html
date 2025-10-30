@@ -1,0 +1,84 @@
+{% load static %}
+
+<div class="space-y-8 fade-in">
+
+  <!-- 🧭 En-tête -->
+  <div class="flex justify-between items-center">
+    <h2 class="text-2xl font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+      <i data-lucide="bar-chart-3" class="w-6 h-6 text-info"></i>
+      Résultats récents
+    </h2>
+    <button id="refreshResults" class="btn btn-sm btn-outline btn-info gap-1">
+      <i data-lucide="refresh-cw" class="w-4 h-4"></i> Rafraîchir
+    </button>
+  </div>
+
+  <!-- 📊 Tableau -->
+  <div class="overflow-x-auto rounded-xl shadow bg-base-100 border border-base-300">
+    <table class="table w-full text-sm">
+      <thead class="bg-base-200 text-slate-700 dark:text-slate-300">
+        <tr>
+          <th>Étudiant</th>
+          <th class="text-center">Cours</th>
+          <th class="text-center">Note</th>
+          <th class="text-center">Observation</th>
+        </tr>
+      </thead>
+      <tbody id="resultsBody">
+        <tr><td colspan="4" class="py-6 text-center text-slate-500">Chargement...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div id="toastContainer" class="toast toast-top toast-end z-50"></div>
+</div>
+
+<!-- === SCRIPT === -->
+<script>
+(function(){
+  const body = document.getElementById("resultsBody");
+  const btn = document.getElementById("refreshResults");
+  const toastContainer = document.getElementById("toastContainer");
+
+  function showToast(msg, type="success"){
+    const el = document.createElement("div");
+    el.className = `alert alert-${type} shadow-lg`;
+    el.innerHTML = `<span>${msg}</span>`;
+    toastContainer.appendChild(el);
+    setTimeout(()=>el.remove(), 3500);
+  }
+
+  async function loadResults(){
+    try{
+      // ⚙️ Données fictives (à remplacer par ton API)
+      const results = [
+        {name:"Traoré Mariam", course:"Biostatistique", note:15.5, obs:"Bon travail"},
+        {name:"Kéita Abdoulaye", course:"Méthodologie", note:11.0, obs:"Peut mieux faire"},
+      ];
+
+      body.innerHTML = results.map(r => `
+        <tr class="hover transition">
+          <td>${r.name}</td>
+          <td class="text-center">${r.course}</td>
+          <td class="text-center font-semibold ${r.note >= 12 ? 'text-success' : 'text-warning'}">${r.note}</td>
+          <td class="text-center">${r.obs}</td>
+        </tr>
+      `).join("");
+
+      showToast("Résultats chargés avec succès 🎯");
+    }catch(e){
+      console.error(e);
+      body.innerHTML = "<tr><td colspan='4' class='text-center text-error py-6'>Erreur de chargement</td></tr>";
+      showToast("Erreur lors du chargement des résultats","error");
+    }
+  }
+
+  btn.addEventListener("click", loadResults);
+  loadResults();
+})();
+</script>
+
+<style>
+  .fade-in { animation: fadeIn .3s ease-out; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:none;} }
+</style>

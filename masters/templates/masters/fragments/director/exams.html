@@ -1,0 +1,217 @@
+<!-- =======================
+  🧾 Fragment : exams.html
+  Rôle : Directeur des Études — Gestion & suivi des Examens
+  Basé sur _exams_context() (exams, meta, programs, cohorts, filters)
+======================= -->
+
+<section x-data="examsFragment()" class="space-y-6">
+
+  <!-- Header principal -->
+  <header class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h2 class="text-xl font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+        <i data-lucide="clipboard-list" class="w-5 h-5 text-cyan-600"></i>
+        Examens
+      </h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400">
+        {{ meta.total|default:'0' }} examen{{ meta.total|pluralize }} enregistrés
+      </p>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <a href="/masters/api_director/export/exams.xlsx"
+         class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 dark:border-slate-700">
+        <i data-lucide="download" class="w-4 h-4"></i> Export Excel
+      </a>
+      <a href="/masters/api_director/export/exams.pdf"
+         class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-cyan-600 text-white hover:bg-cyan-500">
+        <i data-lucide="file-text" class="w-4 h-4"></i> Export PDF
+      </a>
+    </div>
+  </header>
+
+  <!-- 🔎 Filtres -->
+  <form @submit.prevent="applyFilters"
+        class="grid grid-cols-1 md:grid-cols-12 gap-3 bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+    <!-- Recherche -->
+    <div class="md:col-span-4">
+      <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Recherche</label>
+      <div class="relative">
+        <input type="text" x-model="filters.q" placeholder="Titre, semestre, etc."
+               class="pe-textbox pl-9" value="{{ filters.q }}">
+        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+      </div>
+    </div>
+
+    <!-- Programme -->
+    <div class="md:col-span-4">
+      <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Programme</label>
+      <select x-model="filters.program_id" class="pe-select">
+        <option value="">— Tous les programmes —</option>
+        {% for p in programs %}
+          <option value="{{ p.id }}" {% if filters.program_id == p.id %}selected{% endif %}>{{ p.title }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Cohorte -->
+    <div class="md:col-span-4">
+      <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Cohorte</label>
+      <select x-model="filters.cohort_id" class="pe-select">
+        <option value="">— Toutes les cohortes —</option>
+        {% for c in cohorts %}
+          <option value="{{ c.id }}" {% if filters.cohort_id == c.id %}selected{% endif %}>{{ c.label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Boutons -->
+    <div class="md:col-span-12 flex items-center justify-end gap-2 pt-2">
+      <button type="button" @click="resetFilters"
+              class="px-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
+        Réinitialiser
+      </button>
+      <button type="submit"
+              class="px-3 py-2 rounded-lg bg-cyan-600 text-white hover:bg-cyan-500">
+        Appliquer
+      </button>
+    </div>
+  </form>
+
+  <!-- 📊 Liste des examens -->
+  <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-100 dark:bg-slate-700/50 text-left">
+          <tr class="text-slate-600 dark:text-slate-200">
+            <th class="px-4 py-3">Titre</th>
+            <th class="px-4 py-3">Programme</th>
+            <th class="px-4 py-3">Semestre</th>
+            <th class="px-4 py-3 text-center">Date début</th>
+            <th class="px-4 py-3 text-center">Date fin</th>
+            <th class="px-4 py-3 text-center">État</th>
+            <th class="px-4 py-3 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+          {% for exam in exams %}
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/40 transition">
+              <td class="px-4 py-3 font-medium text-slate-700 dark:text-slate-200">{{ exam.title }}</td>
+              <td class="px-4 py-3">{{ exam.semester.program.title }}</td>
+              <td class="px-4 py-3">{{ exam.semester.name }}</td>
+              <td class="px-4 py-3 text-center">{{ exam.start_at|date:"d/m/Y H:i" }}</td>
+              <td class="px-4 py-3 text-center">{{ exam.end_at|date:"d/m/Y H:i" }}</td>
+              <td class="px-4 py-3 text-center">
+                {% if exam.is_open %}
+                  <span class="pe-badge pe-badge-success">Ouvert</span>
+                {% else %}
+                  <span class="pe-badge pe-badge-amber">Fermé</span>
+                {% endif %}
+              </td>
+              <td class="px-4 py-3 text-right">
+                <button @click="openExamDetail({{ exam.id }})"
+                        class="pe-btn pe-btn-ghost">
+                  <i data-lucide="eye" class="w-4 h-4"></i> Détails
+                </button>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7" class="text-center py-6 text-slate-500 dark:text-slate-400">
+                Aucun examen trouvé.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="flex items-center justify-between px-4 py-3 border-t border-slate-200 dark:border-slate-700 text-sm">
+      <div class="text-slate-500 dark:text-slate-400">
+        Page {{ meta.page }} / {{ meta.pages }} — {{ meta.total }} examen{{ meta.total|pluralize }}
+      </div>
+      <div class="flex items-center gap-2">
+        {% if meta.has_prev %}
+          <a href="/master/director/fragment/exams/?page={{ meta.page|add:'-1' }}&q={{ filters.q }}"
+             @click.prevent="goto($event)"
+             class="pe-btn pe-btn-ghost">Précédent</a>
+        {% else %}
+          <span class="pe-btn pe-btn-disabled">Précédent</span>
+        {% endif %}
+        {% if meta.has_next %}
+          <a href="/master/director/fragment/exams/?page={{ meta.page|add:'1' }}&q={{ filters.q }}"
+             @click.prevent="goto($event)"
+             class="pe-btn pe-btn-ghost">Suivant</a>
+        {% else %}
+          <span class="pe-btn pe-btn-disabled">Suivant</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<script>
+  function examsFragment(){
+    const initial = {
+      q: "{{ filters.q|default:'' }}",
+      program_id: "{{ filters.program_id|default:'' }}",
+      cohort_id: "{{ filters.cohort_id|default:'' }}",
+      page: {{ meta.page|default:1 }}
+    };
+
+    const buildURL = (params) => {
+      const u = new URL(location.origin + "/master/director/fragment/exams/");
+      Object.entries(params).forEach(([k,v])=>{
+        if(v!==null && String(v).length) u.searchParams.set(k, v);
+      });
+      return u.toString();
+    };
+
+    const replaceFragment = async (url) => {
+      const container = document.querySelector("#content-inner");
+      const spinner   = document.querySelector("#spinner");
+      spinner?.classList.remove("hidden");
+      try{
+        const resp = await fetch(url, {headers:{'X-Requested-With':'XMLHttpRequest'}});
+        const html = await resp.text();
+        container.innerHTML = html;
+        if(window.lucide) lucide.createIcons();
+        if(window.HSStaticMethods?.autoInit) window.HSStaticMethods.autoInit();
+      }catch(e){
+        container.innerHTML = `<div class='p-4 text-red-600'>⚠️ Erreur de chargement</div>`;
+      }finally{
+        spinner?.classList.add("hidden");
+      }
+    };
+
+    return {
+      filters: {...initial},
+
+      applyFilters(){
+        this.filters.page = 1;
+        replaceFragment(buildURL(this.filters));
+      },
+
+      resetFilters(){
+        this.filters = {q:"", program_id:"", cohort_id:"", page:1};
+        replaceFragment(buildURL(this.filters));
+      },
+
+      goto(e){
+        const url = e.currentTarget.getAttribute("href");
+        replaceFragment(url);
+      },
+
+      openExamDetail(examId){
+        const url = new URL(location.origin + "/master/director/fragment/exam_detail/");
+        url.searchParams.set("exam_id", examId);
+        replaceFragment(url.toString());
+      }
+    }
+  }
+
+  if(window.lucide) lucide.createIcons();
+  if(window.HSStaticMethods?.autoInit) window.HSStaticMethods.autoInit();
+</script>

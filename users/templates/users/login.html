@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Connexion — ESFé Mali{% endblock %}
+{% block content %}
+<section class="min-h-[70vh] grid place-items-center bg-slate-50">
+  <div class="w-full max-w-md bg-white rounded-2xl shadow p-8">
+    <h1 class="text-2xl font-bold text-primary-900 mb-6">Connexion</h1>
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      <div>
+        <label class="block text-sm text-slate-700 mb-1">Nom d’utilisateur</label>
+        {{ form.username }}
+      </div>
+      <div>
+        <label class="block text-sm text-slate-700 mb-1">Mot de passe</label>
+        {{ form.password }}
+      </div>
+      <button class="w-full py-2.5 rounded-xl bg-brand-cyan text-white font-semibold hover:bg-primary-900 transition">Se connecter</button>
+    </form>
+    <div class="mt-4 text-right">
+      <a href="{% url 'users:password_reset' %}" class="text-sm text-brand-cyan hover:underline">Mot de passe oublié ?</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

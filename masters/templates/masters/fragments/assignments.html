@@ -1,0 +1,16 @@
+<h2 class="text-xl font-semibold mb-3">Devoirs</h2>
+<div class="rounded-xl border p-3">
+  <button id="new-assign" class="px-3 py-2 rounded bg-slate-800 text-white">Créer un devoir</button>
+</div>
+<script>
+document.getElementById('new-assign').addEventListener('click', async () => {
+  const payload = { title: "Devoir rapide", module_id: 1, kind: "QCM" }; // TODO: dyn
+  const r = await fetch("/master/api/assignments/create/", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify(payload)
+  });
+  const j = await r.json();
+  alert(j.ok ? "Créé: "+j.assignment_id : "Erreur");
+});
+</script>

@@ -1,0 +1,6 @@
+{# templates/messenger/_user_options.html #}
+{% for u in users %}
+  <option value="{{ u.id }}">
+    {{ u.get_full_name|default:u.username }} — {{ u.role|upper }}
+  </option>
+{% endfor %}

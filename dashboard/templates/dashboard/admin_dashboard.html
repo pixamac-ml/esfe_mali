@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Admin{% endblock %}
+
+{% block content %}
+<div class="flex min-h-screen bg-gray-100">
+
+  <!-- Sidebar -->
+  <aside class="w-64 bg-primary-900 text-white flex flex-col fixed top-0 left-0 h-screen">
+    <div class="h-16 flex items-center justify-center border-b border-white/10">
+      <span class="text-lg font-bold">Admin Panel</span>
+    </div>
+    <nav class="flex-1 p-4 space-y-2">
+      <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-primary-700">
+        <i data-lucide="users" class="h-5 w-5"></i>
+        Utilisateurs
+      </a>
+      <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-primary-700">
+        <i data-lucide="book-open" class="h-5 w-5"></i>
+        Admissions
+      </a>
+      <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-primary-700">
+        <i data-lucide="wallet" class="h-5 w-5"></i>
+        Finances
+      </a>
+      <a href="#" id="notif-btn" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-primary-700 relative">
+        <i data-lucide="bell" class="h-5 w-5"></i>
+        Notifications
+        <span id="notif-count" class="hidden absolute -top-1 -right-2 bg-red-600 text-white text-xs rounded-full px-1">
+          0
+        </span>
+      </a>
+      <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-primary-700">
+        <i data-lucide="bar-chart-2" class="h-5 w-5"></i>
+        Rapports
+      </a>
+      <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-primary-700">
+        <i data-lucide="settings" class="h-5 w-5"></i>
+        Paramètres
+      </a>
+      <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-primary-700">
+        <i data-lucide="image" class="h-5 w-5"></i>
+        Galerie
+      </a>
+      <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-primary-700">
+        <i data-lucide="file-text" class="h-5 w-5"></i>
+        Blog
+      </a>
+      <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-primary-700">
+        <i data-lucide="help-circle" class="h-5 w-5"></i>
+        Support
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Contenu principal -->
+  <div class="flex-1 flex flex-col ml-64">
+
+    <!-- Topbar -->
+    <header class="h-16 bg-white shadow flex items-center justify-between px-6">
+      <h1 class="text-xl font-bold">Tableau de bord Administrateur</h1>
+      <div class="flex items-center gap-6">
+        <!-- Profil -->
+        <div class="relative">
+          <button id="user-btn" class="flex items-center gap-2">
+            <i data-lucide="user" class="h-5 w-5 text-gray-700"></i>
+            <span>{{ request.user.username }}</span>
+            <i data-lucide="chevron-down" class="h-4 w-4"></i>
+          </button>
+          <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white border rounded shadow">
+            <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100">Profil</a>
+            <a href="{% url 'users:logout' %}" class="block px-4 py-2 text-sm hover:bg-gray-100">Déconnexion</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Body -->
+    <main class="flex-1 p-6">
+      <!-- Stats rapides -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white p-5 rounded-lg shadow">
+          <div class="text-2xl font-bold text-primary-700">150</div>
+          <div class="text-sm text-gray-500">Utilisateurs</div>
+        </div>
+        <div class="bg-white p-5 rounded-lg shadow">
+          <div class="text-2xl font-bold text-green-600">12</div>
+          <div class="text-sm text-gray-500">Annexes</div>
+        </div>
+        <div class="bg-white p-5 rounded-lg shadow">
+          <div class="text-2xl font-bold text-blue-600">45M CFA</div>
+          <div class="text-sm text-gray-500">Budget</div>
+        </div>
+        <div class="bg-white p-5 rounded-lg shadow">
+          <div class="text-2xl font-bold text-red-600" id="notif-urgent">0</div>
+          <div class="text-sm text-gray-500">Notifications urgentes</div>
+        </div>
+      </div>
+
+      <!-- Admissions récentes -->
+      <div class="bg-white p-6 rounded-lg shadow mb-8">
+        <h2 class="text-lg font-semibold mb-4">Admissions récentes</h2>
+        <div id="admissions-container">
+          <p class="text-gray-500">Chargement...</p>
+        </div>
+      </div>
+
+      <!-- Notifications dropdown -->
+      <div id="notif-dropdown" class="hidden absolute right-10 top-20 w-96 bg-white border rounded shadow-lg z-50">
+        <div class="p-4 border-b font-semibold">Notifications</div>
+        <div id="notif-container" class="max-h-80 overflow-y-auto">
+          <p class="text-gray-500 text-sm p-4">Chargement...</p>
+        </div>
+      </div>
+
+      <!-- Contenu central -->
+      <div class="bg-white p-6 rounded-lg shadow">
+        <h2 class="text-lg font-semibold mb-4">Vue d’ensemble</h2>
+        <p class="text-gray-600">Sélectionnez une rubrique dans la barre latérale pour gérer vos données.</p>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+  lucide.createIcons();
+
+  // User dropdown toggle
+  document.getElementById("user-btn").addEventListener("click", () => {
+    document.getElementById("user-dropdown").classList.toggle("hidden");
+  });
+
+  // Charger admissions
+  function loadAdmissions() {
+    fetch("{% url 'admissions:admissions_json' %}")
+      .then(res => res.json())
+      .then(data => {
+        let html = `<table class="w-full text-sm"><thead><tr>
+          <th class="px-2 py-1">Réf</th>
+          <th class="px-2 py-1">Nom</th>
+          <th class="px-2 py-1">Programme</th>
+          <th class="px-2 py-1">Campus</th>
+          <th class="px-2 py-1">Statut</th>
+          <th class="px-2 py-1">Date</th>
+        </tr></thead><tbody>`;
+        data.admissions.forEach(a => {
+          html += `<tr class="border-t hover:bg-gray-50">
+            <td class="px-2 py-1 font-mono">${a.ref}</td>
+            <td class="px-2 py-1">${a.nom}</td>
+            <td class="px-2 py-1">${a.program}</td>
+            <td class="px-2 py-1">${a.campus}</td>
+            <td class="px-2 py-1">${a.status}</td>
+            <td class="px-2 py-1">${a.submitted}</td>
+          </tr>`;
+        });
+        html += "</tbody></table>";
+        document.getElementById("admissions-container").innerHTML = html;
+      });
+  }
+
+  // Charger notifications
+  function loadNotifications() {
+    fetch("{% url 'notifications:notifications_json' %}")
+      .then(res => res.json())
+      .then(data => {
+        let html = `<ul>`;
+        let urgentCount = 0;
+        data.notifications.forEach(n => {
+          if(n.type === "error" || n.type === "warning") urgentCount++;
+          html += `<li class="px-3 py-2 border-b ${n.is_read ? '' : 'font-semibold'}">
+            ${n.message}
+            <div class="text-xs text-gray-500">${n.created}</div>
+          </li>`;
+        });
+        html += "</ul>";
+        document.getElementById("notif-container").innerHTML = html;
+        document.getElementById("notif-count").textContent = data.notifications.length;
+        document.getElementById("notif-count").classList.remove("hidden");
+        document.getElementById("notif-urgent").textContent = urgentCount;
+      });
+  }
+
+  // Charger admissions au démarrage
+  document.addEventListener("DOMContentLoaded", loadAdmissions);
+
+  // Toggle dropdown notifs
+  document.getElementById("notif-btn").addEventListener("click", () => {
+    const dd = document.getElementById("notif-dropdown");
+    dd.classList.toggle("hidden");
+    if (!dd.classList.contains("hidden")) {
+      loadNotifications();
+    }
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,150 @@
+{% load static %}
+
+<div id="teacherMessages" class="flex flex-col lg:flex-row gap-5 bg-base-100 dark:bg-slate-900 rounded-xl shadow-xl p-5 min-h-[70vh] fade-in">
+
+  <!-- 📩 Liste des conversations -->
+  <div class="w-full lg:w-80 border-r border-base-300 flex flex-col">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+        <i data-lucide="mail" class="w-5 h-5 text-info"></i> Messages
+      </h2>
+      <button id="newChatBtn" class="btn btn-circle btn-sm btn-outline btn-info">
+        <i data-lucide="plus"></i>
+      </button>
+    </div>
+
+    <div id="chatList" class="flex-1 overflow-y-auto pr-2 space-y-2">
+      <div class="text-sm text-slate-400 italic text-center py-6">Chargement des conversations…</div>
+    </div>
+  </div>
+
+  <!-- 💬 Zone de chat -->
+  <div id="chatArea" class="flex-1 flex flex-col rounded-xl bg-base-200 dark:bg-slate-800 border border-base-300 overflow-hidden">
+    <div id="chatHeader" class="px-4 py-3 border-b border-base-300 bg-base-100 dark:bg-slate-900 flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <div id="chatAvatar" class="avatar placeholder">
+          <div class="bg-cyan-100 dark:bg-slate-700 text-cyan-700 rounded-full w-10">
+            <span>?</span>
+          </div>
+        </div>
+        <div>
+          <p id="chatRecipient" class="font-semibold text-slate-800 dark:text-slate-100">Sélectionnez une discussion</p>
+          <p id="chatStatus" class="text-xs text-slate-500 dark:text-slate-400">Aucune conversation active</p>
+        </div>
+      </div>
+      <button id="refreshChat" class="btn btn-ghost btn-sm text-info">
+        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+      </button>
+    </div>
+
+    <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-3 text-sm">
+      <div class="text-center text-slate-400 italic">Aucune discussion sélectionnée</div>
+    </div>
+
+    <div id="chatInput" class="p-3 bg-base-100 border-t border-base-300 flex gap-2 items-center">
+      <input id="messageInput" type="text" placeholder="Écrivez un message..." class="input input-bordered input-sm flex-1 focus:ring-2 focus:ring-info">
+      <button id="sendMessageBtn" class="btn btn-info btn-sm gap-2">
+        <i data-lucide="send"></i> Envoyer
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .msg{display:flex;flex-direction:column;max-width:75%;padding:.5rem .8rem;border-radius:1rem;word-wrap:break-word;animation:fadeIn .25s ease-in}
+  .msg.from-me{align-self:flex-end;background:rgb(14 165 233);color:white}
+  .msg.from-them{align-self:flex-start;background:rgb(226 232 240);color:rgb(30 41 59)}
+  .dark .msg.from-them{background:rgb(51 65 85);color:rgb(226 232 240)}
+  .msg small{font-size:.65rem;opacity:.7;margin-top:3px;text-align:right}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+</style>
+
+<script>
+(function(){
+  const chatList=document.getElementById("chatList");
+  const chatMessages=document.getElementById("chatMessages");
+  const input=document.getElementById("messageInput");
+  const btnSend=document.getElementById("sendMessageBtn");
+  const chatRecipient=document.getElementById("chatRecipient");
+  const chatStatus=document.getElementById("chatStatus");
+  const chatAvatar=document.getElementById("chatAvatar");
+  const newChatBtn=document.getElementById("newChatBtn");
+  const refreshBtn=document.getElementById("refreshChat");
+  const toastContainer=document.createElement("div");
+  toastContainer.className="toast toast-top toast-end z-50";
+  document.body.appendChild(toastContainer);
+  let activeChatId=null;
+
+  function showToast(msg,type="info"){
+    const el=document.createElement("div");
+    el.className=`alert alert-${type} shadow-lg`;
+    el.innerHTML=`<span>${msg}</span>`;
+    toastContainer.appendChild(el);
+    setTimeout(()=>el.remove(),4000);
+  }
+
+  async function loadChats(){
+    const chats=[
+      {id:1,name:"Étudiant - Boubacar",last:"Merci Prof !",time:"21:30",online:true},
+      {id:2,name:"Mme Kadiatou (Gestionnaire)",last:"Reçu ✅",time:"18:10",online:false},
+      {id:3,name:"Direction",last:"Réunion demain à 10h",time:"Hier",online:true}
+    ];
+    chatList.innerHTML=chats.map(c=>`
+      <div class="chat-item p-3 rounded-lg hover:bg-base-200 dark:hover:bg-slate-700 cursor-pointer flex justify-between items-center transition"
+           data-id="${c.id}" data-name="${c.name}" data-online="${c.online}">
+        <div>
+          <p class="font-medium text-slate-800 dark:text-slate-200 flex items-center gap-1">
+            ${c.name}${c.online?'<span class="badge badge-success badge-xs"></span>':''}
+          </p>
+          <p class="text-xs text-slate-500 dark:text-slate-400 truncate">${c.last}</p>
+        </div>
+        <span class="text-xs text-slate-400">${c.time}</span>
+      </div>`).join("");
+    chatList.querySelectorAll(".chat-item").forEach(el=>{
+      el.addEventListener("click",()=>openChat(el.dataset.id,el.dataset.name,el.dataset.online));
+    });
+  }
+
+  function openChat(id,name,online){
+    activeChatId=id;
+    chatRecipient.textContent=name;
+    chatStatus.textContent=online==="true"?"En ligne 🟢":"Hors ligne ⚪";
+    chatAvatar.querySelector("span").textContent=name.charAt(0).toUpperCase();
+    chatMessages.innerHTML=`
+      <div class="msg from-them">Bonjour Prof 👋<small>20:35</small></div>
+      <div class="msg from-me">Bonjour, oui c’est noté 😊<small>20:40</small></div>`;
+    showToast("Conversation ouverte avec "+name,"success");
+  }
+
+  function sendMessage(){
+    const txt=input.value.trim();
+    if(!txt||!activeChatId){showToast("Aucune discussion active ⚠️","warning");return;}
+    const msgEl=document.createElement("div");
+    msgEl.className="msg from-me";
+    msgEl.innerHTML=`${txt}<small>${new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}</small>`;
+    chatMessages.appendChild(msgEl);
+    chatMessages.scrollTop=chatMessages.scrollHeight;
+    input.value="";
+    const typing=document.createElement("div");
+    typing.className="italic text-xs text-slate-400 ml-2";
+    typing.textContent="⋯ l’utilisateur écrit...";
+    chatMessages.appendChild(typing);
+    chatMessages.scrollTop=chatMessages.scrollHeight;
+    setTimeout(()=>{
+      typing.remove();
+      const reply=document.createElement("div");
+      reply.className="msg from-them";
+      reply.innerHTML=`D’accord Prof, merci 🙏<small>${new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}</small>`;
+      chatMessages.appendChild(reply);
+      chatMessages.scrollTop=chatMessages.scrollHeight;
+    },2500);
+  }
+
+  btnSend.addEventListener("click",sendMessage);
+  input.addEventListener("keypress",e=>{if(e.key==="Enter")sendMessage();});
+  newChatBtn.addEventListener("click",()=>showToast("🛠️ Nouveau message bientôt disponible","info"));
+  refreshBtn.addEventListener("click",loadChats);
+  loadChats();
+  if(window.lucide) lucide.createIcons();
+})();
+</script>

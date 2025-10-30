@@ -1,0 +1,262 @@
+<!-- =======================
+  📊 Fragment : results.html
+  Rôle : Directeur des Études — Résultats académiques
+  Basé sur _results_context() (results, meta, programs, cohorts, filters, kpis)
+======================= -->
+
+<section x-data="resultsFragment()" class="space-y-6">
+
+  <!-- Header principal -->
+  <header class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h2 class="text-xl font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+        <i data-lucide="bar-chart-3" class="w-5 h-5 text-cyan-600"></i>
+        Résultats académiques
+      </h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400">
+        Vue globale des moyennes, décisions et taux de réussite.
+      </p>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <a href="/masters/api_director/export/results.xlsx"
+         class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 dark:border-slate-700">
+        <i data-lucide="download" class="w-4 h-4"></i> Export Excel
+      </a>
+      <a href="/masters/api_director/export/results.pdf"
+         class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-cyan-600 text-white hover:bg-cyan-500">
+        <i data-lucide="file-text" class="w-4 h-4"></i> Export PDF
+      </a>
+    </div>
+  </header>
+
+  <!-- 🔢 Indicateurs rapides -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm">
+      <p class="text-xs text-slate-500 dark:text-slate-400">Taux de réussite</p>
+      <p class="text-3xl font-bold text-green-600 dark:text-green-400">{{ kpis.success_rate|default:"0" }}%</p>
+      <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">Basé sur les décisions “ADM”</p>
+    </div>
+
+    <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm">
+      <p class="text-xs text-slate-500 dark:text-slate-400">Moyenne générale</p>
+      <p class="text-3xl font-bold text-cyan-600 dark:text-cyan-400">{{ kpis.avg_global|default:"—" }}/20</p>
+      <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">Calculée sur les moyennes semestrielles</p>
+    </div>
+
+    <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm">
+      <p class="text-xs text-slate-500 dark:text-slate-400">Nombre d'admis</p>
+      <p class="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
+        {{ results|length }}
+      </p>
+      <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">Tous statuts confondus</p>
+    </div>
+
+    <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm">
+      <p class="text-xs text-slate-500 dark:text-slate-400">Dernière mise à jour</p>
+      <p class="text-lg font-semibold text-slate-800 dark:text-slate-100">
+        {{ now|date:"d/m/Y H:i" }}
+      </p>
+      <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">Heure locale du serveur</p>
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <form @submit.prevent="applyFilters"
+        class="grid grid-cols-1 md:grid-cols-12 gap-3 bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+
+    <!-- Programme -->
+    <div class="md:col-span-3">
+      <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Programme</label>
+      <select x-model="filters.program_id" class="pe-select">
+        <option value="">— Tous les programmes —</option>
+        {% for p in programs %}
+          <option value="{{ p.id }}" {% if filters.program_id == p.id %}selected{% endif %}>{{ p.title }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Cohorte -->
+    <div class="md:col-span-3">
+      <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Cohorte</label>
+      <select x-model="filters.cohort_id" class="pe-select">
+        <option value="">— Toutes les cohortes —</option>
+        {% for c in cohorts %}
+          <option value="{{ c.id }}" {% if filters.cohort_id == c.id %}selected{% endif %}>{{ c.label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Décision -->
+    <div class="md:col-span-3">
+      <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Décision</label>
+      <select x-model="filters.decision" class="pe-select">
+        <option value="">— Toutes —</option>
+        {% for key, label in decisions %}
+          <option value="{{ key }}" {% if filters.decision == key %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Boutons -->
+    <div class="md:col-span-3 flex items-center justify-end gap-2 pt-2">
+      <button type="button" @click="resetFilters"
+              class="px-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
+        Réinitialiser
+      </button>
+      <button type="submit"
+              class="px-3 py-2 rounded-lg bg-cyan-600 text-white hover:bg-cyan-500">
+        Appliquer
+      </button>
+    </div>
+  </form>
+
+  <!-- Tableau -->
+  <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-100 dark:bg-slate-700/50 text-left">
+          <tr class="text-slate-600 dark:text-slate-200">
+            <th class="px-4 py-3">Étudiant</th>
+            <th class="px-4 py-3">Programme</th>
+            <th class="px-4 py-3">Cohorte</th>
+            <th class="px-4 py-3 text-center">Moyenne /20</th>
+            <th class="px-4 py-3 text-center">Décision</th>
+            <th class="px-4 py-3 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+          {% for r in results %}
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/40 transition">
+              <td class="px-4 py-3">
+                <div class="font-medium text-slate-800 dark:text-slate-100 truncate">
+                  {{ r.enrollment.student.last_name }} {{ r.enrollment.student.first_name }}
+                </div>
+                <div class="text-xs text-slate-500 dark:text-slate-400 truncate">{{ r.enrollment.student.email|default:"—" }}</div>
+              </td>
+              <td class="px-4 py-3">{{ r.enrollment.program.title }}</td>
+              <td class="px-4 py-3">{{ r.enrollment.cohort.label }}</td>
+              <td class="px-4 py-3 text-center font-semibold text-slate-800 dark:text-slate-100">
+                {{ r.average_20|floatformat:2|default:"—" }}
+              </td>
+              <td class="px-4 py-3 text-center">
+                {% if r.decision == "ADM" %}
+                  <span class="pe-badge pe-badge-success">Admis</span>
+                {% elif r.decision == "AJ" %}
+                  <span class="pe-badge pe-badge-warning">Ajourné</span>
+                {% elif r.decision == "RAT" %}
+                  <span class="pe-badge pe-badge-amber">Rattrapage</span>
+                {% elif r.decision == "EXC" %}
+                  <span class="pe-badge pe-badge-error">Exclu</span>
+                {% else %}
+                  <span class="pe-badge">—</span>
+                {% endif %}
+              </td>
+              <td class="px-4 py-3 text-right">
+                <button @click="openStudentDetail({{ r.enrollment.id }})"
+                        class="pe-btn pe-btn-ghost">
+                  <i data-lucide="eye" class="w-4 h-4"></i> Détails
+                </button>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="6" class="text-center py-6 text-slate-500 dark:text-slate-400">
+                Aucun résultat trouvé.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="flex items-center justify-between px-4 py-3 border-t border-slate-200 dark:border-slate-700 text-sm">
+      <div class="text-slate-500 dark:text-slate-400">
+        Page {{ meta.page }} / {{ meta.pages }} — {{ meta.total }} élément{{ meta.total|pluralize }}
+      </div>
+      <div class="flex items-center gap-2">
+        {% if meta.has_prev %}
+          <a href="/master/director/fragment/results/?page={{ meta.page|add:'-1' }}"
+             @click.prevent="goto($event)"
+             class="pe-btn pe-btn-ghost">Précédent</a>
+        {% else %}
+          <span class="pe-btn pe-btn-disabled">Précédent</span>
+        {% endif %}
+        {% if meta.has_next %}
+          <a href="/master/director/fragment/results/?page={{ meta.page|add:'1' }}"
+             @click.prevent="goto($event)"
+             class="pe-btn pe-btn-ghost">Suivant</a>
+        {% else %}
+          <span class="pe-btn pe-btn-disabled">Suivant</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<script>
+  function resultsFragment(){
+    const initial = {
+      program_id: "{{ filters.program_id|default:'' }}",
+      cohort_id: "{{ filters.cohort_id|default:'' }}",
+      decision: "{{ filters.decision|default:'' }}",
+      page: {{ meta.page|default:1 }}
+    };
+
+    const buildURL = (params) => {
+      const u = new URL(location.origin + "/master/director/fragment/results/");
+      Object.entries(params).forEach(([k,v])=>{
+        if(v!==null && String(v).length) u.searchParams.set(k, v);
+      });
+      return u.toString();
+    };
+
+    const replaceFragment = async (url) => {
+      const container = document.querySelector("#content-inner");
+      const spinner   = document.querySelector("#spinner");
+      spinner?.classList.remove("hidden");
+      try{
+        const resp = await fetch(url, {headers:{'X-Requested-With':'XMLHttpRequest'}});
+        const html = await resp.text();
+        container.innerHTML = html;
+        if(window.lucide) lucide.createIcons();
+        if(window.HSStaticMethods?.autoInit) window.HSStaticMethods.autoInit();
+      }catch(e){
+        console.error(e);
+        container.innerHTML = `<div class='p-4 text-red-600'>⚠️ Erreur de chargement</div>`;
+      }finally{
+        spinner?.classList.add("hidden");
+      }
+    };
+
+    return {
+      filters: {...initial},
+
+      applyFilters(){
+        this.filters.page = 1;
+        replaceFragment(buildURL(this.filters));
+      },
+
+      resetFilters(){
+        this.filters = {program_id:"", cohort_id:"", decision:"", page:1};
+        replaceFragment(buildURL(this.filters));
+      },
+
+      goto(e){
+        const url = e.currentTarget.getAttribute("href");
+        replaceFragment(url);
+      },
+
+      openStudentDetail(enrollmentId){
+        const url = new URL(location.origin + "/master/director/fragment/student_detail/");
+        url.searchParams.set("enrollment_id", enrollmentId);
+        replaceFragment(url.toString());
+      }
+    }
+  }
+
+  if(window.lucide) lucide.createIcons();
+  if(window.HSStaticMethods?.autoInit) window.HSStaticMethods.autoInit();
+</script>

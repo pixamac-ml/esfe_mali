@@ -1,39 +1,129 @@
 {% extends "base.html" %}
+{% block title %}Candidature — ESFé Mali{% endblock %}
+
 {% block content %}
-<section class="max-w-3xl mx-auto p-6 bg-white rounded-2xl shadow">
-  <h1 class="text-2xl font-bold">Inscription à {{ program.title }}</h1>
-  <p class="text-sm text-gray-500 mb-4">Remplissez ce formulaire. Vous serez redirigé ensuite.</p>
-  <form method="post" enctype="multipart/form-data" class="space-y-3">
-    {% csrf_token %}
-    {{ form.program }} {{ form.source_page }}
-    <div class="grid md:grid-cols-2 gap-3">
-      {{ form.nom.label_tag }} {{ form.nom }}
-      {{ form.prenom.label_tag }} {{ form.prenom }}
-      {{ form.genre.label_tag }} {{ form.genre }}
-      {{ form.date_naissance.label_tag }} {{ form.date_naissance }}
-      {{ form.lieu_naissance.label_tag }} {{ form.lieu_naissance }}
-      {{ form.nationalite.label_tag }} {{ form.nationalite }}
-    </div>
-    <div class="grid md:grid-cols-2 gap-3">
-      {{ form.telephone.label_tag }} {{ form.telephone }}
-      {{ form.email.label_tag }} {{ form.email }}
-    </div>
-    {{ form.adresse.label_tag }} {{ form.adresse }}
+<section class="max-w-7xl mx-auto px-4 py-12">
+  <div class="grid lg:grid-cols-2 gap-10 items-center bg-white rounded-2xl shadow-xl overflow-hidden">
 
-    {{ form.annexe.label_tag }} {{ form.annexe }}
-
-    <div class="grid md:grid-cols-2 gap-3">
-      {{ form.diplome.label_tag }} {{ form.diplome }}
-      {{ form.releves.label_tag }} {{ form.releves }}
-      {{ form.cni.label_tag }} {{ form.cni }}
-      {{ form.photo_identite.label_tag }} {{ form.photo_identite }}
+    <!-- Colonne gauche : Image -->
+    <div class="hidden lg:block h-full">
+      <img src="{% static 'img/campus.jpg' %}"
+           alt="Campus ESFé Mali"
+           class="h-full w-full object-cover">
     </div>
 
-    <label class="flex items-center gap-2">
-      {{ form.optin_whatsapp }} <span class="text-sm">J’accepte d’être contacté par WhatsApp</span>
-    </label>
+    <!-- Colonne droite : Formulaire -->
+    <div class="p-8">
+      <h1 class="text-3xl font-extrabold text-primary-900 mb-4">Postuler à une formation</h1>
+      <p class="text-slate-600 mb-8">
+        Remplissez soigneusement vos informations pour déposer votre candidature à l’ESFé Mali.
+      </p>
 
-    <button class="px-6 py-3 rounded-xl bg-[#162F58] text-white hover:opacity-90">Valider et continuer</button>
-  </form>
+      <form action="" method="post" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <!-- Infos personnelles -->
+        <div class="grid md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1">Nom *</label>
+            {{ form.nom }}
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1">Prénom *</label>
+            {{ form.prenom }}
+          </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1">Genre *</label>
+            {{ form.genre }}
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1">Date de naissance *</label>
+            {{ form.date_naissance }}
+          </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1">Lieu de naissance</label>
+            {{ form.lieu_naissance }}
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1">Nationalité</label>
+            {{ form.nationalite }}
+          </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1">Téléphone (WhatsApp) *</label>
+            {{ form.telephone }}
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1">Email</label>
+            {{ form.email }}
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-1">Adresse complète</label>
+          {{ form.adresse }}
+        </div>
+
+        <!-- Infos Tuteur -->
+        <div class="grid md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1">Nom du tuteur</label>
+            {{ form.tuteur_nom }}
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1">Téléphone du tuteur</label>
+            {{ form.tuteur_tel }}
+          </div>
+        </div>
+
+        <!-- Campus -->
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-1">Campus *</label>
+          {{ form.campus }}
+        </div>
+
+        <!-- Fichiers -->
+        <div class="grid md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1">Diplôme</label>
+            {{ form.diplome }}
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1">Relevés</label>
+            {{ form.releves }}
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1">CNI</label>
+            {{ form.cni }}
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1">Photo d’identité</label>
+            {{ form.photo_identite }}
+          </div>
+        </div>
+
+        <!-- Opt-in -->
+        <div class="flex items-center">
+          {{ form.optin_whatsapp }}
+          <label class="ml-2 text-sm text-slate-700">Je souhaite recevoir des infos par WhatsApp</label>
+        </div>
+
+        <!-- CTA -->
+        <button type="submit"
+                class="w-full py-3 px-5 font-semibold rounded-xl bg-primary-900 text-white hover:bg-primary-700 transition shadow-lg">
+          📩 Envoyer ma candidature
+        </button>
+      </form>
+    </div>
+  </div>
 </section>
 {% endblock %}

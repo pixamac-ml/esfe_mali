@@ -1,9 +1,37 @@
 {% extends "base.html" %}
+{% load static %}
+{% block title %}Merci — ESFé Mali{% endblock %}
+
 {% block content %}
-<section class="max-w-xl mx-auto p-6 bg-white rounded-2xl shadow text-center">
-  <h1 class="text-2xl font-bold">Merci !</h1>
-  <p class="mt-2">Votre demande a été enregistrée.</p>
-  <p class="mt-2 text-sm text-gray-500">Référence : <strong>{{ admission.ref_code }}</strong></p>
-  <p class="mt-2">Vous allez recevoir les prochaines étapes sous peu.</p>
+<section class="bg-slate-50 min-h-[60vh] flex items-center">
+  <div class="max-w-3xl mx-auto px-4 py-16 text-center">
+    <!-- Icône de validation -->
+    <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-brand-cyan/10 flex items-center justify-center">
+      <svg class="w-10 h-10 text-brand-cyan" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+      </svg>
+    </div>
+
+    <h1 class="text-3xl font-bold text-primary-900 mb-4">
+      Merci pour votre candidature !
+    </h1>
+    <p class="text-slate-700 mb-6">
+      Votre demande pour la formation <strong>{{ admission.program.title }}</strong> a été enregistrée avec succès.
+      <br>
+      Numéro de référence :
+      <span class="font-mono font-semibold text-brand-cyan">{{ admission.ref_code }}</span>
+    </p>
+
+    <div class="space-x-4">
+      <a href="{% url 'programs:program_list' %}"
+         class="inline-block bg-brand-cyan text-white px-6 py-3 rounded-xl font-medium hover:bg-primary-900 transition">
+        Voir d’autres formations
+      </a>
+      <a href="{% url 'core:home' %}"
+         class="inline-block border border-slate-300 text-slate-700 px-6 py-3 rounded-xl font-medium hover:bg-slate-100 transition">
+        Retour à l’accueil
+      </a>
+    </div>
+  </div>
 </section>
 {% endblock %}

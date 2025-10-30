@@ -1,0 +1,38 @@
+<!-- Notifications -->
+<div class="relative">
+  <button id="notif-btn" class="relative">
+    🔔
+    {% if notif_unread_count > 0 %}
+      <span id="notif-count"
+            class="absolute -top-1 -right-2 bg-red-600 text-white text-xs rounded-full px-1">
+        {{ notif_unread_count }}
+      </span>
+    {% endif %}
+  </button>
+
+  <!-- Dropdown -->
+  <div id="notif-dropdown"
+       class="hidden absolute right-0 mt-2 w-72 bg-white shadow-lg rounded-lg border">
+    <ul class="max-h-64 overflow-y-auto divide-y divide-gray-200">
+      {% for notif in request.user.notifications.all|slice:":5" %}
+        <li class="p-2 text-sm {% if not notif.is_read %}bg-blue-50{% endif %}">
+          <span>{{ notif.message }}</span>
+          <br>
+          <small class="text-gray-500">{{ notif.created_at|date:"d/m/Y H:i" }}</small>
+        </li>
+      {% empty %}
+        <li class="p-2 text-gray-400 italic text-sm">Aucune notification</li>
+      {% endfor %}
+    </ul>
+    <div class="text-center p-2 border-t">
+      <a href="{% url 'notifications:list' %}" class="text-sm text-primary-700">Voir toutes</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Toggle dropdown
+  document.getElementById("notif-btn").addEventListener("click", () => {
+    document.getElementById("notif-dropdown").classList.toggle("hidden");
+  });
+</script>

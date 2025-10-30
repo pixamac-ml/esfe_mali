@@ -1,0 +1,151 @@
+{% load static %}
+
+<div class="space-y-6">
+
+  <!-- 🧭 En-tête -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div>
+      <h2 class="text-xl font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+        <i data-lucide="mail" class="w-5 h-5 text-cyan-600"></i>
+        Messagerie interne
+      </h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400">
+        Échangez avec vos enseignants et l’administration.
+      </p>
+    </div>
+
+    <button id="new-message-btn"
+      class="flex items-center gap-2 px-3 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-medium shadow-sm transition-all duration-150">
+      <i data-lucide="plus" class="w-4 h-4"></i> Nouveau message
+    </button>
+  </div>
+
+  <!-- 💬 Conversations -->
+  {% if conversations %}
+  <div
+    class="rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm divide-y divide-slate-200 dark:divide-slate-700">
+    {% for conv in conversations %}
+    <div
+      class="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-all duration-150 cursor-pointer"
+      hx-get="/master/student/messages/{{ conv.id }}/"
+      hx-target="#student-dashboard-content"
+      hx-swap="innerHTML">
+
+      <!-- Avatar + infos -->
+      <div class="flex items-start gap-3">
+        <div
+          class="w-10 h-10 rounded-full bg-cyan-100 dark:bg-cyan-900 flex items-center justify-center text-cyan-700 dark:text-cyan-300 font-semibold uppercase">
+          {{ conv.partner_name|slice:":1" }}
+        </div>
+
+        <div class="min-w-0">
+          <p class="font-medium text-slate-800 dark:text-white truncate">{{ conv.partner_name }}</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-1">
+            {{ conv.last_message|truncatechars:80 }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Métadonnées -->
+      <div class="text-right space-y-1 shrink-0">
+        <p class="text-xs text-slate-400">{{ conv.last_sent|timesince }} ago</p>
+        {% if conv.unread_count > 0 %}
+        <span
+          class="inline-flex items-center gap-1 text-xs bg-rose-100 text-rose-700 rounded-full px-2 py-0.5 font-medium">
+          <i data-lucide="mail-open" class="w-3 h-3"></i> {{ conv.unread_count }}
+        </span>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div
+    class="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-5 text-sm text-slate-500 dark:text-slate-300">
+    Aucune conversation active. Cliquez sur <strong>Nouveau message</strong> pour commencer un échange.
+  </div>
+  {% endif %}
+
+  <!-- 📝 Formulaire de nouveau message -->
+  <div id="new-message-form"
+    class="hidden rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm p-5 space-y-4 transition-all duration-300">
+
+    <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-2">
+      <h3 class="font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+        <i data-lucide="edit-3" class="w-4 h-4 text-cyan-600"></i> Nouveau message
+      </h3>
+      <button id="cancel-new"
+        class="text-slate-400 hover:text-rose-500 text-sm flex items-center gap-1 transition-all">
+        <i data-lucide="x" class="w-4 h-4"></i> Fermer
+      </button>
+    </div>
+
+    <form id="messageForm" hx-post="/master/student/messages/send/" hx-target="#message-result"
+      hx-swap="outerHTML" class="space-y-4">
+      {% csrf_token %}
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Destinataire</label>
+        <select name="recipient" required
+          class="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent p-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500">
+          <option value="">— Sélectionnez —</option>
+          {% for t in possible_recipients %}
+          <option value="{{ t.id }}">{{ t.get_full_name }} — {{ t.role }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Message</label>
+        <textarea name="body" required rows="3"
+          class="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent p-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"></textarea>
+      </div>
+
+      <div class="flex justify-end">
+        <button type="submit"
+          class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white text-sm rounded-lg flex items-center gap-2 transition-all">
+          <i data-lucide="send" class="w-4 h-4"></i> Envoyer
+        </button>
+      </div>
+    </form>
+
+    <div id="message-result"></div>
+  </div>
+</div>
+
+<!-- ✅ JS Alpine + Preline + Lucide -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  // Active les icônes
+  if (window.lucide) lucide.createIcons();
+  if (window.HSStaticMethods) HSStaticMethods.autoInit();
+
+  // Gestion du formulaire
+  const btn = document.getElementById('new-message-btn');
+  const form = document.getElementById('new-message-form');
+  const cancel = document.getElementById('cancel-new');
+
+  if (btn && form && cancel) {
+    btn.addEventListener('click', () => {
+      form.classList.remove('hidden');
+      form.classList.add('animate-fadeIn');
+      btn.classList.add('opacity-70');
+    });
+
+    cancel.addEventListener('click', () => {
+      form.classList.add('hidden');
+      btn.classList.remove('opacity-70');
+    });
+  }
+});
+</script>
+
+<style>
+  /* Animation douce d’apparition */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: none; }
+  }
+  .animate-fadeIn {
+    animation: fadeIn .3s ease-out;
+  }
+</style>

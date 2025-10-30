@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-3xl mx-auto mt-10">
+  <h2 class="text-xl font-bold mb-4">Mes notifications</h2>
+
+  <!-- Bouton "Tout marquer comme lu" -->
+  <div class="flex justify-end mb-4">
+    <button id="mark-all-btn"
+            class="px-3 py-1 text-sm bg-primary-600 text-white rounded">
+      Tout marquer comme lu
+    </button>
+  </div>
+
+  <!-- Liste des notifications -->
+  <ul id="notif-list" class="space-y-3">
+    {% for notif in notifications %}
+      <li id="notif-{{ notif.id }}"
+          class="p-4 rounded-md {% if notif.is_read %}bg-gray-100{% else %}bg-blue-100{% endif %}">
+        <div class="flex justify-between">
+          <span>{{ notif.message }}</span>
+          {% if notif.url %}
+            <a href="{{ notif.url }}" class="text-brand-cyan">Voir</a>
+          {% endif %}
+        </div>
+        <small class="text-gray-500">{{ notif.created_at|date:"d/m/Y H:i" }}</small>
+        {% if not notif.is_read %}
+          <button class="ml-4 text-sm text-primary-700 mark-read-btn"
+                  data-id="{{ notif.id }}">
+            Marquer comme lu
+          </button>
+        {% endif %}
+      </li>
+    {% empty %}
+      <li>Aucune notification pour le moment.</li>
+    {% endfor %}
+  </ul>
+</div>
+
+<script>
+  // Marquer une notif comme lue
+  document.addEventListener("click", async function(e) {
+    if (e.target.classList.contains("mark-read-btn")) {
+      const notifId = e.target.dataset.id;
+      const res = await fetch(`/notifications/read/${notifId}/`, {
+        method: "POST",
+        headers: { "X-CSRFToken": "{{ csrf_token }}" }
+      });
+      const data = await res.json();
+      if (data.success) {
+        const li = document.getElementById(`notif-${notifId}`);
+        li.classList.remove("bg-blue-100");
+        li.classList.add("bg-gray-100");
+        e.target.remove();
+
+        // Décrémenter le compteur (cloche 🔔)
+        const countEl = document.getElementById("notif-count");
+        if (countEl) {
+          let current = parseInt(countEl.textContent) || 0;
+          if (current > 0) countEl.textContent = current - 1;
+        }
+      }
+    }
+  });
+
+  // Tout marquer comme lu
+  document.getElementById("mark-all-btn").addEventListener("click", async () => {
+    const res = await fetch(`/notifications/read-all/`, {
+      method: "POST",
+      headers: { "X-CSRFToken": "{{ csrf_token }}" }
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.querySelectorAll("#notif-list li").forEach(li => {
+        li.classList.remove("bg-blue-100");
+        li.classList.add("bg-gray-100");
+        li.querySelector(".mark-read-btn")?.remove();
+      });
+      // Mettre le compteur à 0
+      const countEl = document.getElementById("notif-count");
+      if (countEl) countEl.textContent = 0;
+    }
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,167 @@
+{% extends "base_dashboard.html" %}
+{% load static %}
+
+{% block title %}Tableau de bord Master | ESFé{% endblock %}
+{% block header_title %}Tableau de bord Master{% endblock %}
+
+{% block sidebar %}
+<ul id="sidebar-links" class="space-y-1 text-sm">
+  {% for key, val in sections.items %}
+    {% if role in val.1 %}
+      <li>
+        <a href="#" data-section="{{ key }}"
+           class="group flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-150
+                  hover:bg-cyan-50 dark:hover:bg-slate-700/70
+                  {% if key == active_section %}bg-cyan-100 dark:bg-slate-700{% endif %}">
+          <svg xmlns="http://www.w3.org/2000/svg"
+               class="h-5 w-5 text-cyan-600 dark:text-cyan-400 group-hover:scale-110 transition-transform"
+               fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <circle cx="12" cy="12" r="9" stroke-width="1.5"/>
+          </svg>
+          <span class="truncate">{{ val.0 }}</span>
+        </a>
+      </li>
+    {% endif %}
+  {% endfor %}
+
+  <!-- Rubrique spéciale : Cours en ligne -->
+  <li class="border-t border-slate-200 dark:border-slate-700 mt-2 pt-2">
+    <a href="#" id="nav-course-space"
+       class="group flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-150
+              hover:bg-cyan-50 dark:hover:bg-slate-700/70">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-cyan-600 dark:text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M4 4h16v12H4zM8 20h8" />
+      </svg>
+      <span class="truncate">🎥 Cours en ligne</span>
+    </a>
+  </li>
+</ul>
+{% endblock %}
+
+{% block dashboard_content %}
+<section class="mb-5 flex flex-wrap items-center justify-between gap-3">
+  <div>
+    <h2 class="text-xl font-semibold text-slate-800 dark:text-white">Accueil</h2>
+    <p class="text-sm text-slate-500 dark:text-slate-400">Vue d’ensemble du tableau de bord</p>
+  </div>
+  <div class="flex items-center gap-2">
+    <a href="{% url 'core:home' %}"
+       class="px-3 py-2 rounded bg-slate-200/70 dark:bg-slate-700 text-sm hover:bg-slate-300 dark:hover:bg-slate-600">
+       Site public
+    </a>
+    <button id="refresh-section"
+            class="px-3 py-2 rounded bg-cyan-600 text-white text-sm hover:bg-cyan-500">
+      Rafraîchir
+    </button>
+  </div>
+</section>
+
+<div class="grid xl:grid-cols-3 gap-6 items-start">
+  <!-- Contenu principal -->
+  <div class="xl:col-span-2 space-y-6">
+    <div id="master-content"
+         class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-soft p-6 min-h-[20rem] relative">
+      <div id="spinner"
+           class="hidden absolute inset-0 flex items-center justify-center bg-white/70 dark:bg-slate-900/70 z-10">
+        <div class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+          <svg class="animate-spin h-5 w-5 text-cyan-600 dark:text-cyan-400"
+               viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="9" stroke="currentColor"
+                    stroke-width="2" opacity=".25"/>
+            <path d="M21 12a9 9 0 0 1-9 9"
+                  stroke="currentColor" stroke-width="2"/>
+          </svg>
+          Chargement du contenu…
+        </div>
+      </div>
+      <div id="content-inner" class="fade-enter-active"></div>
+    </div>
+  </div>
+
+  <!-- Colonne latérale -->
+  <aside class="space-y-6">
+    <div class="rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-soft">
+      <div class="px-5 py-3 border-b border-slate-200 dark:border-slate-700 font-semibold">
+        Actions récentes
+      </div>
+      <div class="p-4 text-sm text-slate-600 dark:text-slate-300">
+        {% if recent_actions_html %}
+          {{ recent_actions_html|safe }}
+        {% else %}
+          <p>Aucune activité récente.</p>
+        {% endif %}
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script>
+(function() {
+  const content = document.getElementById('content-inner');
+  const spinner = document.getElementById('spinner');
+  const nav = document.getElementById('sidebar-links');
+  const btnRefresh = document.getElementById('refresh-section');
+  const courseSpace = document.getElementById('nav-course-space');
+
+  async function loadSection(section) {
+    spinner.classList.remove('hidden');
+    content.classList.remove('fade-enter-active');
+    content.classList.add('fade-enter');
+    try {
+      const resp = await fetch(`/master/fragment/${section}/`, {headers: {'X-Requested-With':'XMLHttpRequest'}});
+      const html = await resp.text();
+      content.innerHTML = html;
+      requestAnimationFrame(()=> {
+        content.classList.remove('fade-enter');
+        content.classList.add('fade-enter-active');
+      });
+      history.replaceState(null, '', `?section=${encodeURIComponent(section)}`);
+    } catch {
+      content.innerHTML = '<div class="text-red-600 font-medium p-4">⚠️ Erreur de chargement du contenu.</div>';
+    } finally {
+      spinner.classList.add('hidden');
+    }
+  }
+
+  // Rubrique “Cours en ligne” → charge directement le lecteur vidéo
+  async function loadCourseView(courseId=101){
+    spinner.classList.remove('hidden');
+    try {
+      const resp = await fetch(`/master/student/fragment/course/${courseId}/`, {headers: {'X-Requested-With':'XMLHttpRequest'}});
+      const html = await resp.text();
+      content.innerHTML = html;
+    } catch {
+      content.innerHTML = '<div class="text-red-600 font-medium p-4">Impossible de charger le cours.</div>';
+    } finally {
+      spinner.classList.add('hidden');
+    }
+  }
+
+  nav.addEventListener('click', (e) => {
+    const a = e.target.closest('a[data-section]');
+    if (!a) return;
+    e.preventDefault();
+    nav.querySelectorAll('a').forEach(x => x.classList.remove('bg-cyan-100','dark:bg-slate-700'));
+    a.classList.add('bg-cyan-100','dark:bg-slate-700');
+    loadSection(a.dataset.section);
+  });
+
+  courseSpace?.addEventListener('click', e => {
+    e.preventDefault();
+    nav.querySelectorAll('a').forEach(x => x.classList.remove('bg-cyan-100','dark:bg-slate-700'));
+    courseSpace.classList.add('bg-cyan-100','dark:bg-slate-700');
+    loadCourseView(101);
+  });
+
+  btnRefresh?.addEventListener('click', () => {
+    const current = (new URLSearchParams(location.search)).get('section') || '{{ active_section|default:"overview" }}';
+    loadSection(current);
+  });
+
+  // Chargement initial
+  const initial = (new URLSearchParams(location.search)).get('section') || '{{ active_section|default:"overview" }}';
+  loadSection(initial);
+})();
+</script>
+{% endblock %}

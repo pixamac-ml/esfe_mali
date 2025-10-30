@@ -1,0 +1,149 @@
+{% extends "base_dashboard.html" %}
+{% load static %}
+
+{% block title %}Tableau de bord Directeur des Études | ESFé Mali{% endblock %}
+{% block header_title %}Espace Directeur des Études{% endblock %}
+
+{% block sidebar %}
+<ul id="sidebar-links" class="space-y-1 text-sm font-medium">
+  <li><a data-section="overview" class="active-link cursor-pointer flex items-center gap-2">
+    <i data-lucide="home" class="w-5 h-5"></i> <span>Aperçu</span></a></li>
+  <li><a data-section="teachers" class="cursor-pointer flex items-center gap-2">
+    <i data-lucide="users" class="w-5 h-5"></i> <span>Enseignants</span></a></li>
+  <li><a data-section="students" class="cursor-pointer flex items-center gap-2">
+    <i data-lucide="graduation-cap" class="w-5 h-5"></i> <span>Étudiants</span></a></li>
+  <li><a data-section="programs" class="cursor-pointer flex items-center gap-2">
+    <i data-lucide="book-open" class="w-5 h-5"></i> <span>Programmes</span></a></li>
+  <li><a data-section="exams" class="cursor-pointer flex items-center gap-2">
+    <i data-lucide="clipboard-list" class="w-5 h-5"></i> <span>Examens</span></a></li>
+  <li><a data-section="results" class="cursor-pointer flex items-center gap-2">
+    <i data-lucide="bar-chart-3" class="w-5 h-5"></i> <span>Résultats</span></a></li>
+  <li><a data-section="stats" class="cursor-pointer flex items-center gap-2">
+    <i data-lucide="pie-chart" class="w-5 h-5"></i> <span>Statistiques</span></a></li>
+  <li><a data-section="reports" class="cursor-pointer flex items-center gap-2">
+    <i data-lucide="file-bar-chart-2" class="w-5 h-5"></i> <span>Rapports</span></a></li>
+  <li><a data-section="settings" class="cursor-pointer flex items-center gap-2">
+    <i data-lucide="settings" class="w-5 h-5"></i> <span>Paramètres</span></a></li>
+</ul>
+
+<style>
+  #sidebar-links a {
+    display:flex;align-items:center;gap:.6rem;padding:.5rem .75rem;
+    border-radius:.6rem;color:#334155;transition:.25s ease;
+  }
+  #sidebar-links a:hover { background:#ecfeff;color:#0891b2; }
+  #sidebar-links a.active-link {
+    background:#cffafe;color:#164e63;font-weight:600;
+    box-shadow:inset 2px 0 0 #0891b2;
+  }
+  .dark #sidebar-links a:hover { background:#0f172a;color:#22d3ee; }
+  .dark #sidebar-links a.active-link {
+    background:#164e63;color:#67e8f9;
+  }
+  #sidebar-links a.active-link {
+  background:#cffafe;color:#164e63;font-weight:600;
+  box-shadow:inset 2px 0 0 #0891b2;
+  animation: pulse 2s infinite ease-in-out;
+}
+
+</style>
+
+{% endblock %}
+
+{% block dashboard_content %}
+<section class="mb-5 flex items-center justify-between bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm">
+  <div>
+    <h2 class="text-xl font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+      <i data-lucide="user" class="w-5 h-5 text-cyan-600"></i> Bienvenue
+    </h2>
+    <p class="text-sm text-slate-500 dark:text-slate-400">Tableau de bord Directeur des Études</p>
+  </div>
+  <button id="refresh-section"
+          class="px-3 py-2 bg-cyan-600 text-white rounded flex items-center gap-2 hover:bg-cyan-500 transition-all shadow">
+    <i data-lucide="refresh-cw" class="w-4 h-4"></i> Rafraîchir
+  </button>
+</section>
+
+<div id="director-dashboard-content"
+     class="rounded-xl border border-slate-200 dark:border-slate-700 p-5 bg-white dark:bg-slate-800 relative min-h-[60vh] shadow-sm overflow-hidden">
+
+  <!-- Loader -->
+  <div id="spinner"
+       class="hidden absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-slate-900/80 z-10 backdrop-blur-sm">
+    <div class="flex flex-col items-center gap-2 text-slate-600 dark:text-slate-300 text-sm">
+      <span class="loading loading-ring loading-md text-cyan-600"></span>
+      <span>Chargement...</span>
+    </div>
+  </div>
+
+  <div id="dashboard-inner" class="text-center text-slate-500 py-8">
+    Chargement en cours…
+  </div>
+</div>
+
+<script>
+(function(){
+  const container   = document.getElementById("dashboard-inner");
+  const spinner     = document.getElementById("spinner");
+  const nav         = document.getElementById("sidebar-links");
+  const btnRefresh  = document.getElementById("refresh-section");
+
+  function rearmScripts(scopeEl){
+    scopeEl.querySelectorAll("script").forEach(old=>{
+      const s=document.createElement("script");
+      if(old.src) s.src=old.src;
+      else s.textContent=old.textContent;
+      document.body.appendChild(s);
+      old.remove();
+    });
+  }
+
+  async function loadView(url){
+    spinner.classList.remove("hidden");
+    try{
+      const resp = await fetch(url, { headers:{"X-Requested-With":"XMLHttpRequest"} });
+      if(!resp.ok) {
+        const txt = await resp.text();
+        throw new Error(`${resp.status} - ${txt}`);
+      }
+      const html = await resp.text();
+      container.innerHTML = html;
+      if(window.lucide) lucide.createIcons();
+      rearmScripts(container);
+    }catch(e){
+      console.error("Erreur lors du chargement :", e);
+      container.innerHTML = `
+        <div class="flex flex-col items-center justify-center text-center py-8 text-red-600">
+          <i data-lucide="alert-triangle" class="w-8 h-8 mb-2"></i>
+          <p class="font-medium">⚠️ Erreur de chargement du fragment</p>
+          <p class="text-sm text-slate-500">${e.message || "Vérifiez la connexion ou l'URL"}</p>
+        </div>`;
+      if(window.lucide) lucide.createIcons();
+    }finally{
+      spinner.classList.add("hidden");
+    }
+  }
+
+  // --- Navigation latérale
+  nav.addEventListener("click",(e)=>{
+    const a=e.target.closest("[data-section]");
+    if(!a)return;
+    e.preventDefault();
+    nav.querySelectorAll("a").forEach(x=>x.classList.remove("active-link"));
+    a.classList.add("active-link");
+    const section = a.dataset.section;
+    loadView(`/master/director/fragment/${section}/`);
+  });
+
+  // --- Rafraîchir la section courante
+  btnRefresh.addEventListener("click",()=>{
+    const current = document.querySelector("#sidebar-links a.active-link")?.dataset.section || "overview";
+    loadView(`/master/director/fragment/${current}/`);
+  });
+
+  // --- Chargement initial
+  loadView(`/master/director/fragment/overview/`);
+})();
+</script>
+
+{% endblock %}

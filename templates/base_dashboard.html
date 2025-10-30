@@ -1,0 +1,239 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr" x-data="ui()" x-init="init()" :class="theme">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Dashboard Master | ESFé{% endblock %}</title>
+
+  <!-- ====== Styles & Librairies ====== -->
+  <link rel="stylesheet" href="{% static 'css/output.css' %}">
+  <script defer src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script defer src="https://unpkg.com/preline@3.2.3/dist/preline.js"></script>
+
+  <style>
+    [x-cloak] { display:none!important; }
+
+    .fade-in { animation: fade-in .25s ease-out; }
+    @keyframes fade-in { from {opacity:0;transform:translateY(4px);} to {opacity:1;transform:none;} }
+
+    ::-webkit-scrollbar { width:6px; }
+    ::-webkit-scrollbar-thumb { background:#94a3b8; border-radius:4px; }
+    .dark ::-webkit-scrollbar-thumb { background:#475569; }
+
+    @media (max-width: 1023px) {
+      #sidebar { position:fixed; top:0; left:-18rem; width:18rem; height:100%; z-index:50; transition:left .3s ease; }
+      #sidebar.open { left:0; box-shadow:0 0 0 9999px rgba(0,0,0,.4); }
+    }
+
+    .tooltip {
+      position:fixed;
+      left:4.5rem;
+      background:#0f172a;
+      color:white;
+      font-size:.7rem;
+      padding:.25rem .5rem;
+      border-radius:.4rem;
+      white-space:nowrap;
+      z-index:10000;
+      opacity:0;
+      transform:translateY(-2px);
+      animation:fadeIn .2s ease forwards;
+    }
+    @keyframes fadeIn { to { opacity:1; transform:translateY(0); } }
+  </style>
+
+  {% block extra_head %}{% endblock %}
+</head>
+
+<body class="min-h-screen bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 transition-colors duration-300">
+
+<!-- ===== Overlay (mobile) ===== -->
+<div id="overlay" x-show="sidebarOpen" @click="toggleSidebar(false)" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-40"></div>
+
+<div class="flex min-h-screen">
+
+  <!-- ░░ SIDEBAR ░░ -->
+  <aside id="sidebar"
+         class="w-72 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col transition-all duration-300">
+
+    <div class="px-4 py-3 flex items-center gap-3 border-b border-slate-200 dark:border-slate-700">
+      <img src="{% static 'img/logo-transparent.png' %}" alt="ESFé" class="h-9 w-auto logo-full">
+      <img src="{% static 'img/favicon.png' %}" alt="ESFé" class="h-9 w-9 hidden logo-mini rounded-full">
+      <div class="min-w-0 truncate">
+        <div class="font-bold text-cyan-700 dark:text-cyan-300 text-sm">ESFé Master</div>
+        <div class="text-[11px] text-slate-500 dark:text-slate-400">Plateforme académique</div>
+      </div>
+      <button class="ml-auto p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 xl:hidden transition" @click="toggleSidebar(false)">
+        <i data-lucide="x" class="w-5 h-5 text-slate-500"></i>
+      </button>
+    </div>
+
+    <button id="btn-collapse"
+            class="m-3 px-2.5 py-2 rounded-md border border-slate-200 dark:border-slate-700 text-xs flex items-center justify-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-700 transition"
+            @click="toggleCollapse()">
+      <i data-lucide="menu" class="w-4 h-4"></i>
+      <span>Rétracter</span>
+    </button>
+
+    <nav class="flex-1 overflow-y-auto px-2 pb-6">
+      {% block sidebar %}{% endblock %}
+    </nav>
+
+    <div class="border-t border-slate-200 dark:border-slate-700 text-[11px] text-slate-400 dark:text-slate-500 py-3 text-center">
+      © ESFé Mali · Dashboard
+    </div>
+  </aside>
+
+  <!-- ░░ CONTENU PRINCIPAL ░░ -->
+  <div id="main-wrapper" class="flex-1 flex flex-col">
+    <header class="h-16 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white flex items-center justify-between px-4 md:px-6 shadow-lg sticky top-0 z-40">
+      <div class="flex items-center gap-3">
+        <button class="xl:hidden p-2 rounded hover:bg-cyan-500/30 transition" @click="toggleSidebar(true)">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+        <h1 class="text-lg font-semibold tracking-wide">{% block header_title %}Tableau de bord{% endblock %}</h1>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <!-- Thème -->
+        <button @click="toggleTheme()" class="flex items-center gap-1 px-2 py-1 text-sm rounded border border-white/30 hover:bg-white/10 transition">
+          <i :data-lucide="theme === 'dark' ? 'sun' : 'moon'" class="w-4 h-4"></i>
+          <span x-text="theme === 'dark' ? 'Clair' : 'Sombre'"></span>
+        </button>
+
+        <!-- Notifications -->
+        <button class="relative p-2 rounded hover:bg-white/10 transition" @click="showToast('Aucune nouvelle notification.', 'info')">
+          <i data-lucide="bell" class="w-5 h-5"></i>
+          {% if unread_notifications_count and unread_notifications_count > 0 %}
+          <span class="absolute -top-1 -right-1 text-[10px] bg-red-600 text-white px-1.5 rounded-full">
+            {{ unread_notifications_count }}
+          </span>
+          {% endif %}
+        </button>
+
+        <!-- Utilisateur -->
+        <div class="flex items-center gap-2">
+          <span class="hidden sm:block text-sm truncate max-w-[140px]">{{ request.user.get_full_name|default:request.user.username }}</span>
+          <img src="{% static 'img/avatar-default.png' %}" class="h-8 w-8 rounded-full border border-white/30" alt="">
+
+          <!-- ✅ Bouton Déconnexion TOUJOURS visible -->
+          <a href="{% url 'masters:logout' %}"
+             class="inline-flex items-center gap-1 px-3 py-1.5 rounded bg-red-600 hover:bg-red-500 text-sm font-medium shadow-sm transition">
+            <i data-lucide="log-out" class="w-4 h-4"></i> Déconnexion
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-1 overflow-y-auto p-6 md:p-8 lg:p-10 bg-slate-100 dark:bg-slate-900 fade-in">
+      {% block dashboard_content %}
+      <div class="rounded-xl border border-dashed border-slate-300 dark:border-slate-600 p-6 text-slate-400 text-center">
+        Contenu du dashboard…
+      </div>
+      {% endblock %}
+    </main>
+  </div>
+</div>
+
+<!-- Loader global -->
+<div x-show="loading" x-transition.opacity class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-[999]">
+  <span class="loading loading-ring loading-lg text-cyan-600"></span>
+</div>
+
+<!-- Toast container -->
+<div id="toastContainer" class="fixed top-4 right-4 z-[1000] space-y-3"></div>
+
+{% block extra_js %}{% endblock %}
+
+<!-- JS principal -->
+<script>
+function ui(){
+  return {
+    theme: localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light'),
+    sidebarOpen: false,
+    collapsed: localStorage.getItem('collapsed') === '1',
+    loading: false,
+
+    init(){
+      if(window.lucide) lucide.createIcons();
+      this.applyCollapse();
+    },
+
+    toggleSidebar(state){
+      this.sidebarOpen = state;
+      const el=document.getElementById('sidebar');
+      const ov=document.getElementById('overlay');
+      if(state){el.classList.add('open');ov.classList.add('show');}
+      else{el.classList.remove('open');ov.classList.remove('show');}
+    },
+
+    toggleCollapse(){
+      this.collapsed=!this.collapsed;
+      localStorage.setItem('collapsed',this.collapsed?'1':'0');
+      this.applyCollapse();
+    },
+
+    applyCollapse(){
+      const sb=document.getElementById('sidebar');
+      const full=document.querySelector('.logo-full');
+      const mini=document.querySelector('.logo-mini');
+
+      if(this.collapsed){
+        sb.classList.add('w-16'); sb.classList.remove('w-72');
+        full?.classList.add('hidden'); mini?.classList.remove('hidden');
+        sb.querySelectorAll('a span, a strong, a p, #btn-collapse span').forEach(el=>el.classList.add('hidden'));
+        sb.querySelectorAll('a').forEach(a=>a.classList.add('justify-center'));
+      } else {
+        sb.classList.remove('w-16'); sb.classList.add('w-72');
+        full?.classList.remove('hidden'); mini?.classList.add('hidden');
+        sb.querySelectorAll('a span, a strong, a p, #btn-collapse span').forEach(el=>el.classList.remove('hidden'));
+        sb.querySelectorAll('a').forEach(a=>a.classList.remove('justify-center'));
+      }
+      if(window.lucide) lucide.createIcons();
+    },
+
+    toggleTheme(){
+      this.theme = (this.theme === 'dark' ? 'light' : 'dark');
+      localStorage.setItem('theme', this.theme);
+      if(window.lucide) lucide.createIcons();
+    },
+
+    showToast(msg,type='info'){
+      const colors={success:'alert-success',error:'alert-error',warning:'alert-warning',info:'alert-info'};
+      const div=document.createElement('div');
+      div.className=`alert ${colors[type]||colors.info} shadow-lg fade-in`;
+      div.innerHTML=`<span>${msg}</span>`;
+      document.getElementById('toastContainer').appendChild(div);
+      setTimeout(()=>div.remove(),4000);
+    }
+  }
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  if(window.lucide) lucide.createIcons();
+  document.body.addEventListener('mouseenter',e=>{
+    const link=e.target.closest('#sidebar a');
+    const uiStore=document.querySelector('html').__x.$data;
+    if(!link||!uiStore?.collapsed)return;
+    const label=link.textContent.trim();
+    if(!label)return;
+    const tip=document.createElement('div');
+    tip.textContent=label;
+    tip.className='tooltip';
+    document.body.appendChild(tip);
+    const rect=link.getBoundingClientRect();
+    tip.style.top=`${rect.top+window.scrollY+8}px`;
+    link._tooltip=tip;
+  },true);
+  document.body.addEventListener('mouseleave',e=>{
+    const link=e.target.closest('#sidebar a');
+    if(link?._tooltip){link._tooltip.remove();link._tooltip=null;}
+  },true);
+});
+</script>
+
+<script src="https://unpkg.com/htmx.org@1.9.10"></script>
+</body>
+</html>

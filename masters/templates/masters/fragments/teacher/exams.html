@@ -1,0 +1,64 @@
+{% load static %}
+
+<div class="space-y-8 fade-in">
+  <h2 class="text-2xl font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+    <i data-lucide="clipboard-list" class="w-6 h-6 text-info"></i> Examens
+  </h2>
+
+  <div class="overflow-x-auto rounded-xl shadow bg-base-100 border border-base-300">
+    <table class="table w-full text-sm">
+      <thead class="bg-base-200 text-slate-700 dark:text-slate-300">
+        <tr>
+          <th>Intitulé</th>
+          <th class="text-center">Module</th>
+          <th class="text-center">Date</th>
+          <th class="text-center">Participants</th>
+          <th class="text-center">Statut</th>
+        </tr>
+      </thead>
+      <tbody id="examBody">
+        <tr><td colspan="5" class="py-6 text-center text-slate-500">Chargement...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div id="toastContainer" class="toast toast-top toast-end z-50"></div>
+</div>
+
+<script>
+(async function(){
+  const tbody = document.getElementById("examBody");
+  const toastContainer = document.getElementById("toastContainer");
+
+  function showToast(msg, type="info"){
+    const el = document.createElement("div");
+    el.className = `alert alert-${type} shadow-lg`;
+    el.innerHTML = `<span>${msg}</span>`;
+    toastContainer.appendChild(el);
+    setTimeout(()=>el.remove(), 4000);
+  }
+
+  try {
+    const exams = [
+      { title:"Microbiologie", module:"Santé Publique", date:"2025-10-28", participants:42, status:"Programmé" },
+      { title:"Méthodologie", module:"M1 Recherche", date:"2025-11-03", participants:28, status:"En cours" },
+    ];
+
+    tbody.innerHTML = exams.map(e => `
+      <tr class="hover transition">
+        <td>${e.title}</td>
+        <td class="text-center">${e.module}</td>
+        <td class="text-center">${e.date}</td>
+        <td class="text-center">${e.participants}</td>
+        <td class="text-center font-semibold ${e.status === 'En cours' ? 'text-warning' : 'text-info'}">${e.status}</td>
+      </tr>
+    `).join("");
+
+    showToast("Examens chargés avec succès ✅", "success");
+  } catch (e) {
+    console.error(e);
+    tbody.innerHTML = "<tr><td colspan='5' class='text-center text-error py-6'>Erreur de chargement</td></tr>";
+    showToast("Erreur lors du chargement des examens", "error");
+  }
+})();
+</script>

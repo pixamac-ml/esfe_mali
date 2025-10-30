@@ -1,0 +1,146 @@
+{# templates/messenger/chat_room_fragment.html #}
+<div id="chatRoom"
+     x-data="chatRoom({
+        convId: '{{ conv.id }}',
+        sendUrl: '{% url "messenger:send_message" conv.id %}',
+        callUrl: '{% url "messenger:start_call" conv.id %}',
+        wsScheme: '{{ request.is_secure|yesno:"wss,ws" }}'
+     })"
+     x-init="init()"
+     class="flex flex-col h-[60vh]">
+
+  <!-- 🔵 Header conversation -->
+  <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700 mb-3">
+    <div>
+      <h4 class="text-sm font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+        {{ conv.title|default:"Conversation" }}
+      </h4>
+      <p class="text-[11px] text-slate-400">
+        {{ conv.id }}
+      </p>
+    </div>
+    <div class="flex gap-2">
+      <button @click="startCall"
+              class="flex items-center gap-1 px-3 py-1 rounded bg-emerald-600 text-white text-xs hover:bg-emerald-500 transition">
+        <i data-lucide="video" class="w-4 h-4"></i> Appel vidéo
+      </button>
+    </div>
+  </div>
+
+  <!-- 📨 Liste messages -->
+  <ul id="msg-list"
+      class="flex-1 space-y-2 overflow-y-auto pr-2">
+    {% for m in messages %}
+      {% include "messenger/_message_item.html" with m=m self_id=request.user.id %}
+    {% empty %}
+      <li class="text-xs text-slate-400">Aucun message pour le moment.</li>
+    {% endfor %}
+  </ul>
+
+  <!-- ✏️ Formulaire envoi -->
+  <form @submit.prevent="send"
+        class="pt-3 mt-3 border-t border-slate-200 dark:border-slate-700 flex gap-2">
+    <textarea x-model="text"
+              class="flex-1 rounded border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-900"
+              rows="1"
+              placeholder="Écrire un message..."></textarea>
+    <button type="submit"
+            class="px-4 py-2 rounded bg-cyan-600 text-white text-sm hover:bg-cyan-500">
+      Envoyer
+    </button>
+  </form>
+</div>
+
+<script>
+function chatRoom(cfg){
+  return {
+    convId: cfg.convId,
+    sendUrl: cfg.sendUrl,
+    callUrl: cfg.callUrl,
+    wsScheme: cfg.wsScheme || "ws",
+    socket: null,
+    text: "",
+
+    init(){
+      // connexion WS
+      const loc = window.location;
+      const wsPath = `${this.wsScheme}://${loc.host}/ws/chat/${this.convId}/`;
+      try{
+        this.socket = new WebSocket(wsPath);
+        this.socket.onmessage = (e) => {
+          try{
+            const data = JSON.parse(e.data);
+            if(data.event === "message"){
+              this.appendMessage(data);
+            }
+          }catch(err){}
+        };
+      }catch(e){
+        console.warn("WS non disponible", e);
+      }
+    },
+
+    appendMessage(data){
+      const list = document.getElementById("msg-list");
+      if(!list) return;
+      // petit bloc HTML
+      const li = document.createElement("li");
+      const isSelf = (data.sender_id && data.sender_id == {{ request.user.id }});
+      li.className = "flex " + (isSelf ? "justify-end" : "justify-start");
+      li.innerHTML = `
+        <div class="max-w-[80%]">
+          <div class="text-[11px] ${isSelf ? "text-right" : ""} text-slate-400 mb-0.5">
+            ${data.sender || ""}
+          </div>
+          <div class="px-3 py-2 rounded-lg ${isSelf ? "bg-cyan-600 text-white" : "bg-slate-100 dark:bg-slate-700 dark:text-slate-100"}">
+            ${data.text || ""}
+          </div>
+        </div>
+      `;
+      list.appendChild(li);
+      list.scrollTop = list.scrollHeight;
+    },
+
+    async send(){
+      const content = (this.text || "").trim();
+      if(!content) return;
+
+      // 1) envoi WebSocket si dispo
+      if(this.socket && this.socket.readyState === WebSocket.OPEN){
+        this.socket.send(JSON.stringify({
+          type: "message",
+          text: content
+        }));
+      } else {
+        // 2) fallback HTTP
+        const fd = new FormData();
+        fd.append("text", content);
+        fd.append("csrfmiddlewaretoken", document.querySelector('[name=csrfmiddlewaretoken]')?.value || "");
+        const r = await fetch(this.sendUrl, {
+          method: "POST",
+          headers: {"X-Requested-With":"XMLHttpRequest"},
+          body: fd
+        });
+        const html = await r.text();
+        // on insère le message rendu par Django
+        const list = document.getElementById("msg-list");
+        const tmp = document.createElement("div");
+        tmp.innerHTML = html;
+        list.appendChild(tmp.firstElementChild);
+        list.scrollTop = list.scrollHeight;
+      }
+
+      this.text = "";
+    },
+
+    async startCall(){
+      const r = await fetch(this.callUrl, {headers:{'X-Requested-With':'XMLHttpRequest'}});
+      const html = await r.text();
+      // on peut afficher le fragment d'appel dans un modal global
+      const panel = document.getElementById("chat-panel");
+      // si tu veux juste remplacer le panel:
+      panel.innerHTML = html;
+    }
+  }
+}
+</script>

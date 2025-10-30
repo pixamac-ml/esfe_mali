@@ -1,0 +1,142 @@
+{% load static %}
+
+<div class="space-y-6">
+
+  <!-- 🧭 En-tête -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div>
+      <h2 class="text-xl font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+        <i data-lucide="bar-chart-3" class="w-5 h-5 text-cyan-600"></i>
+        Résultats académiques
+      </h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400">
+        Consultez vos moyennes, crédits validés et décisions de passage par semestre.
+      </p>
+    </div>
+
+    <button id="refresh-results"
+      class="flex items-center gap-2 px-3 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-medium shadow-sm transition-all duration-150">
+      <i data-lucide="refresh-cw" class="w-4 h-4"></i> Rafraîchir
+    </button>
+  </div>
+
+  <!-- 📊 Résumé global -->
+  {% if summary %}
+  <div class="grid sm:grid-cols-3 gap-4">
+    <div
+      class="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 shadow-soft text-center">
+      <p class="text-sm text-slate-500 dark:text-slate-400">Moyenne générale</p>
+      <p
+        class="text-2xl font-bold mt-1 {% if summary.avg_global and summary.avg_global >= 10 %}text-emerald-600{% else %}text-rose-600{% endif %}">
+        {{ summary.avg_global|default:"—" }}
+      </p>
+    </div>
+
+    <div
+      class="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 shadow-soft text-center">
+      <p class="text-sm text-slate-500 dark:text-slate-400">Crédits obtenus</p>
+      <p class="text-2xl font-bold mt-1 text-cyan-700">{{ summary.credits_total|default:0 }}</p>
+    </div>
+
+    <div
+      class="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 shadow-soft text-center">
+      <p class="text-sm text-slate-500 dark:text-slate-400">Décision finale</p>
+      <p class="text-2xl font-bold mt-1 text-indigo-600 uppercase">
+        {{ summary.decision_finale|default:"En attente" }}
+      </p>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- 🧾 Détails par semestre -->
+  {% if semester_blocks %}
+  {% for block in semester_blocks %}
+  {% with sr=block.sr rows=block.rows %}
+  <div
+    class="rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-soft overflow-hidden">
+    <!-- En-tête du semestre -->
+    <div
+      class="px-5 py-3 flex flex-wrap items-center justify-between border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/70">
+      <div>
+        <h3 class="text-base font-semibold text-slate-800 dark:text-white">{{ sr.semester.name }}</h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400">
+          {{ sr.semester.program.title }} — {{ sr.semester.cohort.label }}
+        </p>
+      </div>
+
+      <div class="flex items-center gap-3 text-xs">
+        <span
+          class="px-2 py-1 rounded-full font-medium flex items-center gap-1
+            {% if sr.decision == 'ADM' %}bg-emerald-100 text-emerald-700
+            {% elif sr.decision == 'AJ' %}bg-rose-100 text-rose-700
+            {% elif sr.decision == 'RAT' %}bg-amber-100 text-amber-700
+            {% else %}bg-slate-100 text-slate-600{% endif %}">
+          <i data-lucide="{% if sr.decision == 'ADM' %}check-circle{% elif sr.decision == 'AJ' %}x-circle{% elif sr.decision == 'RAT' %}alert-triangle{% else %}circle{% endif %}"
+            class="w-3 h-3"></i>
+          {{ sr.get_decision_display|default:"—" }}
+        </span>
+        <span class="text-slate-500 dark:text-slate-400">Moy. {{ sr.average_20|default:"—" }}/20</span>
+        <span class="text-slate-500 dark:text-slate-400">Crédits : {{ sr.credits_earned|default:0 }}</span>
+      </div>
+    </div>
+
+    <!-- Tableau -->
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead class="bg-slate-50 dark:bg-slate-700/50">
+          <tr class="text-left text-slate-600 dark:text-slate-300">
+            <th class="px-4 py-2">Module</th>
+            <th class="px-4 py-2">Évaluations</th>
+            <th class="px-4 py-2">Note finale</th>
+            <th class="px-4 py-2">Crédits</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+          {% for r in rows %}
+          <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/40 transition">
+            <td class="px-4 py-2 font-medium text-slate-700 dark:text-slate-200">{{ r.module.title }}</td>
+            <td class="px-4 py-2 text-xs text-slate-500 dark:text-slate-400">
+              {% if r.evals %}
+                {% for ev in r.evals %}
+                  {{ ev.kind }} : {{ ev.note|default:"—" }}/20{% if not forloop.last %}<br>{% endif %}
+                {% endfor %}
+              {% else %}
+                —
+              {% endif %}
+            </td>
+            <td
+              class="px-4 py-2 font-semibold {% if r.final_note and r.final_note >= 10 %}text-emerald-600{% else %}text-rose-600{% endif %}">
+              {{ r.final_note|default:"—" }}
+            </td>
+            <td class="px-4 py-2 text-xs text-slate-500">{{ r.module.credits|default:0 }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endwith %}
+  {% endfor %}
+  {% else %}
+  <p class="text-sm text-slate-500 dark:text-slate-400">Aucun résultat disponible pour le moment.</p>
+  {% endif %}
+</div>
+
+<!-- ✅ Script amélioré -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  // Active Lucide + Preline
+  if (window.lucide) lucide.createIcons();
+  if (window.HSStaticMethods) HSStaticMethods.autoInit();
+
+  // 🔁 Bouton Rafraîchir
+  const refreshBtn = document.getElementById("refresh-results");
+  if (refreshBtn) {
+    refreshBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      refreshBtn.classList.add("opacity-70", "pointer-events-none");
+      setTimeout(() => location.reload(), 500);
+    });
+  }
+});
+</script>

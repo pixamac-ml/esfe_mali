@@ -1,0 +1,90 @@
+{% load static %}
+
+<footer class="bg-primary-900 text-white mt-auto">
+  <div class="max-w-7xl mx-auto px-6 lg:px-8 py-14 grid md:grid-cols-4 gap-12">
+
+    <!-- Logo + Présentation -->
+    <div>
+      <a href="{% url 'core:home' %}" class="flex items-center gap-3 mb-4">
+        <img src="{% static 'img/logo-transparent.png' %}" alt="ESFé" class="h-12 w-auto">
+        <span class="font-display font-bold text-lg">ESFé Mali</span>
+      </a>
+      <p class="text-sm text-white/80 leading-relaxed mb-6">
+        Université & École de Santé Félix Houphouët-Boigny Mali.<br>
+        L’excellence en sciences de la santé à travers 12 structures au Mali.
+      </p>
+      <div class="flex gap-4 text-lg">
+        <a href="#" class="hover:text-brand-cyan" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" class="hover:text-brand-cyan" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="#" class="hover:text-brand-cyan" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <div>
+      <h3 class="font-semibold text-white mb-4 uppercase tracking-wide">Navigation</h3>
+      <ul class="space-y-2 text-sm">
+        <li><a href="{% url 'core:home' %}" class="hover:text-brand-cyan">Accueil</a></li>
+        <li><a href="{% url 'programs:program_list' %}" class="hover:text-brand-cyan">Formations</a></li>
+        <li><a href="{% url 'admissions:apply_generic' %}" class="hover:text-brand-cyan">Admission</a></li>
+        <li><a href="{% url 'blog:post_list' %}" class="hover:text-brand-cyan">Blog</a></li>
+        <li><a href="{% url 'news:news_list' %}" class="hover:text-brand-cyan">Actualités</a></li>
+        <li><a href="{% url 'gallery:album_list' %}" class="hover:text-brand-cyan">Galerie</a></li>
+      </ul>
+    </div>
+
+    <!-- Structures -->
+    <div>
+      <h3 class="font-semibold text-white mb-4 uppercase tracking-wide">Nos structures</h3>
+      <ul class="grid grid-cols-2 gap-2 text-sm text-white/80">
+        <li>Bamako - Campus Central</li>
+        <li>Bamako - Annexe II</li>
+        <li>Sikasso</li>
+        <li>Ségou</li>
+        <li>Mopti</li>
+        <li>Kayes</li>
+        <li>Koutiala</li>
+        <li>Koulikoro</li>
+        <li>Gao</li>
+        <li>Tombouctou</li>
+        <li>Kidal</li>
+        <li>Bourem</li>
+      </ul>
+    </div>
+
+    <!-- Contact -->
+    <div>
+      <h3 class="font-semibold text-white mb-4 uppercase tracking-wide">Contact</h3>
+      <ul class="space-y-2 text-sm text-white/70">
+        <li><strong>Adresse :</strong> Bamako, Mali</li>
+        <li><strong>Tél :</strong> +223 70 00 00 00</li>
+        <li><strong>Email :</strong> contact@esfe-mali.com</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Zone partenaires -->
+  <div class="bg-primary-800/60 border-t border-white/10">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8 py-6 text-center">
+      <h4 class="text-sm font-semibold mb-3">Nos partenaires</h4>
+      <div class="flex flex-wrap justify-center gap-6 opacity-80">
+        <img src="{% static 'img/partner1.png' %}" alt="Partenaire 1" class="h-8">
+        <img src="{% static 'img/partner2.png' %}" alt="Partenaire 2" class="h-8">
+        <img src="{% static 'img/partner3.png' %}" alt="Partenaire 3" class="h-8">
+      </div>
+    </div>
+  </div>
+
+  <!-- Bas de page -->
+  <div class="border-t border-white/10 bg-primary-900/90">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between text-xs text-white/60 gap-2">
+      <p>&copy; {{ now|date:"Y" }} ESFé Mali — Tous droits réservés.</p>
+      <ul class="flex gap-4">
+        <li><a href="{% url 'core:privacy' %}" class="hover:text-brand-cyan">Confidentialité</a></li>
+        <li><a href="{% url 'core:legal' %}" class="hover:text-brand-cyan">Mentions légales</a></li>
+        <li><a href="{% url 'core:sitemap' %}" class="hover:text-brand-cyan">Plan du site</a></li>
+      </ul>
+      <p>Développé par UFHOB-Tech</p>
+    </div>
+  </div>
+</footer>

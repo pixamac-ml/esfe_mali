@@ -1,39 +1,76 @@
 <section class="bg-white">
-  <div class="max-w-container mx-auto px-4 py-14 sm:py-20">
+  <div class="max-w-7xl mx-auto px-4 py-14 sm:py-20">
+
+    <!-- En-tête -->
     <div class="flex items-end justify-between gap-4">
       <div>
         <h2 class="font-display text-2xl sm:text-3xl text-primary-900">Actualités récentes</h2>
         <div class="mt-3 h-0.5 w-20 bg-brand-cyan"></div>
       </div>
-      <a href="#" class="text-primary-900 hover:underline text-sm hidden sm:inline">Voir tout</a>
+      <a href="{% url 'blog:post_list' %}" class="text-primary-900 hover:underline text-sm hidden sm:inline">Voir tout</a>
     </div>
 
-    <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+    <!-- Grille -->
+    <div class="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
       {% for post in latest_posts %}
-      <article class="rounded-2xl border border-slate-200 overflow-hidden shadow-soft hover:shadow-lg transition flex flex-col">
-        {% if post.image %}
-          <img src="#" alt="{{ post.title }}" class="h-44 w-full object-cover">
-        {% else %}
-          <img src="https://picsum.photos/seed/post-{{ post.id }}/800/400" alt="{{ post.title }}" class="h-44 w-full object-cover">
-        {% endif %}
+      <article class="group rounded-2xl border border-slate-200 overflow-hidden shadow hover:shadow-lg transition flex flex-col bg-white">
+
+        <!-- Image -->
+        <a href="{{ post.get_absolute_url }}" class="block overflow-hidden">
+          {% if post.cover %}
+            <img src="{{ post.cover.url }}" alt="{{ post.title }}"
+                 class="h-48 w-full object-cover group-hover:scale-105 transition-transform duration-700">
+          {% else %}
+            <img src="https://picsum.photos/seed/post-{{ post.id }}/800/400" alt="{{ post.title }}"
+                 class="h-48 w-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-700">
+          {% endif %}
+        </a>
+
+        <!-- Contenu -->
         <div class="p-5 flex-1 flex flex-col">
-          <h3 class="font-semibold text-slate-900 line-clamp-2">{{ post.title }}</h3>
-          <p class="mt-2 text-slate-600 text-sm line-clamp-3">{{ post.excerpt|default:post.content|striptags }}</p>
+          <div class="flex items-center text-xs text-slate-500 gap-2 mb-2">
+            {% if post.category %}
+              <a href="{% url 'blog:post_by_category' post.category.slug %}"
+                 class="uppercase tracking-wide font-semibold text-brand-cyan hover:underline">
+                {{ post.category.name }}
+              </a>
+              <span>•</span>
+            {% endif %}
+            <time datetime="{{ post.published_at|date:'Y-m-d' }}">
+              {{ post.published_at|date:"d M Y" }}
+            </time>
+          </div>
+
+          <h3 class="text-lg font-semibold text-slate-900 line-clamp-2 group-hover:text-primary-900">
+            <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+          </h3>
+
+          <p class="mt-2 text-slate-600 text-sm line-clamp-3 flex-1">
+            {{ post.excerpt|default:post.content|striptags|truncatechars:160 }}
+          </p>
+
+          <!-- CTA -->
           <div class="mt-4">
-            <a href="#" class="inline-flex items-center gap-2 text-primary-900 hover:underline text-sm">
+            <a href="{{ post.get_absolute_url }}"
+               class="inline-flex items-center gap-2 text-sm font-medium text-primary-900 hover:underline">
               Lire l’article
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14M12 5l7 7-7 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M5 12h14M12 5l7 7-7 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
             </a>
           </div>
         </div>
       </article>
       {% empty %}
-        <p class="text-slate-500">Aucun article publié pour le moment.</p>
+        <p class="col-span-full text-slate-500 text-center">Aucun article publié pour le moment.</p>
       {% endfor %}
     </div>
 
-    <div class="mt-8 sm:hidden">
-      <a href="#" class="inline-flex items-center gap-2 text-primary-900 hover:underline text-sm">Voir tout</a>
+    <!-- Lien mobile -->
+    <div class="mt-10 sm:hidden text-center">
+      <a href="{% url 'blog:post_list' %}" class="inline-flex items-center gap-2 text-primary-900 hover:underline text-sm">
+        Voir tout →
+      </a>
     </div>
   </div>
 </section>

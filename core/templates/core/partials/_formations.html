@@ -1,0 +1,63 @@
+<section id="section-formations" class="bg-white text-slate-900">
+  <div class="max-w-7xl mx-auto px-4 py-14 sm:py-16">
+
+    <!-- En-tête -->
+    <div class="text-center">
+      <h2 class="font-display tracking-tight text-2xl sm:text-3xl text-primary-900">
+        Nos formations
+      </h2>
+      <div class="mt-3 h-0.5 w-20 bg-brand-cyan mx-auto"></div>
+      <p class="mt-3 text-slate-600 text-sm max-w-3xl mx-auto">
+        Sélection de nos programmes en Licence et Master.
+      </p>
+    </div>
+
+    <!-- Boucle des cycles -->
+    {% for c in cycles %}
+      {% if c.items %}
+      <section class="mt-12">
+        <div class="flex items-baseline justify-between mb-4">
+          <h3 class="text-xl sm:text-2xl font-bold text-slate-900">{{ c.label }}</h3>
+        </div>
+
+        <!-- Max 6 formations par cycle -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {% for program in c.items|slice:":3" %}
+            <article class="group rounded-xl bg-white border border-slate-200 shadow-sm hover:shadow-lg overflow-hidden transition flex flex-col">
+              <!-- Image -->
+              <div class="relative">
+                {% if program.image %}
+                  <img src="{{ program.image.url }}" alt="{{ program.title }}"
+                       class="h-40 w-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
+                {% else %}
+                  <img src="https://picsum.photos/seed/{{ program.slug }}-mini/640/320" alt="{{ program.title }}"
+                       class="h-40 w-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
+                {% endif %}
+              </div>
+
+              <!-- Contenu -->
+              <div class="p-4 flex flex-col flex-1">
+                <h4 class="text-base font-semibold text-slate-900 line-clamp-2 group-hover:text-primary-900 transition">
+                  {{ program.title }}
+                </h4>
+
+                <p class="mt-1 text-xs text-slate-600">
+                  ⏳ Durée : <span class="font-medium">{{ program.duration|default:"—" }}</span>
+                </p>
+
+                <div class="mt-4">
+                  <a href="{{ program.get_absolute_url }}"
+                     class="inline-flex items-center justify-center w-full px-3 py-2 text-xs font-semibold rounded-lg bg-brand-cyan text-primary-900 hover:bg-primary-900 hover:text-white transition">
+                    Candidater →
+                  </a>
+                </div>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
+    {% endfor %}
+
+  </div>
+</section>

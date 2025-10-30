@@ -1,0 +1,210 @@
+<!-- ==========================================================
+👩‍🏫 Fragment : teachers.html — Version Alpine 3.15 full reactive
+========================================================== -->
+<section x-data="teachersPanel" x-init="init()" class="space-y-10 animate-fade-in">
+
+  <!-- 🧭 En-tête -->
+  <header class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h2 class="text-2xl font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+        <i data-lucide="users" class="w-6 h-6 text-cyan-600"></i>
+        Gestion des Enseignants
+      </h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400">
+        Recherchez, filtrez et consultez les affectations de chaque enseignant.
+      </p>
+    </div>
+    <button @click="refresh"
+            class="px-3 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-medium shadow-sm transition-all flex items-center gap-2">
+      <i data-lucide="refresh-cw" class="w-4 h-4" :class="{'animate-spin-slow': loading}"></i>
+      <span x-text="loading ? 'Chargement…' : 'Rafraîchir'"></span>
+    </button>
+  </header>
+
+  <!-- 🔎 Filtres dynamiques -->
+  <div class="flex flex-wrap gap-3 items-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 shadow-sm">
+    <div class="relative flex-1 min-w-[200px]">
+      <input type="text" placeholder="🔍 Nom ou module..."
+             x-model.debounce.400ms="filters.q"
+             class="pl-9 pr-3 py-2 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 w-full">
+      <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-slate-400"></i>
+    </div>
+
+    <select x-model="filters.program_id" class="text-sm border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-xl py-2 px-3">
+      <option value="">Tous les programmes</option>
+      {% for p in programs %}
+        <option value="{{ p.id }}">{{ p.title }}</option>
+      {% endfor %}
+    </select>
+
+    <select x-model="filters.cohort_id" class="text-sm border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-xl py-2 px-3">
+      <option value="">Toutes les cohortes</option>
+      {% for c in cohorts %}
+        <option value="{{ c.id }}">{{ c.label }}</option>
+      {% endfor %}
+    </select>
+
+    <button @click="applyFilters"
+            class="flex items-center gap-2 px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm font-medium shadow-sm transition">
+      <i data-lucide="filter" class="w-4 h-4"></i> Appliquer
+    </button>
+
+    <button @click="resetFilters"
+            class="px-3 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 rounded-xl text-sm text-slate-700 dark:text-slate-300 transition">
+      Réinitialiser
+    </button>
+  </div>
+
+  <!-- 📊 Statistiques -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <template x-for="stat in stats" :key="stat.label">
+      <div class="p-5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition hover:scale-[1.02] duration-300">
+        <p class="text-sm text-slate-500 dark:text-slate-400" x-text="stat.label"></p>
+        <h3 class="text-3xl font-extrabold" :class="stat.color" x-text="stat.value"></h3>
+      </div>
+    </template>
+  </div>
+
+  <!-- 🧾 Tableau des enseignants -->
+  <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm overflow-hidden animate-fade-in">
+    <table class="w-full text-sm text-left border-collapse">
+      <thead class="bg-slate-100 dark:bg-slate-700/40 text-slate-700 dark:text-slate-200">
+        <tr>
+          <th class="py-2 px-4">Enseignant</th>
+          <th class="py-2 px-4">Programme</th>
+          <th class="py-2 px-4">Module</th>
+          <th class="py-2 px-4 text-center">Semestre</th>
+          <th class="py-2 px-4 text-center">Affecté le</th>
+          <th class="py-2 px-4 text-center">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in assignments %}
+          <tr class="border-b border-slate-100 dark:border-slate-700 hover:bg-cyan-50 dark:hover:bg-slate-700/40 transition cursor-pointer"
+              @click="openDetail('{{ a.instructor.id }}')">
+            <td class="py-2 px-4 font-medium">{{ a.instructor.get_full_name }}</td>
+            <td class="py-2 px-4">{{ a.module.semester.program.title }}</td>
+            <td class="py-2 px-4">{{ a.module.title }}</td>
+            <td class="py-2 px-4 text-center">{{ a.module.semester.name }}</td>
+            <td class="py-2 px-4 text-center">{{ a.created_at|date:"d/m/Y" }}</td>
+            <td class="py-2 px-4 text-center">
+              <button class="text-cyan-600 hover:text-cyan-800 flex items-center gap-1">
+                <i data-lucide="eye" class="w-4 h-4"></i> Voir
+              </button>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="6" class="text-center py-4 text-slate-500 dark:text-slate-400">
+              Aucun enseignant trouvé.
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 📈 Graphique -->
+  <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm animate-fade-in">
+    <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+      <i data-lucide="bar-chart" class="w-5 h-5 text-cyan-600"></i>
+      Répartition des modules par enseignant
+    </h3>
+    <div class="relative w-full h-72">
+      <canvas id="teacherChart"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- Animations CSS -->
+<style>
+  .animate-fade-in { animation: fade-in 0.4s ease-in; }
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-spin-slow { animation: spin 2s linear infinite; }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('alpine:init', () => {
+  Alpine.store('teachers', {
+    filters: { q: '', program_id: '', cohort_id: '' },
+    loading: false,
+    stats: [
+      { label: 'Total Enseignants', value: '{{ meta.total|default:"0" }}', color: 'text-cyan-600' },
+      { label: 'Programmes actifs', value: '{{ programs|length }}', color: 'text-emerald-600' },
+      { label: 'Cohortes suivies', value: '{{ cohorts|length }}', color: 'text-amber-600' },
+      { label: 'Modules enregistrés', value: '{{ assignments|length }}', color: 'text-rose-600' },
+    ],
+  });
+
+  Alpine.data('teachersPanel', () => ({
+    get filters() { return Alpine.store('teachers').filters },
+    get loading() { return Alpine.store('teachers').loading },
+    set loading(val) { Alpine.store('teachers').loading = val },
+    get stats() { return Alpine.store('teachers').stats },
+
+    init() {
+      lucide.createIcons();
+      this.renderChart();
+    },
+
+    refresh() { this.fetchData(); },
+    applyFilters() { this.fetchData(); },
+    resetFilters() {
+      this.filters.q = ''; this.filters.program_id = ''; this.filters.cohort_id = '';
+      this.fetchData();
+    },
+
+    fetchData() {
+      this.loading = true;
+      const params = new URLSearchParams(this.filters).toString();
+      fetch(`/master/director/fragment/teachers/?${params}`, { headers: {'X-Requested-With': 'XMLHttpRequest'} })
+        .then(r => r.text())
+        .then(html => {
+          document.getElementById('director-content').innerHTML = html;
+          // 🔁 Réinitialiser Alpine sur le nouveau fragment
+          setTimeout(() => window.Alpine.initTree(document.getElementById('director-content')), 100);
+        })
+        .finally(() => this.loading = false);
+    },
+
+    openDetail(id) {
+      fetch(`/master/director/fragment/teacher_detail/?instructor_id=${id}`, { headers: {'X-Requested-With': 'XMLHttpRequest'} })
+        .then(r => r.text())
+        .then(html => {
+          document.getElementById('director-content').innerHTML = html;
+          setTimeout(() => window.Alpine.initTree(document.getElementById('director-content')), 100);
+        });
+    },
+
+    renderChart() {
+      const ctx = document.getElementById('teacherChart');
+      if (!ctx) return;
+      const names = [{% for a in assignments %}'{{ a.instructor.last_name|escapejs }}',{% endfor %}];
+      const count = {};
+      names.forEach(n => count[n] = (count[n] || 0) + 1);
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(count),
+          datasets: [{
+            label: 'Modules',
+            data: Object.values(count),
+            backgroundColor: 'rgba(8,145,178,0.6)',
+            borderColor: 'rgb(8,145,178)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          scales: { y: { beginAtZero: true } },
+          plugins: { legend: { display: false } },
+          animation: { duration: 700, easing: 'easeOutQuart' }
+        }
+      });
+    },
+  }));
+});
+</script>

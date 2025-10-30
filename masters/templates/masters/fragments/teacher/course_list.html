@@ -1,0 +1,131 @@
+{% load static %}
+
+<div id="teacherCourseList" x-data="teacherCourses()" x-init="init()" class="space-y-8 fade-in">
+
+  <!-- 🧭 En-tête -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div>
+      <h2 class="text-2xl font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+        <i data-lucide="book-open" class="w-6 h-6 text-info"></i>
+        Mes enseignements
+      </h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400">Modules de cours actifs et récents.</p>
+    </div>
+
+    <button @click="loadModules" class="btn btn-info btn-sm gap-2 shadow-md hover:scale-[1.05]">
+      <i data-lucide="refresh-cw" class="w-4 h-4"></i> Rafraîchir
+    </button>
+  </div>
+
+  <!-- 🌀 Grille / Carrousel -->
+  <div class="relative min-h-[250px] overflow-x-auto pb-2">
+    <div id="carousel" class="flex gap-6 sm:grid sm:grid-cols-2 lg:grid-cols-3 transition-all">
+
+      <!-- Loader -->
+      <template x-if="loading">
+        <div class="absolute inset-0 flex items-center justify-center bg-base-100/90 dark:bg-slate-900/80 backdrop-blur-sm">
+          <div class="loading-ring"></div>
+        </div>
+      </template>
+
+      <!-- Modules -->
+      <template x-if="!loading && modules.length > 0">
+        <template x-for="m in modules" :key="m.id">
+          <div class="card grid-card relative w-80 sm:w-auto">
+            <div class="card-body">
+              <div class="flex items-start justify-between">
+                <h3 class="text-lg font-semibold text-slate-800 dark:text-white truncate" x-text="m.title"></h3>
+                <i data-lucide="book" class="w-5 h-5 text-info"></i>
+              </div>
+
+              <p class="text-xs text-slate-500 dark:text-slate-400"
+                 x-text="`${m.program || ''} ${m.semester ? '— ' + m.semester : ''}`"></p>
+
+              <div class="flex items-center gap-2 text-xs text-slate-400 mt-2">
+                <i data-lucide='layers' class='w-4 h-4 text-cyan-600'></i>
+                <span x-text="`${m.chapters_count || 0} chapitres`"></span>
+                <span>•</span>
+                <span x-text="`${m.lessons_count || 0} leçons`"></span>
+              </div>
+
+              <button @click="openCourse(m)"
+                      class="btn btn-outline btn-info btn-sm w-full mt-4 flex items-center justify-center gap-2">
+                <i data-lucide='play-circle' class='w-4 h-4'></i> Ouvrir le cours
+              </button>
+            </div>
+
+            <div class="badge badge-info badge-sm absolute top-2 right-2 text-white shadow-md">Actif</div>
+          </div>
+        </template>
+      </template>
+
+      <!-- Aucun module -->
+      <template x-if="!loading && modules.length === 0">
+        <div class="col-span-full text-center py-8 text-slate-500 dark:text-slate-400 italic">
+          Aucun module trouvé.
+        </div>
+      </template>
+    </div>
+  </div>
+
+  <!-- ✅ Toast -->
+  <div id="toastContainer" class="toast space-y-2"></div>
+</div>
+
+<script>
+function teacherCourses(){
+  return {
+    loading:false,
+    modules:[],
+    lastToast:null,
+
+    init(){
+      this.loadModules();
+      if(window.lucide) lucide.createIcons();
+    },
+
+    showToast(msg, type="info"){
+      if(this.lastToast === msg) return;
+      this.lastToast = msg;
+      const container=document.getElementById("toastContainer");
+      const icons={success:"check-circle", error:"x-circle", info:"info", warning:"alert-triangle"};
+      const colors={success:"alert-success", error:"alert-error", info:"alert-info", warning:"alert-warning"};
+      const div=document.createElement("div");
+      div.className=`alert ${colors[type]||colors.info}`;
+      div.innerHTML=`
+        <i data-lucide='${icons[type]||"info"}' class='w-4 h-4'></i>
+        <span>${msg}</span>
+        <button class='btn btn-xs btn-ghost ml-auto' onclick='this.parentElement.remove()'>
+          <i data-lucide='x'></i>
+        </button>
+      `;
+      container.appendChild(div);
+      if(window.lucide) lucide.createIcons();
+      setTimeout(()=>div.remove(),4000);
+    },
+
+    async loadModules(){
+      this.loading=true;
+      try{
+        const res=await fetch("/master/api/teacher/modules/",{headers:{"X-Requested-With":"XMLHttpRequest"}});
+        const data=await res.json();
+        if(!data.ok){ this.showToast(data.error||"Erreur de chargement","error"); this.modules=[]; return; }
+        this.modules=data.modules||[];
+        this.showToast(this.modules.length ? "Modules chargés avec succès" : "Aucun module trouvé.",
+                       this.modules.length ? "success" : "warning");
+      }catch(e){
+        this.showToast("Erreur de connexion au serveur","error");
+      }finally{
+        this.loading=false;
+        if(window.lucide) lucide.createIcons();
+      }
+    },
+
+    openCourse(m){
+      if(!m || !m.id) return;
+      this.showToast(`Ouverture du cours « ${m.title} »...`,"info");
+      setTimeout(()=>openCourseFromList(m.id, m.title),400);
+    }
+  }
+}
+</script>

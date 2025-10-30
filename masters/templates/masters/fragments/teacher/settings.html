@@ -1,0 +1,83 @@
+{% load static %}
+
+<div class="space-y-8 max-w-xl fade-in">
+
+  <!-- 🧭 Titre -->
+  <h2 class="text-xl font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+    <i data-lucide="settings" class="w-5 h-5 text-info"></i> Paramètres du compte
+  </h2>
+
+  <!-- 🔐 Sécurité -->
+  <div class="card bg-base-100 border border-base-300 shadow-sm">
+    <div class="card-body space-y-4">
+      <h3 class="text-sm font-semibold text-slate-600 dark:text-slate-300 uppercase">Sécurité</h3>
+      <a href="{% url 'masters:change_password' %}"
+         class="btn btn-primary btn-sm w-fit gap-2">
+        <i data-lucide="lock" class="w-4 h-4"></i> Changer mon mot de passe
+      </a>
+    </div>
+  </div>
+
+  <!-- 🎛️ Préférences -->
+  <div class="card bg-base-100 border border-base-300 shadow-sm">
+    <div class="card-body space-y-4">
+      <h3 class="text-sm font-semibold text-slate-600 dark:text-slate-300 uppercase">Préférences</h3>
+
+      <label class="flex items-center justify-between cursor-pointer">
+        <span class="text-sm">Notifications par e-mail</span>
+        <input id="notifSwitch" type="checkbox" class="toggle toggle-info" />
+      </label>
+
+      <label class="flex items-center justify-between cursor-pointer">
+        <span class="text-sm">Mode sombre par défaut</span>
+        <input id="darkSwitch" type="checkbox" class="toggle toggle-primary" checked />
+      </label>
+
+      <button id="savePrefs"
+              class="btn btn-success btn-sm w-fit gap-2 mt-2 hover:scale-[1.03] transition">
+        <i data-lucide="save" class="w-4 h-4"></i> Sauvegarder mes préférences
+      </button>
+    </div>
+  </div>
+
+  <div id="toastContainer" class="toast toast-top toast-end z-50"></div>
+</div>
+
+<!-- === SCRIPT === -->
+<script>
+(function(){
+  const notifSwitch = document.getElementById("notifSwitch");
+  const darkSwitch = document.getElementById("darkSwitch");
+  const saveBtn = document.getElementById("savePrefs");
+  const toastContainer = document.getElementById("toastContainer");
+
+  function showToast(msg, type="success"){
+    const el = document.createElement("div");
+    el.className = `alert alert-${type} shadow-lg`;
+    el.innerHTML = `<span>${msg}</span>`;
+    toastContainer.appendChild(el);
+    setTimeout(()=>el.remove(), 3000);
+  }
+
+  // 🌗 Mode sombre instantané
+  darkSwitch.addEventListener("change", ()=>{
+    document.documentElement.classList.toggle("dark", darkSwitch.checked);
+    showToast(darkSwitch.checked ? "🌙 Mode sombre activé" : "☀️ Mode clair activé", "info");
+  });
+
+  // 💾 Sauvegarde (simulée)
+  saveBtn.addEventListener("click", ()=>{
+    const prefs = {
+      email_notifications: notifSwitch.checked,
+      dark_mode: darkSwitch.checked
+    };
+    console.log("Préférences sauvegardées :", prefs);
+    showToast("Préférences enregistrées avec succès ✅", "success");
+  });
+})();
+</script>
+
+<style>
+  .fade-in { animation: fadeIn .3s ease-out; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:none;} }
+</style>

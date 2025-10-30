@@ -1,0 +1,132 @@
+{% load static %}
+
+<div class="space-y-8">
+
+  <!-- 🧭 En-tête -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div>
+      <h2 class="text-2xl font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+        <i data-lucide="book-open" class="w-6 h-6 text-cyan-600"></i> Mes cours
+      </h2>
+      {% if enrollment %}
+        <p class="text-sm text-slate-500 dark:text-slate-400">
+          Programme : <span class="font-medium text-slate-700 dark:text-slate-300">{{ enrollment.program.title }}</span>
+          — Cohorte : <span class="font-medium text-slate-700 dark:text-slate-300">{{ enrollment.cohort.label }}</span>
+        </p>
+      {% else %}
+        <p class="text-sm text-slate-500 dark:text-slate-400">Aucune inscription active trouvée.</p>
+      {% endif %}
+    </div>
+
+    {% if modules_with_progress %}
+    <div class="flex items-center gap-2">
+      <button id="refresh-courses"
+              class="px-3 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-sm font-medium flex items-center gap-2 transition">
+        <i data-lucide="refresh-ccw" class="w-4 h-4"></i> Rafraîchir
+      </button>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- 🧾 Grille des modules -->
+  {% if modules_with_progress %}
+  <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for item in modules_with_progress %}
+    {% with m=item.module percent=item.percent teacher=item.teacher %}
+
+    <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 group">
+      <!-- Image / Preview -->
+      <div class="aspect-video bg-slate-100 dark:bg-slate-700 relative flex items-center justify-center">
+        <div class="absolute inset-0 flex items-center justify-center text-white">
+          <button data-course-id="{{ m.id }}" data-course-title="{{ m.title }}"
+                  class="open-course w-14 h-14 bg-cyan-600/80 rounded-full flex items-center justify-center hover:bg-cyan-500/90 transition">
+            <i data-lucide="play" class="w-7 h-7"></i>
+          </button>
+        </div>
+        {% if m.cover_image %}
+          <img src="{{ m.cover_image.url }}" alt="{{ m.title }}" class="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-90 transition">
+        {% endif %}
+      </div>
+
+      <!-- Contenu -->
+      <div class="p-4 space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="font-semibold text-slate-800 dark:text-white truncate">{{ m.title }}</h3>
+          <span class="text-xs bg-cyan-100 dark:bg-cyan-900 text-cyan-700 dark:text-cyan-300 px-2 py-0.5 rounded-full font-medium">
+            {{ m.semester.name }}
+          </span>
+        </div>
+
+        <p class="text-xs text-slate-500 dark:text-slate-400">
+          Enseignant :
+          <span class="font-medium text-slate-700 dark:text-slate-300">
+            {% if teacher %}
+              {{ teacher.get_full_name|default:teacher.username }}
+            {% else %}
+              Non assigné
+            {% endif %}
+          </span>
+        </p>
+
+        <!-- Barre de progression -->
+        <div>
+          <div class="flex justify-between text-xs text-slate-500 dark:text-slate-400 mb-1">
+            <span>Progression</span><span>{{ percent }}%</span>
+          </div>
+          <progress class="progress progress-info w-full h-2" value="{{ percent }}" max="100"></progress>
+        </div>
+
+        <!-- Bouton -->
+        <button data-course-id="{{ m.id }}"
+                class="open-course w-full mt-3 px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-medium transition flex items-center justify-center gap-2">
+          <i data-lucide="play-circle" class="w-4 h-4"></i> Accéder au cours
+        </button>
+      </div>
+    </div>
+
+    {% endwith %}
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="p-6 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800">
+    <i data-lucide="info" class="w-5 h-5 inline text-cyan-600 mb-2"></i><br>
+    Aucun module actif trouvé pour votre programme.
+  </div>
+  {% endif %}
+</div>
+
+<script>
+  lucide.createIcons();
+
+  // 🎓 Gestion du clic sur un cours
+  document.querySelectorAll(".open-course").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.preventDefault();
+      const id = btn.dataset.courseId;
+      const title = btn.dataset.courseTitle || "Cours";
+      const container = document.querySelector("#student-dashboard-content");
+      const spinner = document.querySelector("#spinner");
+      spinner?.classList.remove("hidden");
+
+      fetch(`/master/student/fragment/course/${id}/`, {headers: {"X-Requested-With":"XMLHttpRequest"}})
+        .then(resp => resp.text())
+        .then(html => {
+          const target = document.querySelector("#dashboard-inner");
+          target.innerHTML = html;
+          lucide.createIcons();
+          window.scrollTo({top:0, behavior:"smooth"});
+        })
+        .catch(err => {
+          console.error(err);
+          alert("Erreur lors du chargement du cours.");
+        })
+        .finally(() => spinner?.classList.add("hidden"));
+    });
+  });
+
+  // Rafraîchir les cours
+  document.getElementById("refresh-courses")?.addEventListener("click", e => {
+    e.preventDefault();
+    location.reload();
+  });
+</script>

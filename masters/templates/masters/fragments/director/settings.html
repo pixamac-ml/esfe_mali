@@ -1,0 +1,170 @@
+<!-- =======================
+ ⚙️ Fragment : settings.html (Directeur des Études)
+======================= -->
+<section x-data="settingsPanel()" class="space-y-8">
+
+  <!-- 🧭 En-tête -->
+  <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div>
+      <h2 class="text-2xl font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+        <i data-lucide="settings" class="w-6 h-6 text-cyan-600"></i> Paramètres du système
+      </h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400">
+        Configuration académique, préférences et options personnelles.
+      </p>
+    </div>
+    <button @click="saveAll"
+            class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white text-sm rounded-lg flex items-center gap-2 transition shadow-sm">
+      <i data-lucide="save" class="w-4 h-4"></i> Enregistrer
+    </button>
+  </header>
+
+  <!-- ⚙️ Bloc principal -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+    <!-- ============================
+      📘 Paramètres pédagogiques
+    ============================ -->
+    <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+      <h3 class="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+        <i data-lucide="book-open" class="w-5 h-5 text-cyan-600"></i> Règles pédagogiques
+      </h3>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+          Seuil de validation (en /20)
+        </label>
+        <input type="number" min="0" max="20" step="0.5"
+               x-model="settings.seuil_validation"
+               class="w-32 rounded border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:text-white text-sm px-2 py-1">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+          Politique de rattrapage
+        </label>
+        <select x-model="settings.rattrapage"
+                class="w-full rounded border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:text-white text-sm">
+          <option>Conserver la meilleure note</option>
+          <option>Faire la moyenne des deux</option>
+          <option>Remplacer uniquement si supérieur</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+          Validation automatique des résultats
+        </label>
+        <label class="inline-flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" x-model="settings.auto_validation"
+                 class="form-checkbox h-4 w-4 text-cyan-600 rounded border-slate-300 dark:border-slate-600">
+          <span class="text-sm text-slate-600 dark:text-slate-300">Activer la validation automatique</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- ============================
+      🧑‍💼 Paramètres du profil
+    ============================ -->
+    <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+      <h3 class="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+        <i data-lucide="user-cog" class="w-5 h-5 text-cyan-600"></i> Compte personnel
+      </h3>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nom complet</label>
+        <input type="text" x-model="settings.nom_complet"
+               class="w-full rounded border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:text-white text-sm px-2 py-1">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Adresse e-mail</label>
+        <input type="email" x-model="settings.email"
+               class="w-full rounded border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:text-white text-sm px-2 py-1">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nouveau mot de passe</label>
+        <input type="password" placeholder="********" x-model="settings.password"
+               class="w-full rounded border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:text-white text-sm px-2 py-1">
+      </div>
+    </div>
+
+    <!-- ============================
+      🎨 Préférences d’interface
+    ============================ -->
+    <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm space-y-4 lg:col-span-2">
+      <h3 class="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+        <i data-lucide="monitor" class="w-5 h-5 text-cyan-600"></i> Préférences d’affichage
+      </h3>
+
+      <div class="flex flex-wrap gap-6">
+        <div class="flex items-center gap-3">
+          <label class="text-sm text-slate-600 dark:text-slate-300">Thème :</label>
+          <select x-model="settings.theme"
+                  class="rounded border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:text-white text-sm">
+            <option value="clair">Clair</option>
+            <option value="sombre">Sombre</option>
+            <option value="auto">Automatique</option>
+          </select>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <label class="text-sm text-slate-600 dark:text-slate-300">Langue :</label>
+          <select x-model="settings.langue"
+                  class="rounded border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:text-white text-sm">
+            <option value="fr">Français</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <label class="text-sm text-slate-600 dark:text-slate-300">Densité :</label>
+          <select x-model="settings.densite"
+                  class="rounded border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:text-white text-sm">
+            <option value="normal">Normale</option>
+            <option value="compacte">Compacte</option>
+            <option value="spacieuse">Spacieuse</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ Message de succès -->
+  <template x-if="message">
+    <div x-text="message"
+         class="mt-4 p-3 rounded bg-green-50 text-green-700 text-sm border border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800">
+    </div>
+  </template>
+
+</section>
+
+<!-- =========================
+  🔧 Alpine.js — logique locale
+========================= -->
+<script>
+function settingsPanel(){
+  return {
+    message: '',
+    settings: {
+      seuil_validation: 10,
+      rattrapage: 'Conserver la meilleure note',
+      auto_validation: true,
+      nom_complet: '{{ user.get_full_name }}',
+      email: '{{ user.email }}',
+      password: '',
+      theme: 'auto',
+      langue: 'fr',
+      densite: 'normal',
+    },
+    saveAll(){
+      // Simule une sauvegarde dynamique
+      this.message = '💾 Modifications enregistrées avec succès !';
+      setTimeout(()=>this.message='', 3000);
+      console.log('Configuration sauvegardée:', this.settings);
+    }
+  }
+}
+lucide.createIcons();
+</script>

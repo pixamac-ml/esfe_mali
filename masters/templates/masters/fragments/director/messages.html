@@ -1,0 +1,15 @@
+<h2 class="text-xl font-semibold mb-6 text-slate-800 dark:text-white">Paramètres du compte</h2>
+<div class="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-soft space-y-4">
+  <div>
+    <label class="block text-sm font-medium text-slate-600 dark:text-slate-300">Adresse e-mail</label>
+    <input type="email" value="{{ user.email }}" class="mt-1 w-full rounded-lg border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 p-2 text-sm" />
+  </div>
+  <div>
+    <label class="block text-sm font-medium text-slate-600 dark:text-slate-300">Mot de passe</label>
+    <input type="password" value="********" class="mt-1 w-full rounded-lg border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 p-2 text-sm" />
+    <button class="mt-2 text-xs text-cyan-600 hover:underline">Changer le mot de passe</button>
+  </div>
+  <div class="pt-4 border-t border-slate-200 dark:border-slate-700">
+    <button class="bg-brand-cyan text-white px-4 py-2 rounded-lg shadow hover:bg-cyan-600 text-sm">Enregistrer les modifications</button>
+  </div>
+</div>

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Actualités | ESFé Mali{% endblock %}
+
+{% block content %}
+<section class="max-w-7xl mx-auto px-4 py-10">
+  <h1 class="text-3xl font-bold mb-6">Actualités</h1>
+  <div id="news-container">
+    {% include "news/_news_items.html" %}
+  </div>
+</section>
+
+<script>
+document.addEventListener("click", async function(e) {
+  if(e.target.closest("a[data-page]")) {
+    e.preventDefault();
+    const url = e.target.getAttribute("href");
+    const res = await fetch(url, {headers: {"X-Requested-With": "XMLHttpRequest"}});
+    if(res.ok){
+      const data = await res.json();
+      document.getElementById("news-container").innerHTML = data.html;
+      window.history.pushState({}, "", url); // met à jour l’URL sans recharger
+    }
+  }
+});
+</script>
+{% endblock %}

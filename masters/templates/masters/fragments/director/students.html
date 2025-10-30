@@ -1,0 +1,311 @@
+{# masters/templates/masters/fragments/director/students.html #}
+<!-- =======================
+  🎓 Fragment : students.html
+  Rôle : Directeur des Études — Liste & filtres étudiants (première vague)
+  Dépendances front : Tailwind, Alpine.js, Preline (déjà chargés globalement)
+======================= -->
+
+<section x-data="studentsFragment()" class="space-y-6">
+
+  <!-- Header -->
+  <header class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h2 class="text-xl font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+        <i data-lucide="graduation-cap" class="w-5 h-5 text-cyan-600"></i>
+        Étudiants
+      </h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400">
+        {{ meta.total|default:'0' }} étudiant{{ meta.total|pluralize }} au total • vue filtrable et paginée
+      </p>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <!-- Export rapide (première vague : liens simples GET) -->
+      <a href="/masters/api_director/export/students.xlsx?program_id={{ filters.program_id }}&cohort_id={{ filters.cohort_id }}&status={{ filters.status }}&q={{ filters.q }}"
+         class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 dark:border-slate-700">
+        <i data-lucide="download" class="w-4 h-4"></i> Export Excel
+      </a>
+      <a href="/masters/api_director/export/students.pdf?program_id={{ filters.program_id }}&cohort_id={{ filters.cohort_id }}&status={{ filters.status }}&q={{ filters.q }}"
+         class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-cyan-600 text-white hover:bg-cyan-500">
+        <i data-lucide="file-text" class="w-4 h-4"></i> Export PDF
+      </a>
+    </div>
+  </header>
+
+  <!-- Filtres -->
+  <form id="studentsFilterForm"
+        @submit.prevent="applyFilters"
+        class="grid grid-cols-1 lg:grid-cols-12 gap-3 bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+
+    <!-- Recherche -->
+    <div class="lg:col-span-3">
+      <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Recherche</label>
+      <div class="relative">
+        <input type="text" name="q" x-model="filters.q"
+               placeholder="Nom, email, etc."
+               class="w-full pe-textbox pl-9"
+               value="{{ filters.q }}">
+        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+      </div>
+    </div>
+
+    <!-- Programme -->
+    <div class="lg:col-span-3">
+      <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Programme (Master)</label>
+      <select name="program_id" x-model="filters.program_id" class="w-full pe-select">
+        <option value="">— Tous les programmes —</option>
+        {% for p in programs %}
+          <option value="{{ p.id }}" {% if filters.program_id == p.id %}selected{% endif %}>
+            {{ p.title }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Cohorte -->
+    <div class="lg:col-span-3">
+      <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Cohorte</label>
+      <select name="cohort_id" x-model="filters.cohort_id" class="w-full pe-select">
+        <option value="">— Toutes les cohortes —</option>
+        {% for c in cohorts %}
+          <option value="{{ c.id }}" {% if filters.cohort_id == c.id %}selected{% endif %}>
+            {{ c.label }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Statut -->
+    <div class="lg:col-span-3">
+      <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Statut</label>
+      <select name="status" x-model="filters.status" class="w-full pe-select">
+        <option value="">— Tous les statuts —</option>
+        {% for key, label in statuses %}
+          <option value="{{ key }}" {% if filters.status == key %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Actions -->
+    <div class="lg:col-span-12 flex items-center justify-end gap-2 pt-2">
+      <button type="button" @click="resetFilters"
+              class="px-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
+        Réinitialiser
+      </button>
+      <button type="submit"
+              class="px-3 py-2 rounded-lg bg-cyan-600 text-white hover:bg-cyan-500">
+        Appliquer
+      </button>
+    </div>
+  </form>
+
+  <!-- Tableau -->
+  <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-100 dark:bg-slate-700/50 text-left">
+          <tr class="text-slate-600 dark:text-slate-200">
+            <th class="px-4 py-3">Étudiant</th>
+            <th class="px-4 py-3">Programme</th>
+            <th class="px-4 py-3">Cohorte</th>
+            <th class="px-4 py-3 text-center">Statut</th>
+            <th class="px-4 py-3 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+          {% for e in enrollments %}
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/40 transition">
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-3">
+                  <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-cyan-100 text-cyan-700 dark:bg-cyan-900/40 dark:text-cyan-300">
+                    {{ e.student.first_name|first|default:"?" }}{{ e.student.last_name|first|default:"" }}
+                  </span>
+                  <div class="min-w-0">
+                    <div class="font-medium text-slate-800 dark:text-slate-100 truncate">
+                      {{ e.student.last_name|default:"" }} {{ e.student.first_name|default:"" }}
+                    </div>
+                    <div class="text-xs text-slate-500 dark:text-slate-400 truncate">{{ e.student.email|default:"—" }}</div>
+                  </div>
+                </div>
+              </td>
+
+              <td class="px-4 py-3">
+                <div class="truncate">{{ e.program.title }}</div>
+              </td>
+
+              <td class="px-4 py-3">
+                <span class="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-700 dark:bg-slate-700/50 dark:text-slate-200">
+                  <i data-lucide="users" class="w-3 h-3"></i> {{ e.cohort.label }}
+                </span>
+              </td>
+
+              <td class="px-4 py-3 text-center">
+                {% if e.status == "ACTIVE" %}
+                  <span class="pe-badge pe-badge-success">Actif</span>
+                {% elif e.status == "SUSPENDED" %}
+                  <span class="pe-badge pe-badge-warning">Suspendu</span>
+                {% elif e.status == "WITHDRAWN" %}
+                  <span class="pe-badge pe-badge-amber">Abandonné</span>
+                {% elif e.status == "COMPLETED" %}
+                  <span class="pe-badge pe-badge-cyan">Terminé</span>
+                {% else %}
+                  <span class="pe-badge">—</span>
+                {% endif %}
+              </td>
+
+              <td class="px-4 py-3 text-right">
+                <div class="inline-flex items-center gap-1">
+                  <button type="button"
+                          @click="openStudentDetail({{ e.id }})"
+                          class="pe-btn pe-btn-ghost">
+                    <i data-lucide="eye" class="w-4 h-4"></i> Voir
+                  </button>
+                  <button type="button"
+                          @click="messageStudent('{{ e.student.email|default:'' }}')"
+                          class="pe-btn pe-btn-ghost">
+                    <i data-lucide="mail" class="w-4 h-4"></i> Contacter
+                  </button>
+                </div>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td class="px-4 py-6 text-center text-slate-500 dark:text-slate-400" colspan="5">
+                Aucun étudiant ne correspond à ce filtre.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="flex items-center justify-between px-4 py-3 border-t border-slate-200 dark:border-slate-700 text-sm">
+      <div class="text-slate-500 dark:text-slate-400">
+        Page {{ meta.page }} / {{ meta.pages }} — {{ meta.total }} élément{{ meta.total|pluralize }}
+      </div>
+      <div class="flex items-center gap-2">
+        {% with q=filters.q pg=filters.program_id ch=filters.cohort_id st=filters.status %}
+          {% if meta.has_prev %}
+            <a href="/master/director/fragment/students/?page={{ meta.page|add:'-1' }}&q={{ q }}&program_id={{ pg }}&cohort_id={{ ch }}&status={{ st }}"
+               @click.prevent="goto($event)"
+               class="pe-btn pe-btn-ghost">
+              Précédent
+            </a>
+          {% else %}
+            <span class="pe-btn pe-btn-disabled">Précédent</span>
+          {% endif %}
+
+          {% if meta.has_next %}
+            <a href="/master/director/fragment/students/?page={{ meta.page|add:'1' }}&q={{ q }}&program_id={{ pg }}&cohort_id={{ ch }}&status={{ st }}"
+               @click.prevent="goto($event)"
+               class="pe-btn pe-btn-ghost">
+              Suivant
+            </a>
+          {% else %}
+            <span class="pe-btn pe-btn-disabled">Suivant</span>
+          {% endif %}
+        {% endwith %}
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<script>
+  // Petites classes utilitaires (cohérentes Preline)
+  // - pe-textbox / pe-select / pe-btn / pe-badge etc. => Tailwind + Preline style-friendly
+  (function registerPE() {
+    const style = document.createElement('style');
+    style.textContent = `
+      .pe-textbox{ @apply w-full rounded-lg border border-slate-200 bg-white text-slate-800 dark:bg-slate-800 dark:text-slate-100 dark:border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500; }
+      .pe-select{ @apply w-full rounded-lg border border-slate-200 bg-white text-slate-800 dark:bg-slate-800 dark:text-slate-100 dark:border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500; }
+      .pe-btn{ @apply inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-transparent text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/50; }
+      .pe-btn-ghost{ @apply bg-transparent border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600; }
+      .pe-btn-disabled{ @apply inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 text-slate-400 dark:bg-slate-700/40 dark:text-slate-500 cursor-not-allowed; }
+      .pe-badge{ @apply inline-flex items-center px-2 py-1 text-xs rounded-full bg-slate-100 text-slate-700 dark:bg-slate-700/50 dark:text-slate-200; }
+      .pe-badge-success{ @apply bg-green-100 text-green-700 dark:bg-green-800/40 dark:text-green-300; }
+      .pe-badge-warning{ @apply bg-red-100 text-red-700 dark:bg-red-800/40 dark:text-red-300; }
+      .pe-badge-amber{ @apply bg-amber-100 text-amber-700 dark:bg-amber-800/40 dark:text-amber-300; }
+      .pe-badge-cyan{ @apply bg-cyan-100 text-cyan-700 dark:bg-cyan-900/40 dark:text-cyan-300; }
+    `;
+    document.head.appendChild(style);
+  })();
+
+  function studentsFragment(){
+    // on récupère les valeurs initiales rendues par Django
+    const initial = {
+      q: "{{ filters.q|default:'' }}",
+      program_id: "{{ filters.program_id|default:'' }}",
+      cohort_id: "{{ filters.cohort_id|default:'' }}",
+      status: "{{ filters.status|default:'' }}",
+      page: {{ meta.page|default:1 }},
+    };
+
+    // util pour reconstruire l’URL des fragments
+    const buildURL = (params) => {
+      const u = new URL(location.origin + "/master/director/fragment/students/");
+      Object.entries(params).forEach(([k,v])=>{
+        if(v!==null && v!==undefined && String(v).length) u.searchParams.set(k, v);
+      });
+      return u.toString();
+    };
+
+    const replaceFragment = async (url) => {
+      const container = document.querySelector("#content-inner");
+      const spinner   = document.querySelector("#spinner");
+      if(!container) return;
+      spinner?.classList.remove("hidden");
+      try{
+        const resp = await fetch(url, {headers:{'X-Requested-With':'XMLHttpRequest'}});
+        const html = await resp.text();
+        container.innerHTML = html;
+        if(window.lucide) lucide.createIcons();
+        // re-activate Preline (si nécessaire)
+        if(window.HSStaticMethods?.autoInit) window.HSStaticMethods.autoInit();
+      }catch(e){
+        container.innerHTML = `<div class="p-4 text-red-600">⚠️ Erreur de chargement</div>`;
+        console.error(e);
+      }finally{
+        spinner?.classList.add("hidden");
+      }
+    };
+
+    return {
+      filters: {...initial},
+
+      applyFilters(){
+        this.filters.page = 1; // reset page
+        const url = buildURL(this.filters);
+        replaceFragment(url);
+      },
+
+      resetFilters(){
+        this.filters = { q:"", program_id:"", cohort_id:"", status:"", page:1 };
+        replaceFragment(buildURL(this.filters));
+      },
+
+      goto(e){
+        const url = e.currentTarget.getAttribute("href");
+        replaceFragment(url);
+      },
+
+      openStudentDetail(enrollmentId){
+        const url = new URL(location.origin + "/master/director/fragment/student_detail/");
+        url.searchParams.set("enrollment_id", enrollmentId);
+        replaceFragment(url.toString());
+      },
+
+      messageStudent(email){
+        if(!email){ alert("Aucune adresse email."); return; }
+        // Première vague : redirection mailto simple (tu brancheras plus tard la messagerie interne)
+        location.href = `mailto:${email}?subject=Message%20Direction%20des%20Études`;
+      }
+    }
+  }
+
+  // re-icônes
+  if(window.lucide) lucide.createIcons();
+  // Preline re-init si déjà chargé
+  if(window.HSStaticMethods?.autoInit) window.HSStaticMethods.autoInit();
+</script>

@@ -1,0 +1,28 @@
+[
+  {
+    "model": "admin_interface.theme",
+    "pk": 1,
+    "fields": {
+      "name": "ESFe Mali",
+      "active": true,
+      "title": "Administration ESFé Mali",
+      "logo": "logos/esfe_logo.png",
+      "favicon": "logos/favicon.png",
+
+      "env_name": "Prod",
+      "env_color": "#059669",
+
+      "css_header_background_color": "#0ea5e9",
+      "css_header_text_color": "#ffffff",
+      "css_module_background_color": "#f8fafc",
+      "css_module_text_color": "#1e293b",
+
+      "css_generic_link_color": "#0ea5e9",
+      "css_save_button_background_color": "#0ea5e9",
+      "css_delete_button_background_color": "#dc2626",
+
+      "list_filter_dropdown": true,
+      "related_modal_active": true
+    }
+  }
+]

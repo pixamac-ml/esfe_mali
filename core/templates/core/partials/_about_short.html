@@ -1,22 +1,94 @@
 {% load static %}
-<section class="bg-slate-50 text-slate-800">
-  <div class="max-w-container mx-auto px-4 py-14 sm:py-20 grid md:grid-cols-2 gap-8 items-center">
-    <div class="order-2 md:order-1">
-      <h2 class="font-display text-2xl sm:text-3xl text-primary-900">À propos de l’ESFé</h2>
-      <div class="mt-3 h-0.5 w-16 bg-brand-cyan"></div>
-      <p class="mt-5 leading-relaxed">
-        L’École Supérieure de Santé Félix Houphouët‑Boigny forme des praticiens compétents et employables,
-        grâce à un équilibre entre théorie, travaux pratiques et immersion clinique.
-      </p>
-      <ul class="mt-6 space-y-2 text-slate-700">
-        <li>• Encadrement par des professionnels de santé</li>
-        <li>• Stages et ateliers en milieux hospitaliers</li>
-        <li>• Réseau d’annexes au Mali pour plus de proximité</li>
-      </ul>
+<section class="relative bg-gradient-to-b from-white to-slate-50 text-slate-800 mt-30">
+  <div class="max-w-7xl mx-auto px-8 py-24 space-y-32">
+
+    <!-- Acte 1 -->
+    <div class="grid lg:grid-cols-2 gap-20 items-center reveal" data-delay="0">
+      <figure class="card-outer img-wrap rounded-3xl overflow-hidden order-1">
+        <img src="{% static 'img/img4.jpg' %}" alt="Campus ESFé" class="w-full h-[26rem] object-cover">
+        <figcaption class="img-cap">Un réseau de campus à travers le Mali</figcaption>
+      </figure>
+      <div class="order-2">
+        <h2 class="font-display text-4xl sm:text-5xl font-bold text-primary-900 leading-tight mb-6">
+          ESFé Mali – L’excellence en sciences de la santé
+        </h2>
+        <p class="mt-3 text-brand-cyan font-semibold text-lg">« Demain, c’est aujourd’hui »</p>
+        <p class="mt-8 text-lg leading-relaxed text-slate-700">
+          Depuis plus de <strong>{{ kpi_years|default:"15+" }}</strong> ans, l’ESFé Mali forme des praticiens
+          <strong>opérationnels</strong> et <strong>employables</strong>. Grâce à un
+          <strong>réseau unique de {{ kpi_annexes|default:"12" }} structures</strong>, nous assurons proximité,
+          suivi et insertion professionnelle.
+        </p>
+      </div>
     </div>
-    <div class="order-1 md:order-2 rounded-2xl overflow-hidden border border-slate-200 shadow-soft">
-      <img src="{% static 'img/about-esfe.jpg' %}" onerror="this.src='https://picsum.photos/seed/esfe-about/1200/800'"
-           alt="ESFé" class="w-full h-72 sm:h-96 object-cover">
+
+    <!-- Acte 2 -->
+    <div class="grid lg:grid-cols-2 gap-20 items-center reveal" data-delay="150">
+      <div class="order-1">
+        <h3 class="font-display text-3xl font-semibold text-primary-900 mb-6">Une pédagogie ancrée dans la pratique</h3>
+        <ul class="mt-6 space-y-6">
+          <li class="feature"><span class="feat-icon"><svg viewBox="0 0 24 24" ...></svg></span>Laboratoires : informatique, soins infirmiers, obstétrique, biologie médicale</li>
+          <li class="feature"><span class="feat-icon"><svg viewBox="0 0 24 24" ...></svg></span>Encadrement par des praticiens expérimentés</li>
+          <li class="feature"><span class="feat-icon"><svg viewBox="0 0 24 24" ...></svg></span>Stages intégrés : hôpitaux, CSRéf et centres partenaires</li>
+          <li class="feature"><span class="feat-icon"><svg viewBox="0 0 24 24" ...></svg></span>Parcours complets : de l’Auxiliaire de santé au Master</li>
+        </ul>
+      </div>
+      <figure class="card-outer img-wrap rounded-3xl overflow-hidden order-2">
+        <img src="{% static 'img/img5.jpg' %}" alt="Laboratoires ESFé" class="w-full h-[26rem] object-cover">
+        <figcaption class="img-cap">Laboratoires modernes & pédagogie pratique</figcaption>
+      </figure>
     </div>
+
+    <!-- Acte 3 -->
+    <div class="grid lg:grid-cols-2 gap-20 items-center reveal" data-delay="300">
+      <figure class="card-outer img-wrap rounded-3xl overflow-hidden order-1">
+        <img src="{% static 'img/img.jpg' %}" alt="Étudiants ESFé" class="w-full h-[26rem] object-cover">
+        <figcaption class="img-cap">Des étudiants formés à l’excellence</figcaption>
+      </figure>
+      <div class="order-2">
+        <h3 class="font-display text-3xl font-semibold text-primary-900">Mérite & Excellence</h3>
+        <p class="mt-8 leading-relaxed text-slate-700 text-lg">
+          L’ESFé Mali distingue ses étudiants avec des <strong>bourses de mérite</strong>, attribuées aux plus brillants et assidus.
+        </p>
+        <p class="mt-5 leading-relaxed text-slate-700 text-lg">
+          Nos diplômes, reconnus par l’État, ouvrent les portes des concours publics, des carrières hospitalières et des poursuites d’études supérieures.
+        </p>
+      </div>
+    </div>
+
   </div>
 </section>
+<style>
+  .feature{display:flex;gap:1rem;align-items:flex-start;font-size:1.05rem;color:#334155}
+  .feat-icon{flex:0 0 2.7rem;height:2.7rem;display:grid;place-items:center;
+             border-radius:9999px;background:#e0f7ff;color:#0284c7}
+  .feat-icon svg{width:1.25rem;height:1.25rem}
+  .card-outer{box-shadow:0 12px 32px rgba(2,6,23,.12);transition:transform .45s, box-shadow .45s}
+  .card-outer:hover{transform:translateY(-10px);box-shadow:0 22px 50px rgba(2,6,23,.2)}
+  .img-wrap{position:relative;overflow:hidden}
+  .img-wrap img{transition:transform .7s ease}
+  .img-wrap:hover img{transform:scale(1.07)}
+  .img-cap{position:absolute;left:0;right:0;bottom:0;padding:18px 20px;
+           background:linear-gradient(to top,rgba(0,0,0,.55),transparent 70%);
+           color:#fff;font-weight:600;opacity:0;transform:translateY(12px);transition:.4s}
+  .img-wrap:hover .img-cap{opacity:1;transform:translateY(0)}
+  .reveal{opacity:0;transform:translateY(40px)}
+  .reveal.is-visible{opacity:1;transform:none;transition:.9s}
+</style>
+
+<script>
+  // Reveal au scroll
+  (function(){
+    const els=document.querySelectorAll('.reveal');
+    const obs=new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){
+          const d=Number(e.target.getAttribute('data-delay')||0);
+          setTimeout(()=>e.target.classList.add('is-visible'), d);
+          obs.unobserve(e.target);
+        }
+      });
+    },{threshold:0.2});
+    els.forEach(el=>obs.observe(el));
+  })();
+</script>

@@ -1,0 +1,283 @@
+{% load static %}
+
+<div x-data="lessonManager()" x-init="init()" class="p-6 space-y-6 fade-in">
+
+  <!-- 🧭 En-tête -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="text-xl font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+        <i data-lucide="book-open" class="w-5 h-5 text-info"></i>
+        Gestion des chapitres & leçons
+      </h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400">
+        Créez, modifiez ou supprimez vos chapitres et leçons — simple, fluide et rapide ⚡
+      </p>
+    </div>
+    <button @click="loadChapters"
+            class="btn btn-sm btn-outline btn-info gap-2 shadow hover:scale-[1.03] transition">
+      <i data-lucide="refresh-ccw" class="w-4 h-4"></i> Rafraîchir
+    </button>
+  </div>
+
+  <!-- 🔘 Sélecteur de module -->
+  <div>
+    <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">
+      Sélectionnez votre module
+    </label>
+    <select x-model="selectedModule" @change="loadChapters"
+            class="select select-bordered w-full bg-base-100 dark:bg-slate-800 text-slate-700 dark:text-white shadow-sm focus:ring-2 focus:ring-info transition">
+      <option value="">-- Choisir un module --</option>
+      <template x-for="m in modules" :key="m.id">
+        <option :value="m.id" x-text="m.title"></option>
+      </template>
+    </select>
+  </div>
+
+  <!-- 📘 Liste des chapitres -->
+  <template x-if="chapters.length > 0">
+    <div class="space-y-5">
+      <template x-for="ch in chapters" :key="ch.id">
+        <div class="card bg-base-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all">
+          <div class="card-body space-y-3">
+            <div class="flex justify-between items-center">
+              <h3 class="font-semibold text-info text-lg" x-text="ch.title"></h3>
+              <div class="flex gap-2">
+                <button @click="renameChapter(ch)" class="btn btn-xs btn-outline btn-info">
+                  <i data-lucide="edit-2" class="w-3.5 h-3.5"></i> Renommer
+                </button>
+                <button @click="deleteChapter(ch.id)" class="btn btn-xs btn-outline btn-error">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Supprimer
+                </button>
+              </div>
+            </div>
+
+            <!-- 🧩 Leçons -->
+            <template x-if="ch.lessons && ch.lessons.length > 0">
+              <ul class="divide-y divide-slate-200 dark:divide-slate-700 rounded-md border border-slate-100 dark:border-slate-800">
+                <template x-for="l in ch.lessons" :key="l.id">
+                  <li class="py-2 px-3 flex justify-between items-center hover:bg-base-200 dark:hover:bg-slate-800 transition-all">
+                    <div>
+                      <span class="font-medium" x-text="l.title"></span>
+                      <span class="text-xs text-gray-400 ml-2" x-text="l.external_url ? '(vidéo externe)' : ''"></span>
+                    </div>
+                    <div class="flex gap-2">
+                      <button @click="editLesson(l, ch.id)" class="btn btn-xs btn-outline btn-info">
+                        <i data-lucide='pencil' class='w-3 h-3'></i> Modifier
+                      </button>
+                      <button @click="deleteLesson(l.id)" class="btn btn-xs btn-outline btn-error">
+                        <i data-lucide='x' class='w-3 h-3'></i> Supprimer
+                      </button>
+                    </div>
+                  </li>
+                </template>
+              </ul>
+            </template>
+
+            <div class="pt-2">
+              <button @click="openLessonForm(ch.id)" class="btn btn-sm btn-info w-full gap-1">
+                <i data-lucide='plus' class='w-4 h-4'></i> Ajouter une leçon
+              </button>
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+  </template>
+
+  <!-- ➕ Ajouter un chapitre -->
+  <div class="mt-6 flex justify-center">
+    <button @click="createChapter" class="btn btn-info btn-sm gap-2">
+      <i data-lucide="plus-circle" class="w-4 h-4"></i> Ajouter un chapitre
+    </button>
+  </div>
+
+  <!-- 📭 Message vide -->
+  <template x-if="chapters.length === 0 && selectedModule">
+    <div class="p-6 text-center text-slate-500 dark:text-slate-400">
+      Aucun chapitre trouvé pour ce module.
+      <br>
+      <button @click="createChapter" class="mt-3 btn btn-info btn-sm gap-1">
+        <i data-lucide='plus' class='w-4 h-4'></i> Créer un premier chapitre
+      </button>
+    </div>
+  </template>
+
+  <!-- 🧩 Modal de leçon -->
+  <div x-show="showLessonForm" x-cloak x-transition.opacity
+       class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+    <div @click.away="closeLessonForm"
+         class="bg-base-100 dark:bg-slate-900 rounded-xl shadow-xl p-6 w-full max-w-lg relative transition-all duration-300">
+      <button @click="closeLessonForm"
+              class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <h3 class="text-lg font-semibold mb-4 text-slate-800 dark:text-white flex items-center gap-2">
+        <i data-lucide="file-video" class="w-5 h-5 text-info"></i>
+        <span x-text="lessonMode === 'create' ? 'Nouvelle leçon' : 'Modifier la leçon'"></span>
+      </h3>
+
+      <form @submit.prevent="saveLesson" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">Titre de la leçon</label>
+          <input type="text" x-model="lessonForm.title" required
+                 class="input input-bordered w-full bg-base-100 dark:bg-slate-800 text-slate-700 dark:text-white">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium mb-1">Vidéo (fichier ou URL)</label>
+          <input type="file" x-ref="videoFile" class="file-input file-input-bordered w-full mb-2 text-sm">
+          <input type="url" x-model="lessonForm.external_url"
+                 placeholder="https://..."
+                 class="input input-bordered w-full bg-base-100 dark:bg-slate-800 text-slate-700 dark:text-white">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium mb-1">Fichier ressource (PDF, PPT, etc.)</label>
+          <input type="file" x-ref="resourceFile" class="file-input file-input-bordered w-full text-sm">
+        </div>
+
+        <div class="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+          <button type="button" @click="closeLessonForm"
+                  class="btn btn-sm btn-outline">Annuler</button>
+          <button type="submit"
+                  class="btn btn-sm btn-info"
+                  x-text="lessonMode === 'create' ? 'Créer' : 'Enregistrer'"></button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ================== SCRIPT ALPINE ================== -->
+<script>
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.startsWith(name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+const csrftoken = getCookie('csrftoken');
+
+function lessonManager() {
+  return {
+    selectedModule: "",
+    modules: [],
+    chapters: [],
+    showLessonForm: false,
+    lessonMode: "create",
+    currentChapter: null,
+    lessonForm: { id: null, title: "", external_url: "" },
+
+    async init() { await this.loadModules(); },
+
+    async loadModules() {
+      const res = await fetch("/master/api/teacher/modules/");
+      if (res.ok) {
+        const data = await res.json();
+        this.modules = data.modules || [];
+      }
+    },
+
+    async loadChapters() {
+      if (!this.selectedModule) { this.chapters = []; return; }
+      const res = await fetch(`/master/api/chapters/${this.selectedModule}/`);
+      if (res.ok) {
+        const data = await res.json();
+        this.chapters = data.chapters || [];
+      }
+    },
+
+    async createChapter() {
+      const title = prompt("Nom du nouveau chapitre :");
+      if (!title) return;
+      const res = await fetch(`/master/api/chapters/${this.selectedModule}/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrftoken
+        },
+        body: JSON.stringify({ title })
+      });
+      if (res.ok) this.loadChapters();
+    },
+
+    renameChapter(ch) {
+      const newTitle = prompt("Nouveau nom du chapitre :", ch.title);
+      if (!newTitle) return;
+      fetch(`/master/api/chapters/${this.selectedModule}/${ch.id}/`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrftoken
+        },
+        body: JSON.stringify({ title: newTitle })
+      }).then(() => this.loadChapters());
+    },
+
+    deleteChapter(id) {
+      if (!confirm("Supprimer ce chapitre et ses leçons ?")) return;
+      fetch(`/master/api/chapters/${this.selectedModule}/${id}/`, {
+        method: "DELETE",
+        headers: { "X-CSRFToken": csrftoken }
+      }).then(() => this.loadChapters());
+    },
+
+    openLessonForm(chapterId) {
+      this.currentChapter = chapterId;
+      this.lessonMode = "create";
+      this.lessonForm = { id: null, title: "", external_url: "" };
+      this.showLessonForm = true;
+    },
+
+    closeLessonForm() {
+      this.showLessonForm = false;
+      this.lessonForm = { id: null, title: "", external_url: "" };
+    },
+
+    async saveLesson() {
+      const fd = new FormData();
+      fd.append("title", this.lessonForm.title);
+      fd.append("chapter", this.currentChapter);
+      fd.append("external_url", this.lessonForm.external_url);
+      if (this.$refs.videoFile.files[0]) fd.append("video_file", this.$refs.videoFile.files[0]);
+      if (this.$refs.resourceFile.files[0]) fd.append("resource_file", this.$refs.resourceFile.files[0]);
+
+      const res = await fetch(`/master/api/lessons/${this.selectedModule}/`, {
+        method: "POST",
+        headers: { "X-CSRFToken": csrftoken },
+        body: fd
+      });
+
+      if (res.ok) {
+        this.closeLessonForm();
+        this.loadChapters();
+      } else {
+        alert("Erreur lors de la sauvegarde (vérifie le CSRF ou les champs).");
+      }
+    },
+
+    deleteLesson(id) {
+      if (!confirm("Supprimer cette leçon ?")) return;
+      fetch(`/master/api/lessons/${this.selectedModule}/${id}/`, {
+        method: "DELETE",
+        headers: { "X-CSRFToken": csrftoken }
+      }).then(() => this.loadChapters());
+    }
+  };
+}
+</script>
+
+<style>
+  [x-cloak]{display:none!important}
+  .fade-in{animation:fadeIn .3s ease-out}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+</style>

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Directeur{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-6 py-8">
+  <h1 class="text-3xl font-bold mb-6">Tableau de bord du Directeur</h1>
+
+  <div class="grid md:grid-cols-2 gap-6">
+    <div class="p-4 bg-white rounded-lg shadow">
+      <h2 class="text-lg font-semibold">Suivi pédagogique</h2>
+      <p>Modules, enseignants, emplois du temps.</p>
+    </div>
+    <div class="p-4 bg-white rounded-lg shadow">
+      <h2 class="text-lg font-semibold">Étudiants</h2>
+      <p>Progression académique et discipline.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

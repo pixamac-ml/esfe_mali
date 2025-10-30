@@ -1,0 +1,18 @@
+<!-- gallery/_album_items.html -->
+<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+  {% for album in albums %}
+    <a href="{% url 'gallery:detail' album.pk %}" data-album
+       class="relative group rounded-xl overflow-hidden shadow hover:shadow-xl transition">
+      {% if album.cover %}
+        <img src="{{ album.cover.url }}" alt="Couverture de {{ album.title }}"
+             class="w-full h-64 object-cover transform group-hover:scale-105 transition duration-300">
+      {% endif %}
+      <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex flex-col justify-end p-4">
+        <h2 class="text-lg font-semibold text-white">{{ album.title }}</h2>
+        <p class="text-xs text-slate-200">{{ album.created_at|date:"d M Y" }}</p>
+      </div>
+    </a>
+  {% empty %}
+    <p>Aucun album disponible.</p>
+  {% endfor %}
+</div>

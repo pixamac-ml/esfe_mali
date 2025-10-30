@@ -1,0 +1,9 @@
+<!-- gallery/album_detail.html -->
+{% extends "base.html" %}
+{% block title %}{{ album.title }} | Galerie | ESFé Mali{% endblock %}
+
+{% block content %}
+<section class="max-w-7xl mx-auto px-4 py-10" id="album-detail">
+  {% include "gallery/_album_detail.html" %}
+</section>
+{% endblock %}

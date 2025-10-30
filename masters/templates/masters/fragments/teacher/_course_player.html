@@ -1,0 +1,192 @@
+{% load static %}
+
+<div id="videoPlayerWrapper"
+     data-module-id="{{ module_id|default:'' }}"
+     class="flex flex-col lg:flex-row gap-6 bg-base-100 dark:bg-slate-900 rounded-xl shadow-lg p-5 relative min-h-[70vh] transition-all duration-300 fade-in">
+
+  <!-- 🎬 LECTEUR VIDÉO -->
+  <div class="flex-1 min-w-0 space-y-4">
+    <div class="flex justify-between items-center">
+      <h2 id="playerLessonTitle" class="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+        <i data-lucide="play-circle" class="w-5 h-5 text-info"></i>
+        {{ module_title|default:"Lecture du cours" }}
+      </h2>
+      <button id="closePlayer"
+              class="btn btn-sm btn-outline btn-error gap-1 hover:scale-[1.03] transition">
+        <i data-lucide="x"></i> Fermer
+      </button>
+    </div>
+
+    <div class="aspect-video bg-black rounded-xl overflow-hidden shadow-inner flex items-center justify-center relative">
+      <video id="playerVideo" controls autoplay crossorigin="anonymous"
+             class="w-full h-full object-contain rounded-xl">
+        {% if video_src %}
+          <source src="{{ video_src }}" type="video/mp4">
+        {% endif %}
+        Votre navigateur ne prend pas en charge la lecture vidéo.
+      </video>
+    </div>
+
+    <!-- 💬 Discussion -->
+    <div class="card bg-base-200 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 shadow-inner space-y-3">
+      <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+        <i data-lucide="message-square" class="w-4 h-4 text-info"></i> Discussion du cours
+      </h3>
+
+      <textarea id="lessonComment"
+                class="textarea textarea-bordered w-full text-sm min-h-[80px] bg-base-100 dark:bg-slate-700"
+                placeholder="Partagez un commentaire, une question ou une remarque..."></textarea>
+
+      <div class="flex justify-end">
+        <button id="sendComment"
+                class="btn btn-info btn-sm gap-1">
+          <i data-lucide="send" class="w-4 h-4"></i> Publier
+        </button>
+      </div>
+
+      <ul id="commentList" class="text-sm space-y-2 text-slate-600 dark:text-slate-300">
+        <li class="text-slate-400 italic">Aucun commentaire pour l’instant.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 📚 COLONNE HIÉRARCHIQUE -->
+  <aside id="sidebarLessons"
+         class="w-full lg:w-80 bg-base-200 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 overflow-y-auto max-h-[75vh] shadow-inner">
+    <h3 class="font-semibold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+      <i data-lucide="list-video" class="w-4 h-4 text-info"></i> Contenu du cours
+    </h3>
+    <div id="chapterList" class="space-y-2 text-sm">
+      <div class="text-center text-slate-400 italic">Chargement du contenu...</div>
+    </div>
+  </aside>
+</div>
+
+<!-- === STYLES === -->
+<style>
+  .fade-in { animation: fadeIn .3s ease-out; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  .chapter-block {
+    @apply bg-base-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden shadow-sm transition-all;
+  }
+  .chapter-header {
+    @apply flex justify-between items-center px-3 py-2 font-semibold text-slate-700 dark:text-slate-200 cursor-pointer hover:bg-base-200 dark:hover:bg-slate-800 transition;
+  }
+  .lesson-item {
+    @apply px-4 py-2 flex justify-between items-center text-slate-600 dark:text-slate-300 text-sm cursor-pointer hover:bg-info/10 rounded-md transition;
+  }
+  .lesson-item.active {
+    @apply bg-info/20 text-info font-semibold;
+  }
+  .lesson-number { @apply text-xs text-slate-400 mr-2; }
+</style>
+
+<!-- === SCRIPT === -->
+<script>
+(function(){
+  const wrapper   = document.getElementById("videoPlayerWrapper");
+  const videoEl   = document.getElementById("playerVideo");
+  const titleEl   = document.getElementById("playerLessonTitle");
+  const chapterEl = document.getElementById("chapterList");
+  const closeBtn  = document.getElementById("closePlayer");
+
+  const fromCtx   = wrapper.dataset.moduleId || "{{ module_id|default:'' }}";
+  const fromGlobal= window.__currentModuleId || "";
+  const fromURL   = new URLSearchParams(location.search).get("module_id") || sessionStorage.getItem("module_id") || "";
+  const moduleId  = (fromCtx || fromGlobal || fromURL || "").toString();
+
+  if (moduleId) {
+    window.__currentModuleId = moduleId;
+    sessionStorage.setItem("module_id", moduleId);
+  }
+
+  const moduleTitle = "{{ module_title|default:'Cours en ligne' }}";
+  const initialSrc  = "{{ video_src|default:'' }}";
+
+  // 🎞️ Charger la vidéo sélectionnée
+  function setVideo(src, title){
+    if(!src) return;
+    videoEl.pause();
+    while(videoEl.firstChild) videoEl.removeChild(videoEl.firstChild);
+    const s = document.createElement("source");
+    s.src = src; s.type = "video/mp4";
+    videoEl.appendChild(s);
+    videoEl.load();
+    videoEl.play().catch(()=>{});
+    titleEl.textContent = title || "Lecture du cours";
+  }
+
+  // 📜 Charger les chapitres et leçons
+  async function loadLessons(){
+    if(!moduleId){
+      chapterEl.innerHTML = "<div class='text-center text-slate-400 italic'>Module introuvable.</div>";
+      return;
+    }
+    try{
+      const resp = await fetch(`/master/api/lessons/${moduleId}/`, { headers:{ "X-Requested-With":"XMLHttpRequest" }});
+      const data = await resp.json();
+      if(!data.ok || !data.lessons || !data.lessons.length){
+        chapterEl.innerHTML = "<div class='text-center text-slate-400 italic'>Aucune leçon disponible.</div>";
+        return;
+      }
+
+      // Groupement par chapitre
+      const grouped = {};
+      data.lessons.forEach(l=>{
+        const chap = l.chapter || "Chapitre";
+        (grouped[chap] ||= []).push(l);
+      });
+
+      chapterEl.innerHTML = Object.entries(grouped).map(([chapterTitle, lessons], i)=>{
+        const chapNum = i + 1;
+        const items = lessons.map((l, j)=>{
+          const src = l.external_url || l.video_file || "";
+          const title = l.title || "Sans titre";
+          const num = `${chapNum}.${j+1}`;
+          return `
+            <div class='lesson-item' data-src='${src}' data-title='${title}'>
+              <div><span class='lesson-number'>${num}</span>${title}</div>
+            </div>`;
+        }).join("");
+        return `
+          <div class='chapter-block'>
+            <div class='chapter-header' onclick='this.nextElementSibling.classList.toggle("hidden")'>
+              <span>Chapitre ${chapNum} : ${chapterTitle}</span>
+              <i data-lucide='chevron-down' class='w-4 h-4 text-slate-500'></i>
+            </div>
+            <div class='chapter-content space-y-1'>${items}</div>
+          </div>`;
+      }).join("");
+
+      chapterEl.querySelectorAll(".lesson-item").forEach(li=>{
+        li.addEventListener("click", ()=>{
+          chapterEl.querySelectorAll(".lesson-item").forEach(x=>x.classList.remove("active"));
+          li.classList.add("active");
+          setVideo(li.dataset.src, li.dataset.title);
+        });
+      });
+
+      if(window.lucide) lucide.createIcons();
+    }catch(e){
+      console.error(e);
+      chapterEl.innerHTML = "<div class='text-center text-red-500'>Erreur de chargement du contenu.</div>";
+    }
+  }
+
+  // 🔙 Retour vers la liste des cours
+  closeBtn.addEventListener("click", ()=>{
+    const backUrl = `/master/teacher/fragment/courses/?module_id=${encodeURIComponent(moduleId)}&title=${encodeURIComponent(moduleTitle)}`;
+    fetch(backUrl, { headers:{ "X-Requested-With":"XMLHttpRequest" }})
+      .then(r=>r.text())
+      .then(html=>{
+        const host = document.getElementById("dashboard-inner");
+        if(host){ host.innerHTML = html; if(window.lucide) lucide.createIcons(); }
+      })
+      .catch(e=>console.error("Erreur retour:", e));
+  });
+
+  if(initialSrc) setVideo(initialSrc, moduleTitle);
+  loadLessons();
+})();
+</script>

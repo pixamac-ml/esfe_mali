@@ -1,0 +1,106 @@
+{% load static %}
+
+<div class="grid lg:grid-cols-2 gap-10">
+  <!-- Colonne image + accroche -->
+  <div class="hidden lg:block relative rounded-2xl overflow-hidden shadow border">
+    <img src="{% static 'img/img.jpg' %}" alt="ESFé Mali" class="w-full h-full object-cover">
+    <div class="absolute inset-0 bg-primary-900/40"></div>
+    <div class="absolute bottom-6 left-6 right-6 text-white">
+      <h3 class="text-2xl font-extrabold">Rejoignez l’ESFé Mali</h3>
+      <p class="text-white/90">Des parcours d’excellence, un accompagnement personnalisé.</p>
+    </div>
+  </div>
+
+  <!-- Colonne formulaire -->
+  <div class="bg-white rounded-2xl shadow border p-6">
+    <form method="post" enctype="multipart/form-data" class="space-y-8">
+      {% csrf_token %}
+      {{ form.source_page }}
+      {{ form.program }} {# si hidden (détail) il ne prend pas de place ; si select (générique) il s’affiche #}
+
+      <!-- Bloc : Identité -->
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <svg class="h-5 w-5 text-primary-700" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4.418 0-8 2.015-8 4.5V21h16v-2.5c0-2.485-3.582-4.5-8-4.5Z"/></svg>
+          <h3 class="text-lg font-semibold text-primary-900">Informations personnelles</h3>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {{ form.nom }} {{ form.prenom }}
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          {{ form.genre }} {{ form.date_naissance }}
+        </div>
+        <div class="mt-6">
+          {{ form.lieu_naissance }}
+        </div>
+        <div class="mt-6">
+          {{ form.nationalite }}
+        </div>
+      </div>
+
+      <!-- Bloc : Contact -->
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <svg class="h-5 w-5 text-primary-700" viewBox="0 0 24 24" fill="currentColor"><path d="M2 5a3 3 0 0 1 3-3h2a3 3 0 0 1 3 3v2a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3Zm9 0a3 3 0 0 1 3-3h2a3 3 0 0 1 3 3v2a3 3 0 0 1-3 3h-2a3 3 0 0 1-3-3ZM2 17a3 3 0 0 1 3-3h2a3 3 0 0 1 3 3v2a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3Zm9 0a3 3 0 0 1 3-3h2a3 3 0 0 1 3 3v2a3 3 0 0 1-3 3h-2a3 3 0 0 1-3-3Z"/></svg>
+          <h3 class="text-lg font-semibold text-primary-900">Coordonnées</h3>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {{ form.telephone }} {{ form.email }}
+        </div>
+        <div class="mt-6">
+          {{ form.adresse }}
+        </div>
+      </div>
+
+      <!-- Bloc : Tuteur -->
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <svg class="h-5 w-5 text-primary-700" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm-7 9v-1a6 6 0 0 1 12 0v1Z"/></svg>
+          <h3 class="text-lg font-semibold text-primary-900">Représentant légal / Tuteur</h3>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {{ form.tuteur_nom }} {{ form.tuteur_tel }}
+        </div>
+      </div>
+
+      <!-- Bloc : Campus -->
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <svg class="h-5 w-5 text-primary-700" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 1 7l11 5 9-4.09V17h2V7L12 2Z"/></svg>
+          <h3 class="text-lg font-semibold text-primary-900">Campus</h3>
+        </div>
+        {{ form.campus }}
+      </div>
+
+      <!-- Bloc : Documents -->
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <svg class="h-5 w-5 text-primary-700" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16l6-3 6 3V8l-2-2Z"/></svg>
+          <h3 class="text-lg font-semibold text-primary-900">Documents requis</h3>
+        </div>
+        <div class="space-y-4">
+          {{ form.diplome }}
+          {{ form.releves }}
+          {{ form.cni }}
+          {{ form.photo_identite }}
+          <p class="text-xs text-slate-500">Formats acceptés : PDF, JPG, PNG. Taille max. : 5 Mo/fichier.</p>
+        </div>
+      </div>
+
+      <!-- Opt-in -->
+      <div class="flex items-center gap-3">
+        {{ form.optin_whatsapp }}
+        <span class="text-sm text-slate-600">Je souhaite être contacté·e sur WhatsApp.</span>
+      </div>
+
+      <!-- Submit -->
+      <div>
+        <button type="submit"
+                class="w-full py-3 px-6 font-semibold rounded-xl bg-primary-900 text-white hover:bg-brand-cyan hover:text-primary-900 transition flex items-center justify-center gap-2 shadow">
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
+          Envoyer ma candidature
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

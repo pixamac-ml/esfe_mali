@@ -1,0 +1,209 @@
+<!-- ==========================================================
+ 🎓 Fragment : overview.html
+ Rôle : Directeur des Études — Aperçu général
+ Technologies : TailwindCSS + Preline UI + Alpine.js
+========================================================== -->
+<section class="space-y-10" x-data="{ loading: false }" x-init="$nextTick(() => lucide.createIcons())">
+
+  <!-- 🧭 En-tête -->
+  <header class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h2 class="text-2xl font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+        <i data-lucide="activity" class="w-6 h-6 text-cyan-600"></i>
+        Aperçu général
+      </h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400">
+        Vue d’ensemble des activités académiques : programmes, enseignants, étudiants et examens.
+      </p>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button type="button"
+              class="hs-tooltip-toggle px-3 py-2 bg-cyan-600 text-white text-sm font-medium rounded-xl shadow-sm hover:bg-cyan-500 transition-all flex items-center gap-2">
+        <i data-lucide="download" class="w-4 h-4"></i>
+        Exporter le rapport
+        <span class="hs-tooltip-content hidden absolute z-10 py-1 px-2 text-xs bg-slate-800 text-white rounded shadow-md mt-10">
+          Télécharger un rapport PDF global
+        </span>
+      </button>
+    </div>
+  </header>
+
+  <!-- 📊 Indicateurs clés -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+    <!-- Étudiants -->
+    <div class="p-5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between hover:shadow-md transition">
+      <div>
+        <p class="text-sm text-slate-500 dark:text-slate-400">Étudiants inscrits</p>
+        <h3 class="text-3xl font-extrabold text-cyan-700 dark:text-cyan-400">{{ kpis.nb_students|default:"0" }}</h3>
+      </div>
+      <p class="mt-1 text-xs text-slate-400 dark:text-slate-500">Cycle Master — étudiants actifs</p>
+    </div>
+
+    <!-- Enseignants -->
+    <div class="p-5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between hover:shadow-md transition">
+      <div>
+        <p class="text-sm text-slate-500 dark:text-slate-400">Enseignants actifs</p>
+        <h3 class="text-3xl font-extrabold text-emerald-700 dark:text-emerald-400">{{ kpis.nb_teachers|default:"0" }}</h3>
+      </div>
+      <p class="mt-1 text-xs text-slate-400 dark:text-slate-500">Affectés à des modules UE</p>
+    </div>
+
+    <!-- Programmes -->
+    <div class="p-5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between hover:shadow-md transition">
+      <div>
+        <p class="text-sm text-slate-500 dark:text-slate-400">Programmes & UE</p>
+        <h3 class="text-3xl font-extrabold text-amber-700 dark:text-amber-400">{{ kpis.nb_programs|default:"0" }}</h3>
+      </div>
+      <p class="mt-1 text-xs text-slate-400 dark:text-slate-500">Programmes Master enregistrés</p>
+    </div>
+
+    <!-- Examens -->
+    <div class="p-5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between hover:shadow-md transition">
+      <div>
+        <p class="text-sm text-slate-500 dark:text-slate-400">Examens total</p>
+        <h3 class="text-3xl font-extrabold text-rose-700 dark:text-rose-400">{{ kpis.nb_exams|default:"0" }}</h3>
+      </div>
+      <p class="mt-1 text-xs text-slate-400 dark:text-slate-500">Inclut toutes les sessions</p>
+    </div>
+  </div>
+
+  <!-- 📈 Graphique de charge d’examens -->
+  <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm space-y-4">
+    <h3 class="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+      <i data-lucide="bar-chart-3" class="w-5 h-5 text-cyan-600"></i>
+      Répartition des examens par semestre
+    </h3>
+
+    <div class="relative w-full h-64 bg-slate-50 dark:bg-slate-700/40 rounded-xl p-3">
+      <canvas id="examLoadChart"></canvas>
+    </div>
+  </div>
+
+  <!-- 🧾 Examens récents -->
+  <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
+    <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+      <i data-lucide="clipboard-list" class="w-5 h-5 text-cyan-600"></i>
+      Examens récents
+    </h3>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm text-slate-600 dark:text-slate-300 border-collapse">
+        <thead class="bg-slate-100 dark:bg-slate-700/40 text-slate-700 dark:text-slate-200">
+          <tr>
+            <th class="py-2 px-3 text-left">Programme</th>
+            <th class="py-2 px-3 text-left">Semestre</th>
+            <th class="py-2 px-3 text-left">Titre</th>
+            <th class="py-2 px-3 text-center">Début</th>
+            <th class="py-2 px-3 text-center">Fin</th>
+            <th class="py-2 px-3 text-center">État</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for exam in last_exams %}
+            <tr class="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/40 transition">
+              <td class="py-2 px-3">{{ exam.semester.program.title }}</td>
+              <td class="py-2 px-3">{{ exam.semester.name }}</td>
+              <td class="py-2 px-3">{{ exam.title }}</td>
+              <td class="py-2 px-3 text-center">{{ exam.start_at|date:"d/m/Y H:i" }}</td>
+              <td class="py-2 px-3 text-center">{{ exam.end_at|date:"d/m/Y H:i" }}</td>
+              <td class="py-2 px-3 text-center">
+                {% if exam.start_at and exam.end_at and exam.start_at <= now and exam.end_at >= now %}
+                  <span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-700 dark:bg-green-700/40 dark:text-green-300">En cours</span>
+                {% else %}
+                  <span class="px-2 py-1 rounded-full text-xs bg-slate-200 text-slate-700 dark:bg-slate-700/50 dark:text-slate-300">Terminé</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="6" class="text-center py-4 text-slate-500 dark:text-slate-400">
+                Aucun examen récent.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 🧮 Dernières synthèses de résultats -->
+  <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
+    <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+      <i data-lucide="award" class="w-5 h-5 text-cyan-600"></i>
+      Derniers résultats calculés
+    </h3>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse text-slate-700 dark:text-slate-300">
+        <thead class="bg-slate-100 dark:bg-slate-700/50">
+          <tr>
+            <th class="py-2 px-3 text-left">Étudiant</th>
+            <th class="py-2 px-3 text-left">Programme</th>
+            <th class="py-2 px-3 text-left">Semestre</th>
+            <th class="py-2 px-3 text-center">Moyenne /20</th>
+            <th class="py-2 px-3 text-center">Décision</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in last_results %}
+            <tr class="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/40 transition">
+              <td class="py-2 px-3">{{ r.enrollment.student.get_full_name }}</td>
+              <td class="py-2 px-3">{{ r.semester.program.title }}</td>
+              <td class="py-2 px-3">{{ r.semester.name }}</td>
+              <td class="py-2 px-3 text-center font-semibold">{{ r.average_20|floatformat:2 }}</td>
+              <td class="py-2 px-3 text-center">
+                {% if r.decision == "ADM" %}
+                  <span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-700 dark:bg-green-700/40 dark:text-green-300">Admis</span>
+                {% elif r.decision == "AJ" %}
+                  <span class="px-2 py-1 rounded-full text-xs bg-rose-100 text-rose-700 dark:bg-rose-700/40 dark:text-rose-300">Ajourné</span>
+                {% elif r.decision == "RAT" %}
+                  <span class="px-2 py-1 rounded-full text-xs bg-amber-100 text-amber-700 dark:bg-amber-700/40 dark:text-amber-300">Rattrapage</span>
+                {% else %}
+                  <span class="px-2 py-1 rounded-full text-xs bg-slate-200 text-slate-700 dark:bg-slate-700/50 dark:text-slate-300">{{ r.decision|default:"—" }}</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5" class="text-center py-4 text-slate-500 dark:text-slate-400">
+                Aucun résultat disponible.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</section>
+
+<!-- 📊 Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  lucide.createIcons();
+  const ctx = document.getElementById("examLoadChart");
+  if (!ctx) return;
+  const data = {{ exam_load|safe }};
+  const labels = data.map(e => e.semester__name);
+  const counts = data.map(e => e.total);
+  new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: labels,
+      datasets: [{
+        label: "Examens par semestre",
+        data: counts,
+        borderWidth: 1,
+        backgroundColor: "rgba(8,145,178,0.5)",
+        borderColor: "rgb(8,145,178)"
+      }]
+    },
+    options: {
+      scales: { y: { beginAtZero: true } },
+      plugins: { legend: { display: false } }
+    }
+  });
+});
+</script>

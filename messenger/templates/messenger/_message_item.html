@@ -1,0 +1,25 @@
+{# templates/messenger/_message_item.html #}
+{# contexte attendu : m, self_id #}
+{% if m.sender_id == self_id %}
+<li class="flex justify-end">
+  <div class="max-w-[80%]">
+    <div class="text-[11px] text-right text-slate-400 mb-0.5">
+      {{ m.sender.get_full_name|default:m.sender.username }}
+    </div>
+    <div class="px-3 py-2 rounded-lg bg-cyan-600 text-white">
+      {{ m.text|linebreaksbr }}
+    </div>
+  </div>
+</li>
+{% else %}
+<li class="flex justify-start">
+  <div class="max-w-[80%]">
+    <div class="text-[11px] text-slate-400 mb-0.5">
+      {{ m.sender.get_full_name|default:m.sender.username }}
+    </div>
+    <div class="px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 dark:text-slate-100">
+      {{ m.text|linebreaksbr }}
+    </div>
+  </div>
+</li>
+{% endif %}
